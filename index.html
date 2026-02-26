@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Casa Agency - Panel RRHH</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; }
+  .loader { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  table th { position: sticky; top: 0; z-index: 10; }
+  .badge { padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+  .badge-nuevo { background: #dbeafe; color: #1e40af; }
+  .badge-citado { background: #fef3c7; color: #92400e; }
+  .badge-descartado { background: #fee2e2; color: #991b1b; }
+  .badge-seleccionado { background: #d1fae5; color: #065f46; }
+  .badge-default { background: #e2e8f0; color: #475569; }
+  .stat-card { transition: transform 0.15s; }
+  .stat-card:hover { transform: translateY(-2px); }
+  .row-hover:hover { background: #f8fafc; }
+  .modal-backdrop { background: rgba(0,0,0,0.4); }
+  select.sit-select { appearance: none; padding: 4px 24px 4px 8px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 0.8rem; cursor: pointer; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E") no-repeat right 6px center; }
+  .toast { animation: slideIn 0.3s ease-out; }
+  @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Toast container -->
+<div id="toasts" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+<!-- Header -->
+<header class="bg-white shadow-sm border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-bold text-gray-800">La Casa Agency</h1>
+      <p class="text-sm text-gray-500">Panel de Recursos Humanos</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="lastUpdate" class="text-xs text-gray-400"></span>
+      <button onclick="loadData()" id="btnRefresh" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        Actualizar
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Stats -->
+<div class="max-w-7xl mx-auto px-4 py-4">
+  <div id="stats" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <p class="text-2xl font-bold text-gray-800" id="statTotal">-</p>
+      <p class="text-xs text-gray-500 mt-1">Total</p>
+    </div>
+    <div class="stat-card bg-blue-50 rounded-xl p-4 shadow-sm border border-blue-100">
+      <p class="text-2xl font-bold text-blue-700" id="statNuevo">-</p>
+      <p class="text-xs text-blue-600 mt-1">Nuevos</p>
+    </div>
+    <div class="stat-card bg-yellow-50 rounded-xl p-4 shadow-sm border border-yellow-100">
+      <p class="text-2xl font-bold text-yellow-700" id="statCitado">-</p>
+      <p class="text-xs text-yellow-600 mt-1">Citados</p>
+    </div>
+    <div class="stat-card bg-red-50 rounded-xl p-4 shadow-sm border border-red-100">
+      <p class="text-2xl font-bold text-red-700" id="statDescartado">-</p>
+      <p class="text-xs text-red-600 mt-1">Descartados</p>
+    </div>
+    <div class="stat-card bg-green-50 rounded-xl p-4 shadow-sm border border-green-100">
+      <p class="text-2xl font-bold text-green-700" id="statSeleccionado">-</p>
+      <p class="text-xs text-green-600 mt-1">Seleccionados</p>
+    </div>
+    <div class="stat-card bg-purple-50 rounded-xl p-4 shadow-sm border border-purple-100">
+      <p class="text-2xl font-bold text-purple-700" id="statOrganizado">-</p>
+      <p class="text-xs text-purple-600 mt-1">Organizados</p>
+    </div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="max-w-7xl mx-auto px-4 pb-3">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-wrap gap-3 items-center">
+    <div>
+      <label class="text-xs text-gray-500 block mb-1">Situacion</label>
+      <select id="filterSituacion" onchange="applyFilters()" class="text-sm border border-gray-300 rounded-lg px-3 py-1.5">
+        <option value="">Todas</option>
+        <option value="Nuevo">Nuevo</option>
+        <option value="Citado">Citado</option>
+        <option value="Descartado">Descartado</option>
+        <option value="Seleccionado">Seleccionado</option>
+      </select>
+    </div>
+    <div>
+      <label class="text-xs text-gray-500 block mb-1">Mes</label>
+      <select id="filterMes" onchange="applyFilters()" class="text-sm border border-gray-300 rounded-lg px-3 py-1.5">
+        <option value="">Todos</option>
+      </select>
+    </div>
+    <div>
+      <label class="text-xs text-gray-500 block mb-1">Posicion</label>
+      <select id="filterPosicion" onchange="applyFilters()" class="text-sm border border-gray-300 rounded-lg px-3 py-1.5">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div class="flex-1 min-w-[200px]">
+      <label class="text-xs text-gray-500 block mb-1">Buscar</label>
+      <input id="filterSearch" type="text" placeholder="Nombre, telefono, email..." oninput="applyFilters()" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-1.5">
+    </div>
+    <div class="self-end">
+      <button onclick="deleteSelected()" id="btnDelete" class="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-200 transition hidden">
+        Eliminar seleccionados
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="max-w-7xl mx-auto px-4 pb-8">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
+          <tr>
+            <th class="px-3 py-3 text-left"><input type="checkbox" id="checkAll" onchange="toggleAll(this)"></th>
+            <th class="px-3 py-3 text-left">#</th>
+            <th class="px-3 py-3 text-left">Nombre</th>
+            <th class="px-3 py-3 text-left">Mes</th>
+            <th class="px-3 py-3 text-left">Oficina</th>
+            <th class="px-3 py-3 text-left">Telefono</th>
+            <th class="px-3 py-3 text-left">Situacion</th>
+            <th class="px-3 py-3 text-left">Posicion</th>
+            <th class="px-3 py-3 text-left">Comentarios</th>
+            <th class="px-3 py-3 text-center">Detalle</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="10" class="text-center py-12 text-gray-400"><div class="loader"></div><p class="mt-2">Cargando datos...</p></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="tableFooter" class="px-4 py-3 bg-gray-50 border-t text-xs text-gray-500 flex justify-between items-center">
+      <span id="rowCount">-</span>
+      <div class="flex gap-2">
+        <button onclick="prevPage()" id="btnPrev" class="px-3 py-1 rounded border bg-white hover:bg-gray-50 disabled:opacity-40" disabled>&laquo; Anterior</button>
+        <span id="pageInfo" class="px-2 py-1">-</span>
+        <button onclick="nextPage()" id="btnNext" class="px-3 py-1 rounded border bg-white hover:bg-gray-50 disabled:opacity-40" disabled>Siguiente &raquo;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div id="modal" class="fixed inset-0 z-40 hidden">
+  <div class="modal-backdrop absolute inset-0" onclick="closeModal()"></div>
+  <div class="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-xl overflow-y-auto">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-bold text-gray-800" id="modalTitle">Detalle</h2>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      </div>
+      <div id="modalContent" class="space-y-4"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- CONFIG ---
+const WEBHOOK_URL = 'https://lacasa-webhook.conexiatec.com/webhook/demo-lacasa';
+const PAGE_SIZE = 50;
+
+// Column indices (0-based)
+const COL = {
+  MES: 0, NOMBRE: 1, FORMATO: 2, OFICINA: 3, RESIDENCIA: 4, FECHA: 5,
+  HORA: 6, CORREO: 7, TELEFONO: 8, FUENTE: 9, CONFIRMACION: 10,
+  CITADO_POR: 11, ASISTENCIA: 12, ENTREVISTADO_POR: 13, MOTIVO_DESCARTE: 14,
+  MAIL_DESCARTE: 15, COMENTARIOS: 16, SITUACION: 17, POSICION: 18,
+  INICIO: 19, FIN: 20, CAUSA: 21, ACCION: 22, FILE_ID: 23, FILE_NAME: 24, ULTIMO_SYNC: 25
+};
+
+const COL_LABELS = {
+  MES: 'Mes', NOMBRE: 'Nombre', FORMATO: 'Formato', OFICINA: 'Oficina',
+  RESIDENCIA: 'Residencia', FECHA: 'Fecha', HORA: 'Hora', CORREO: 'Correo',
+  TELEFONO: 'Telefono', FUENTE: 'Fuente', CONFIRMACION: 'Confirmacion',
+  CITADO_POR: 'Citado por', ASISTENCIA: 'Asistencia', ENTREVISTADO_POR: 'Entrevistado por',
+  MOTIVO_DESCARTE: 'Motivo descarte', MAIL_DESCARTE: 'Mail descarte',
+  COMENTARIOS: 'Comentarios', SITUACION: 'Situacion', POSICION: 'Posicion',
+  INICIO: 'Inicio', FIN: 'Fin', CAUSA: 'Causa', ACCION: '_accion',
+  FILE_ID: '_fileId', FILE_NAME: '_fileName', ULTIMO_SYNC: '_ultimo_sync'
+};
+
+// --- STATE ---
+let allRows = [];       // raw rows (without header)
+let filteredRows = [];  // after filters
+let headers = [];
+let currentPage = 0;
+let selectedRows = new Set();
+
+// --- API ---
+async function apiCall(body) {
+  const resp = await fetch(WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return resp.json();
+}
+
+// --- LOAD DATA ---
+async function loadData() {
+  const btn = document.getElementById('btnRefresh');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Cargando...';
+  try {
+    const data = await apiCall({ action: 'read_sheet' });
+    const values = data.values || [];
+    headers = values[0] || [];
+    allRows = values.slice(1);
+    selectedRows.clear();
+    document.getElementById('checkAll').checked = false;
+    populateFilters();
+    applyFilters();
+    updateStats();
+    document.getElementById('lastUpdate').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-ES');
+    toast('Datos cargados', 'success');
+  } catch (e) {
+    toast('Error al cargar: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Actualizar';
+  }
+}
+
+// --- STATS ---
+function updateStats() {
+  const total = allRows.length;
+  let nuevo = 0, citado = 0, descartado = 0, seleccionado = 0, organizado = 0;
+  for (const row of allRows) {
+    const sit = (row[COL.SITUACION] || '').toLowerCase();
+    const acc = (row[COL.ACCION] || '').toLowerCase();
+    if (sit.includes('nuevo') || sit === '') nuevo++;
+    else if (sit.includes('citad')) citado++;
+    else if (sit.includes('descart')) descartado++;
+    else if (sit.includes('seleccion')) seleccionado++;
+    if (acc === 'organized') organizado++;
+  }
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statNuevo').textContent = nuevo;
+  document.getElementById('statCitado').textContent = citado;
+  document.getElementById('statDescartado').textContent = descartado;
+  document.getElementById('statSeleccionado').textContent = seleccionado;
+  document.getElementById('statOrganizado').textContent = organizado;
+}
+
+// --- FILTERS ---
+function populateFilters() {
+  const meses = new Set();
+  const posiciones = new Set();
+  for (const row of allRows) {
+    const m = (row[COL.MES] || '').trim();
+    const p = (row[COL.POSICION] || '').trim();
+    if (m) meses.add(m);
+    if (p) posiciones.add(p);
+  }
+  const selMes = document.getElementById('filterMes');
+  const selPos = document.getElementById('filterPosicion');
+  const curMes = selMes.value;
+  const curPos = selPos.value;
+  selMes.innerHTML = '<option value="">Todos</option>';
+  selPos.innerHTML = '<option value="">Todas</option>';
+  [...meses].sort().forEach(m => {
+    selMes.innerHTML += `<option value="${esc(m)}" ${m === curMes ? 'selected' : ''}>${esc(m)}</option>`;
+  });
+  [...posiciones].sort().forEach(p => {
+    selPos.innerHTML += `<option value="${esc(p)}" ${p === curPos ? 'selected' : ''}>${esc(p)}</option>`;
+  });
+}
+
+function applyFilters() {
+  const sit = document.getElementById('filterSituacion').value.toLowerCase();
+  const mes = document.getElementById('filterMes').value;
+  const pos = document.getElementById('filterPosicion').value;
+  const search = document.getElementById('filterSearch').value.toLowerCase().trim();
+
+  filteredRows = allRows.filter((row, idx) => {
+    if (sit && !(row[COL.SITUACION] || '').toLowerCase().includes(sit)) return false;
+    if (mes && (row[COL.MES] || '').trim() !== mes) return false;
+    if (pos && (row[COL.POSICION] || '').trim() !== pos) return false;
+    if (search) {
+      const haystack = [row[COL.NOMBRE], row[COL.TELEFONO], row[COL.CORREO], row[COL.COMENTARIOS]]
+        .map(v => (v || '').toLowerCase()).join(' ');
+      if (!haystack.includes(search)) return false;
+    }
+    return true;
+  });
+
+  currentPage = 0;
+  renderTable();
+}
+
+// --- TABLE ---
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  const start = currentPage * PAGE_SIZE;
+  const page = filteredRows.slice(start, start + PAGE_SIZE);
+  const totalPages = Math.ceil(filteredRows.length / PAGE_SIZE) || 1;
+
+  if (page.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-12 text-gray-400">Sin resultados</td></tr>';
+  } else {
+    tbody.innerHTML = page.map((row, i) => {
+      const globalIdx = allRows.indexOf(row);
+      const sheetRow = globalIdx + 2; // +1 for header, +1 for 1-indexed
+      const sit = (row[COL.SITUACION] || 'Nuevo').trim();
+      const badgeClass = getBadgeClass(sit);
+      const checked = selectedRows.has(sheetRow) ? 'checked' : '';
+      return `<tr class="border-t border-gray-100 row-hover">
+        <td class="px-3 py-2"><input type="checkbox" value="${sheetRow}" ${checked} onchange="toggleRow(this)"></td>
+        <td class="px-3 py-2 text-gray-400">${sheetRow}</td>
+        <td class="px-3 py-2 font-medium text-gray-800">${esc(row[COL.NOMBRE] || '')}</td>
+        <td class="px-3 py-2 text-gray-600">${esc(row[COL.MES] || '')}</td>
+        <td class="px-3 py-2 text-gray-600">${esc(row[COL.OFICINA] || '')}</td>
+        <td class="px-3 py-2 text-gray-600">${esc(row[COL.TELEFONO] || '')}</td>
+        <td class="px-3 py-2">
+          <select class="sit-select" data-row="${sheetRow}" data-original="${esc(sit)}" onchange="updateSituacion(this)">
+            ${['Nuevo','Citado','Descartado','Seleccionado'].map(o =>
+              `<option value="${o}" ${o.toLowerCase() === sit.toLowerCase() ? 'selected' : ''}>${o}</option>`
+            ).join('')}
+          </select>
+        </td>
+        <td class="px-3 py-2 text-gray-600">${esc(row[COL.POSICION] || '')}</td>
+        <td class="px-3 py-2 text-gray-500 max-w-[200px] truncate" title="${esc(row[COL.COMENTARIOS] || '')}">${esc(row[COL.COMENTARIOS] || '')}</td>
+        <td class="px-3 py-2 text-center">
+          <button onclick="showDetail(${globalIdx})" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Ver</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  document.getElementById('rowCount').textContent = `${filteredRows.length} de ${allRows.length} filas`;
+  document.getElementById('pageInfo').textContent = `Pag ${currentPage + 1} / ${totalPages}`;
+  document.getElementById('btnPrev').disabled = currentPage === 0;
+  document.getElementById('btnNext').disabled = start + PAGE_SIZE >= filteredRows.length;
+
+  // Show/hide delete button
+  document.getElementById('btnDelete').classList.toggle('hidden', selectedRows.size === 0);
+}
+
+function prevPage() { if (currentPage > 0) { currentPage--; renderTable(); } }
+function nextPage() { if ((currentPage + 1) * PAGE_SIZE < filteredRows.length) { currentPage++; renderTable(); } }
+
+function toggleAll(el) {
+  const checkboxes = document.querySelectorAll('#tableBody input[type=checkbox]');
+  checkboxes.forEach(cb => {
+    cb.checked = el.checked;
+    const row = parseInt(cb.value);
+    if (el.checked) selectedRows.add(row); else selectedRows.delete(row);
+  });
+  document.getElementById('btnDelete').classList.toggle('hidden', selectedRows.size === 0);
+}
+
+function toggleRow(el) {
+  const row = parseInt(el.value);
+  if (el.checked) selectedRows.add(row); else selectedRows.delete(row);
+  document.getElementById('btnDelete').classList.toggle('hidden', selectedRows.size === 0);
+}
+
+// --- EDIT SITUACION ---
+async function updateSituacion(select) {
+  const row = select.dataset.row;
+  const value = select.value;
+  const original = select.dataset.original;
+  if (value === original) return;
+
+  select.disabled = true;
+  try {
+    await apiCall({ action: 'update_cell', range: `R${row}`, value });
+    select.dataset.original = value;
+    // Update local data
+    const idx = parseInt(row) - 2;
+    if (allRows[idx]) allRows[idx][COL.SITUACION] = value;
+    updateStats();
+    toast(`Fila ${row}: ${original} -> ${value}`, 'success');
+  } catch (e) {
+    select.value = original;
+    toast('Error al actualizar: ' + e.message, 'error');
+  } finally {
+    select.disabled = false;
+  }
+}
+
+// --- DELETE ROWS ---
+async function deleteSelected() {
+  if (selectedRows.size === 0) return;
+  const count = selectedRows.size;
+  if (!confirm(`Eliminar ${count} fila(s)?`)) return;
+
+  const rows = [...selectedRows].sort((a, b) => a - b);
+  try {
+    await apiCall({ action: 'delete_rows', rows });
+    toast(`${count} fila(s) eliminadas`, 'success');
+    selectedRows.clear();
+    await loadData();
+  } catch (e) {
+    toast('Error al eliminar: ' + e.message, 'error');
+  }
+}
+
+// --- DETAIL MODAL ---
+function showDetail(idx) {
+  const row = allRows[idx];
+  if (!row) return;
+  const sheetRow = idx + 2;
+
+  document.getElementById('modalTitle').textContent = row[COL.NOMBRE] || `Fila ${sheetRow}`;
+
+  const fields = [
+    ['MES', 'NOMBRE', 'OFICINA', 'RESIDENCIA', 'FECHA', 'HORA'],
+    ['CORREO', 'TELEFONO', 'FUENTE'],
+    ['SITUACION', 'POSICION', 'COMENTARIOS'],
+    ['CONFIRMACION', 'CITADO_POR', 'ASISTENCIA', 'ENTREVISTADO_POR'],
+    ['MOTIVO_DESCARTE', 'MAIL_DESCARTE'],
+    ['INICIO', 'FIN', 'CAUSA'],
+    ['ACCION', 'FILE_NAME', 'ULTIMO_SYNC']
+  ];
+
+  let html = '';
+  for (const group of fields) {
+    html += '<div class="grid grid-cols-1 gap-3">';
+    for (const key of group) {
+      const val = row[COL[key]] || '';
+      const label = COL_LABELS[key] || key;
+      const isInternal = key.startsWith('ACCION') || key.startsWith('FILE') || key.startsWith('ULTIMO');
+      html += `<div class="${isInternal ? 'opacity-60' : ''}">
+        <p class="text-xs text-gray-500 mb-0.5">${esc(label)}</p>
+        <p class="text-sm text-gray-800 ${val ? '' : 'italic text-gray-400'}">${val ? esc(val) : 'Sin datos'}</p>
+      </div>`;
+    }
+    html += '</div><hr class="border-gray-100">';
+  }
+
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modal').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.add('hidden');
+}
+
+// --- UTILS ---
+function esc(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function getBadgeClass(situacion) {
+  const s = situacion.toLowerCase();
+  if (s.includes('nuevo') || s === '') return 'badge-nuevo';
+  if (s.includes('citad')) return 'badge-citado';
+  if (s.includes('descart')) return 'badge-descartado';
+  if (s.includes('seleccion')) return 'badge-seleccionado';
+  return 'badge-default';
+}
+
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toasts');
+  const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+  const el = document.createElement('div');
+  el.className = `toast ${colors[type] || colors.info} text-white px-4 py-2 rounded-lg shadow-lg text-sm`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// Keyboard: Escape to close modal
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// --- INIT ---
+loadData();
+</script>
+</body>
+</html>
