@@ -1687,18 +1687,41 @@ function onDriveFileClick(fileId, name, mimeType) {
   }
 }
 
-function openFileViewer(fileId, name) {
-  document.getElementById('pdfViewerName').textContent = name;
-  document.getElementById('pdfViewerFrame').src = 'https://drive.google.com/file/d/' + fileId + '/preview';
-  document.getElementById('pdfViewerLink').href = 'https://drive.google.com/file/d/' + fileId + '/view';
+async function openFileViewer(fileId, name) {
   const viewer = document.getElementById('pdfViewer');
+  const frame = document.getElementById('pdfViewerFrame');
+  document.getElementById('pdfViewerName').textContent = name;
+  document.getElementById('pdfViewerLink').href = 'https://drive.google.com/file/d/' + fileId + '/view';
   viewer.classList.remove('hidden');
   viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Try base64 proxy (no Google auth needed)
+  frame.src = '';
+  frame.style.opacity = '0.5';
+  try {
+    const resp = await apiCall({ action: 'get_pdf', fileId });
+    if (resp.ok && resp.base64 && resp.base64 !== 'database') {
+      const binary = atob(resp.base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: resp.mimeType || 'application/pdf' });
+      frame.src = URL.createObjectURL(blob);
+      frame.style.opacity = '1';
+      return;
+    }
+  } catch (e) {
+    console.warn('PDF proxy failed, using Drive preview:', e.message);
+  }
+  // Fallback: Google Drive preview (may require auth)
+  frame.src = 'https://drive.google.com/file/d/' + fileId + '/preview';
+  frame.style.opacity = '1';
 }
 
 function closeFileViewer() {
+  const frame = document.getElementById('pdfViewerFrame');
+  if (frame.src && frame.src.startsWith('blob:')) URL.revokeObjectURL(frame.src);
+  frame.src = '';
   document.getElementById('pdfViewer').classList.add('hidden');
-  document.getElementById('pdfViewerFrame').src = '';
 }
 
 async function handleCVDrop(files) {
