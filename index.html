@@ -1120,6 +1120,10 @@ function doLogin() {
   else if (username.toLowerCase() === 'admin' && hash === PASSWORD_HASH) {
     currentUser = { nombre: 'Admin', email: 'admin@lacasa-agency.com', rol: 'admin' };
   }
+  // 2b. Demo user (read-only)
+  else if (username.toLowerCase() === 'demo' && hash === '6c71ab95db595653de8547f156b732d840259f15915e40eb7b98e641315a9420') {
+    currentUser = { nombre: 'Demo', email: 'demo@lacasa-agency.com', rol: 'user' };
+  }
   // 3. User list
   else {
     const users = getUsers();
