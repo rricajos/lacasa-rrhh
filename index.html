@@ -7,11 +7,64 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
-tailwind.config = { theme: { extend: { colors: {
-  brand: { 50:'#eff6ff', 100:'#dbeafe', 600:'#2563eb', 700:'#1d4ed8', 800:'#1e40af' }
-}}}}
+tailwind.config = { theme: { extend: {
+  colors: {
+    brand: { 50:'#eff6ff', 100:'#dbeafe', 200:'#bfdbfe', 300:'#93c5fd', 400:'#60a5fa', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8', 800:'#1e40af', 900:'#1e3a8a' }
+  },
+  fontSize: {
+    '2xs': ['10px', { lineHeight: '14px' }],
+  },
+}}}
 </script>
 <style>
+  /* ================================================================
+     DESIGN TOKENS — La Casa Agency RRHH
+     ================================================================
+     TYPOGRAPHY (font sizes — only use these):
+       text-2xs   = 10px  → labels, badges, metadata, captions
+       text-xs    = 12px  → secondary text, small buttons, timestamps
+       text-sm    = 14px  → body text, form inputs, table cells
+       text-base  = 16px  → headings inside cards
+       text-lg    = 18px  → section titles
+       text-xl    = 20px  → page titles
+       text-2xl   = 24px  → stat numbers, hero numbers
+
+     COLORS (use brand-* instead of blue-*):
+       brand-50   #eff6ff  → active nav bg, subtle highlights
+       brand-100  #dbeafe  → badges bg, info bg
+       brand-500  #3b82f6  → focus rings, secondary accent
+       brand-600  #2563eb  → primary buttons, active nav text, links
+       brand-700  #1d4ed8  → button hover, emphasis
+       brand-800  #1e40af  → headings on blue bg
+
+     STATUS COLORS:
+       emerald-500 #10b981 → seleccionado, success
+       orange-500  #f97316 → citado, warning
+       red-500     #ef4444 → descartado, error
+       brand-500   #3b82f6 → nuevo, info
+
+     SPACING (standard padding/margin):
+       Inputs:  px-3 py-2  (always)
+       Buttons: px-3 py-1.5 (compact) | px-4 py-2 (standard)
+       Cards:   p-4 (tight) | p-6 (normal)
+       Gaps:    gap-2 (tight) | gap-3 (normal) | gap-4 (spacious)
+
+     BORDERS:
+       Containers/cards: border-gray-100
+       Form inputs:      border-gray-200
+       Focus ring:       focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20
+
+     RADIUS:
+       Buttons/inputs: rounded-lg    (8px)
+       Cards/panels:   rounded-xl    (12px)
+       Modals:         rounded-2xl   (16px)
+       Badges/pills:   rounded-full  (9999px)
+
+     SHADOWS:
+       Cards:   shadow-sm
+       Modals:  shadow-2xl
+       Hover:   hover:shadow-md
+  ================================================================ */
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
   body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; overflow-y: scroll; }
   .loader { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.7s linear infinite; display: inline-block; }
@@ -29,14 +82,14 @@ tailwind.config = { theme: { extend: { colors: {
   .modal-backdrop { background: rgba(15,23,42,0.5); backdrop-filter: blur(2px); }
   .modal-panel { transform: translateX(100%); transition: transform 0.25s ease-out; }
   .modal-panel.open { transform: translateX(0); }
-  .sit-select { appearance: none; padding: 3px 22px 3px 8px; border-radius: 9999px; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; text-transform: uppercase; background-repeat: no-repeat; background-position: right 6px center; background-size: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); }
+  .sit-select { appearance: none; padding: 3px 22px 3px 8px; border-radius: 9999px; border: none; font-size: 10px; font-weight: 600; cursor: pointer; text-transform: uppercase; background-repeat: no-repeat; background-position: right 6px center; background-size: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); }
   .sit-nuevo { background-color: #dbeafe; color: #1e40af; }
   .sit-citado { background-color: #ffedd5; color: #9a3412; }
   .sit-descartado { background-color: #fee2e2; color: #991b1b; }
   .sit-seleccionado { background-color: #d1fae5; color: #065f46; }
   .field-edit { transition: all 0.15s; }
-  .field-edit:hover { background: #f1f5f9; border-radius: 6px; }
-  .field-edit input, .field-edit select { border: 1px solid #d1d5db; border-radius: 6px; padding: 4px 8px; font-size: 0.875rem; width: 100%; }
+  .field-edit:hover { background: #f1f5f9; border-radius: 8px; }
+  .field-edit input, .field-edit select { border: 1px solid #e5e7eb; border-radius: 8px; padding: 4px 8px; font-size: 14px; width: 100%; }
   .field-edit input:focus, .field-edit select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
   .pct-bar { height: 4px; border-radius: 2px; transition: width 0.4s ease; }
   mark { background: #fef08a; color: inherit; padding: 0 1px; border-radius: 2px; }
@@ -46,7 +99,7 @@ tailwind.config = { theme: { extend: { colors: {
   .login-card { animation: fadeIn 0.3s ease-out; }
   .masked { letter-spacing: 0.5px; }
   /* Nav tabs — header inline (desktop): icon + text horizontal */
-  .header-nav .nav-tab { display: flex; flex-direction: row; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s, background 0.15s; white-space: nowrap; }
+  .header-nav .nav-tab { display: flex; flex-direction: row; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s, background 0.15s; white-space: nowrap; }
   .header-nav .nav-tab:hover { color: #64748b; background: #f1f5f9; }
   .header-nav .nav-tab.active { color: #2563eb; background: #eff6ff; }
   .header-nav .nav-tab svg { width: 16px; height: 16px; flex-shrink: 0; }
@@ -61,7 +114,7 @@ tailwind.config = { theme: { extend: { colors: {
     body.logged-in { padding-bottom: 72px; }
   }
   /* Bottom nav mobile: icon above text, full width */
-  #bottomNav .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s; border-radius: 0; flex: 1; white-space: nowrap; }
+  #bottomNav .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 10px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s; border-radius: 0; flex: 1; white-space: nowrap; }
   #bottomNav .nav-tab svg { width: 24px; height: 24px; }
   #bottomNav .nav-tab.active { color: #2563eb; }
   @media (min-width: 768px) {
@@ -71,7 +124,7 @@ tailwind.config = { theme: { extend: { colors: {
   .crud-btn { opacity: 0; transition: opacity 0.15s; }
   .crud-item:hover .crud-btn { opacity: 1; }
   .dash-clickable { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
-  .dash-clickable:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .dash-clickable:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
   .card-bar { position: relative; overflow: hidden; border-radius: 0 0 0.5rem 0.5rem; }
   .card-bar::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: #e2e8f0; }
   .card-bar-fill { position: absolute; bottom: 0; left: 0; height: 3px; z-index: 1; display: flex; }
@@ -96,15 +149,15 @@ tailwind.config = { theme: { extend: { colors: {
   .wk-row.current { box-shadow: inset 0 0 0 1.5px #3b82f6; }
   .wk-row.future { opacity: 0.3; cursor: default; pointer-events: none; }
   .wk-row.month-highlight { background: rgba(59,130,246,0.08); }
-  .wk-num { width: 22px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 9.5px; font-weight: 700; color: #475569; background: rgba(0,0,0,0.05); border-radius: 4px; flex-shrink: 0; }
+  .wk-num { width: 22px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #475569; background: rgba(0,0,0,0.05); border-radius: 4px; flex-shrink: 0; }
   .wk-range { font-size: 10px; color: #64748b; white-space: nowrap; }
   .wk-filter-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .wk-filter-chip { font-size: 10.5px; font-weight: 600; padding: 3px 10px; border-radius: 99px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: white; transition: all 0.15s; }
+  .wk-filter-chip { font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 9999px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: white; transition: all 0.15s; }
   .wk-filter-chip:hover { border-color: #94a3b8; }
   .wk-filter-chip.active { background: #1d4ed8; color: white; border-color: #1d4ed8; }
   /* Mobile quarter tabs + swipe */
   .wk-qtabs { display: none; }
-  .wk-qtab { flex: 1; text-align: center; padding: 6px 0; font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.15s; color: #94a3b8; }
+  .wk-qtab { flex: 1; text-align: center; padding: 6px 0; font-size: 10px; font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.15s; color: #94a3b8; }
   .wk-qtab.active { color: white; }
   .wk-scroll { scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .wk-scroll::-webkit-scrollbar { display: none; }
@@ -121,9 +174,9 @@ tailwind.config = { theme: { extend: { colors: {
   .cv-drop { border: 2px dashed #cbd5e1; border-radius: 12px; transition: all 0.2s; cursor: pointer; position: relative; }
   .cv-drop:hover, .cv-drop.dragover { border-color: #3b82f6; background: #eff6ff; }
   .cv-drop.dragover::after { content: 'Soltar CV aquí'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: rgba(59,130,246,0.08); border-radius: 10px; font-size: 13px; font-weight: 600; color: #2563eb; pointer-events: none; }
-  .cv-file-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; font-size: 11px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; }
-  .cv-file-item .cv-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    background: rgba(59,130,246,0.08); border-radius: 10px; font-size: 12px; font-weight: 600; color: #2563eb; pointer-events: none; }
+  .cv-file-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; font-size: 10px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; }
+  .cv-file-item .cv-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .cv-file-pdf { background: #fef2f2; color: #dc2626; }
   .cv-file-other { background: #f0fdf4; color: #16a34a; }
   .cv-analyzing { position: relative; overflow: hidden; }
@@ -193,27 +246,27 @@ tailwind.config = { theme: { extend: { colors: {
 <!-- ==================== LOGIN SCREEN ==================== -->
 <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-blue-50">
   <div class="login-card w-full max-w-md mx-4">
-    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
       <!-- Header -->
       <div class="bg-brand-600 px-8 py-8 text-center">
         <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <span class="text-3xl font-bold text-white">LC</span>
         </div>
         <h1 class="text-2xl font-bold text-white">La Casa Agency</h1>
-        <p class="text-blue-200 text-sm mt-1">Panel de Recursos Humanos</p>
+        <p class="text-brand-200 text-sm mt-1">Panel de Recursos Humanos</p>
       </div>
       <!-- Form -->
       <div class="p-8">
         <div class="mb-4">
           <label class="text-xs text-gray-500 font-medium uppercase tracking-wider block mb-2">Usuario o email</label>
           <input id="loginUsername" type="text" placeholder="Tu usuario o email..."
-            class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-blue-100 outline-none transition"
+            class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
             onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
         </div>
         <div class="mb-5">
           <label class="text-xs text-gray-500 font-medium uppercase tracking-wider block mb-2">Clave de acceso</label>
           <input id="loginPassword" type="password" placeholder="Introduce la clave..."
-            class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-blue-100 outline-none transition"
+            class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
             onkeydown="if(event.key==='Enter')doLogin()">
         </div>
         <div id="loginError" class="hidden text-red-600 text-xs mb-3 flex items-center gap-1.5">
@@ -221,7 +274,7 @@ tailwind.config = { theme: { extend: { colors: {
           <span>Clave incorrecta</span>
         </div>
         <label class="flex items-center gap-2 mb-5 cursor-pointer select-none">
-          <input type="checkbox" id="keepSession" class="rounded border-gray-300 text-brand-600 focus:ring-blue-200 w-4 h-4">
+          <input type="checkbox" id="keepSession" class="rounded border-gray-300 text-brand-600 focus:ring-brand-200 w-4 h-4">
           <span class="text-xs text-gray-500">Mantener sesión activa hasta las 23:59h</span>
         </label>
         <button onclick="doLogin()" class="w-full bg-brand-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-brand-700 transition flex items-center justify-center gap-2">
@@ -233,7 +286,7 @@ tailwind.config = { theme: { extend: { colors: {
       <div class="border-t border-gray-100 px-8 py-4 bg-gray-50/50">
         <div class="flex items-start gap-2">
           <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-          <p class="text-[10px] text-gray-400 leading-relaxed">
+          <p class="text-2xs text-gray-400 leading-relaxed">
             <strong class="text-gray-500">Acceso restringido.</strong> Este sistema contiene datos de carácter personal protegidos por el
             Reglamento General de Protección de Datos (RGPD - UE 2016/679) y la Ley Orgánica 3/2018 de Protección de Datos Personales
             y garantía de los derechos digitales (LOPD-GDD). El acceso no autorizado queda prohibido y será perseguido conforme a la legislación vigente.
@@ -255,7 +308,7 @@ tailwind.config = { theme: { extend: { colors: {
       <div class="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">LC</div>
       <div class="hidden sm:block">
         <h1 class="text-base font-bold text-gray-800 leading-tight">La Casa Agency</h1>
-        <p id="headerSubtitle" class="text-[10px] text-gray-400 transition-all duration-300">Panel RRHH</p>
+        <p id="headerSubtitle" class="text-2xs text-gray-400 transition-all duration-300">Panel RRHH</p>
       </div>
     </div>
     <!-- Nav tabs (desktop inline) -->
@@ -281,9 +334,9 @@ tailwind.config = { theme: { extend: { colors: {
     <div class="flex items-center gap-1.5 flex-shrink-0">
       <div id="currentUserLabel" class="hidden flex items-center gap-1.5 cursor-pointer" onclick="switchTab('configure')" title="Mi perfil">
         <img id="headerAvatar" class="w-6 h-6 rounded-full object-cover hidden" src="" alt="">
-        <span id="headerUserName" class="text-[10px] text-brand-600 font-medium bg-blue-50 px-2 py-0.5 rounded-full"></span>
+        <span id="headerUserName" class="text-2xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded-full"></span>
       </div>
-      <span id="sessionTimer" class="text-[10px] text-gray-400 tabular-nums" title="Tiempo hasta cierre de sesión"></span>
+      <span id="sessionTimer" class="text-2xs text-gray-400 tabular-nums" title="Tiempo hasta cierre de sesión"></span>
       <button onclick="doLogout()" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Cerrar sesión">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
       </button>
@@ -312,16 +365,16 @@ tailwind.config = { theme: { extend: { colors: {
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
     <!-- Donut: Anuncios publicados (by FUENTE) -->
     <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center">
-      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Anuncios</p>
+      <p class="text-2xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Anuncios</p>
       <svg viewBox="0 0 36 36" class="w-24 h-24">
         <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
         <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700" id="donutAdsCenter">-</text>
       </svg>
-      <div id="donutAdsLegend" class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-[10px]"></div>
+      <div id="donutAdsLegend" class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-2xs"></div>
     </div>
     <!-- Donut: Conversión -->
     <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center">
-      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Conversión</p>
+      <p class="text-2xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Conversión</p>
       <svg viewBox="0 0 36 36" class="w-24 h-24">
         <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
         <circle id="donutConvCitado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#f97316" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
@@ -331,11 +384,11 @@ tailwind.config = { theme: { extend: { colors: {
         <text x="18" y="17" text-anchor="middle" fill="#1e293b" font-size="4.5" font-weight="700" id="donutConvPct">-</text>
         <text x="18" y="22" text-anchor="middle" fill="#94a3b8" font-size="3" id="donutConvLabel">tasa</text>
       </svg>
-      <div id="donutConvLegend" class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-[10px]"></div>
+      <div id="donutConvLegend" class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-2xs"></div>
     </div>
     <!-- Donut: Situación -->
     <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center">
-      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Situación</p>
+      <p class="text-2xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Situación</p>
       <svg viewBox="0 0 36 36" class="w-24 h-24">
         <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
         <circle id="donutNuevo" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
@@ -344,8 +397,8 @@ tailwind.config = { theme: { extend: { colors: {
         <circle id="donutSeleccionado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
         <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700" id="donutCenter">-</text>
       </svg>
-      <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-[10px]">
-        <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span><span class="text-gray-500">Nuevos</span></div>
+      <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-2xs">
+        <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-brand-500"></span><span class="text-gray-500">Nuevos</span></div>
         <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-500"></span><span class="text-gray-500">Citados</span></div>
         <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span><span class="text-gray-500">Descartados</span></div>
         <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-gray-500">Seleccionados</span></div>
@@ -354,8 +407,8 @@ tailwind.config = { theme: { extend: { colors: {
     <!-- Recent candidates (2/5 width) -->
     <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 lg:col-span-2">
       <div class="flex items-center justify-between mb-2">
-        <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Actividad reciente</p>
-        <button onclick="dashDrillDown('reciente','')" class="text-[10px] text-brand-600 hover:text-brand-700 font-medium hover:underline transition">Ver todo</button>
+        <p class="text-2xs font-semibold text-gray-400 uppercase tracking-wider">Actividad reciente</p>
+        <button onclick="dashDrillDown('reciente','')" class="text-2xs text-brand-600 hover:text-brand-700 font-medium hover:underline transition">Ver todo</button>
       </div>
       <div id="dashRecent" class="space-y-2 max-h-[200px] overflow-y-auto text-sm">
         <p class="text-gray-300 text-xs">Cargando...</p>
@@ -369,38 +422,38 @@ tailwind.config = { theme: { extend: { colors: {
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
       <div class="stat-card bg-white rounded-xl p-3.5 shadow-sm border border-gray-100" onclick="filterByStat('')">
         <p class="text-2xl font-bold text-gray-800" id="statTotal">-</p>
-        <p class="text-[11px] text-gray-500 mt-0.5">Total candidatos</p>
+        <p class="text-2xs text-gray-500 mt-0.5">Total candidatos</p>
       </div>
-      <div class="stat-card bg-blue-50/70 rounded-xl p-3.5 shadow-sm border border-blue-100/60" onclick="filterByStat('Nuevo')">
+      <div class="stat-card bg-brand-50/70 rounded-xl p-3.5 shadow-sm border border-brand-100/60" onclick="filterByStat('Nuevo')">
         <div class="flex items-baseline justify-between">
-          <p class="text-2xl font-bold text-blue-700" id="statNuevo">-</p>
-          <span class="text-[10px] text-blue-400 font-medium" id="pctNuevo"></span>
+          <p class="text-2xl font-bold text-brand-700" id="statNuevo">-</p>
+          <span class="text-2xs text-brand-400 font-medium" id="pctNuevo"></span>
         </div>
-        <p class="text-[11px] text-blue-600 mt-0.5">Nuevos</p>
-        <div class="mt-1.5 bg-blue-100 rounded-full overflow-hidden"><div class="pct-bar bg-blue-500" id="barNuevo"></div></div>
+        <p class="text-2xs text-brand-600 mt-0.5">Nuevos</p>
+        <div class="mt-1.5 bg-brand-100 rounded-full overflow-hidden"><div class="pct-bar bg-brand-500" id="barNuevo"></div></div>
       </div>
       <div class="stat-card bg-orange-50/70 rounded-xl p-3.5 shadow-sm border border-orange-100/60" onclick="filterByStat('Citado')">
         <div class="flex items-baseline justify-between">
           <p class="text-2xl font-bold text-orange-700" id="statCitado">-</p>
-          <span class="text-[10px] text-orange-400 font-medium" id="pctCitado"></span>
+          <span class="text-2xs text-orange-400 font-medium" id="pctCitado"></span>
         </div>
-        <p class="text-[11px] text-orange-600 mt-0.5">Citados</p>
+        <p class="text-2xs text-orange-600 mt-0.5">Citados</p>
         <div class="mt-1.5 bg-orange-100 rounded-full overflow-hidden"><div class="pct-bar bg-orange-500" id="barCitado"></div></div>
       </div>
       <div class="stat-card bg-red-50/70 rounded-xl p-3.5 shadow-sm border border-red-100/60" onclick="filterByStat('Descartado')">
         <div class="flex items-baseline justify-between">
           <p class="text-2xl font-bold text-red-700" id="statDescartado">-</p>
-          <span class="text-[10px] text-red-400 font-medium" id="pctDescartado"></span>
+          <span class="text-2xs text-red-400 font-medium" id="pctDescartado"></span>
         </div>
-        <p class="text-[11px] text-red-600 mt-0.5">Descartados</p>
+        <p class="text-2xs text-red-600 mt-0.5">Descartados</p>
         <div class="mt-1.5 bg-red-100 rounded-full overflow-hidden"><div class="pct-bar bg-red-500" id="barDescartado"></div></div>
       </div>
       <div class="stat-card bg-emerald-50/70 rounded-xl p-3.5 shadow-sm border border-emerald-100/60 hidden sm:block" onclick="filterByStat('Seleccionado')">
         <div class="flex items-baseline justify-between">
           <p class="text-2xl font-bold text-emerald-700" id="statSeleccionado">-</p>
-          <span class="text-[10px] text-emerald-400 font-medium" id="pctSeleccionado"></span>
+          <span class="text-2xs text-emerald-400 font-medium" id="pctSeleccionado"></span>
         </div>
-        <p class="text-[11px] text-emerald-600 mt-0.5">Seleccionados</p>
+        <p class="text-2xs text-emerald-600 mt-0.5">Seleccionados</p>
         <div class="mt-1.5 bg-emerald-100 rounded-full overflow-hidden"><div class="pct-bar bg-emerald-500" id="barSeleccionado"></div></div>
       </div>
     </div>
@@ -410,7 +463,7 @@ tailwind.config = { theme: { extend: { colors: {
   <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
     <div class="flex items-center justify-between mb-3">
       <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Por posición</p>
-      <button onclick="crudAdd('posicion')" class="text-gray-300 hover:text-brand-600 hover:bg-blue-50 p-1 rounded-md transition" title="Añadir posición">
+      <button onclick="crudAdd('posicion')" class="text-gray-300 hover:text-brand-600 hover:bg-brand-50 p-1 rounded-md transition" title="Añadir posición">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       </button>
     </div>
@@ -423,7 +476,7 @@ tailwind.config = { theme: { extend: { colors: {
   <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
     <div class="flex items-center justify-between mb-3">
       <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Por oficina</p>
-      <button onclick="crudAdd('oficina')" class="text-gray-300 hover:text-brand-600 hover:bg-blue-50 p-1 rounded-md transition" title="Añadir oficina">
+      <button onclick="crudAdd('oficina')" class="text-gray-300 hover:text-brand-600 hover:bg-brand-50 p-1 rounded-md transition" title="Añadir oficina">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       </button>
     </div>
@@ -454,11 +507,11 @@ tailwind.config = { theme: { extend: { colors: {
   </div>
   <!-- Drill-down filters -->
   <div class="flex flex-wrap gap-2 items-center">
-    <select id="drillFilterSit" onchange="applyDrillFilters()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+    <select id="drillFilterSit" onchange="applyDrillFilters()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
       <option value="">Todas las situaciones</option>
       <option value="Nuevo">Nuevo</option><option value="Citado">Citado</option><option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
     </select>
-    <select id="drillFilterWeek" onchange="applyDrillFilters()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+    <select id="drillFilterWeek" onchange="applyDrillFilters()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
       <option value="">Todas las semanas</option>
     </select>
     <button onclick="clearDrillFilters()" id="btnDrillClear" class="text-gray-400 hover:text-gray-600 px-1.5 py-1.5 rounded-lg text-xs hover:bg-gray-100 transition hidden" title="Limpiar filtros">
@@ -471,7 +524,7 @@ tailwind.config = { theme: { extend: { colors: {
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50/80 text-gray-500 text-[11px] uppercase tracking-wider">
+        <thead class="bg-gray-50/80 text-gray-500 text-2xs uppercase tracking-wider">
           <tr>
             <th class="px-3 py-2.5 text-left">Nombre</th>
             <th class="px-3 py-2.5 text-left hidden sm:table-cell">Teléfono</th>
@@ -513,16 +566,16 @@ tailwind.config = { theme: { extend: { colors: {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
         </svg>
         <p class="text-sm font-medium text-gray-500">Arrastra CVs aquí</p>
-        <p class="text-[10px] text-gray-400 mt-0.5">o haz clic para seleccionar PDF</p>
+        <p class="text-2xs text-gray-400 mt-0.5">o haz clic para seleccionar PDF</p>
       </div>
       <!-- Drive folder contents -->
       <div class="lg:col-span-2">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 3.5L1.15 15l4.58 7.5h13.54l4.58-7.5L17.29 3.5H7.71zm-.18 1h9.94l5.66 10H2.87l5.66-10z" opacity=".3"/><path d="M19.54 10L14.29 2H9.71L4.46 10l2.63 4.29L2.46 22h19.08l-4.63-7.71L19.54 10zM9.71 4h4.58l4.29 7H5.42l4.29-7z"/></svg>
-            <p class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Carpeta Google Drive</p>
+            <svg class="w-4 h-4 text-brand-500" viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 3.5L1.15 15l4.58 7.5h13.54l4.58-7.5L17.29 3.5H7.71zm-.18 1h9.94l5.66 10H2.87l5.66-10z" opacity=".3"/><path d="M19.54 10L14.29 2H9.71L4.46 10l2.63 4.29L2.46 22h19.08l-4.63-7.71L19.54 10zM9.71 4h4.58l4.29 7H5.42l4.29-7z"/></svg>
+            <p class="text-2xs font-semibold text-gray-500 uppercase tracking-wider">Carpeta Google Drive</p>
           </div>
-          <button onclick="loadDriveFiles(true)" class="text-[10px] text-blue-500 hover:text-blue-700 font-medium flex items-center gap-1 transition">
+          <button onclick="loadDriveFiles(true)" class="text-2xs text-brand-500 hover:text-brand-700 font-medium flex items-center gap-1 transition">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             Actualizar
           </button>
@@ -541,28 +594,28 @@ tailwind.config = { theme: { extend: { colors: {
 <div class="max-w-[1400px] mx-auto px-4 pt-2 pb-3">
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 flex flex-wrap gap-2.5 items-end">
     <div>
-      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Situación</label>
-      <select id="filterSituacion" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Situación</label>
+      <select id="filterSituacion" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
         <option value="">Todas</option><option value="Nuevo">Nuevo</option><option value="Citado">Citado</option><option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
       </select>
     </div>
     <div>
-      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Mes</label>
-      <select id="filterMes" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Mes</label>
+      <select id="filterMes" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
         <option value="">Todos</option>
       </select>
     </div>
     <div>
-      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Posición</label>
-      <select id="filterPosicion" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Posición</label>
+      <select id="filterPosicion" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
         <option value="">Todas</option>
       </select>
     </div>
     <div class="flex-1 min-w-[180px]">
-      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Buscar</label>
+      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Buscar</label>
       <div class="relative">
         <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input id="filterSearch" type="text" placeholder="Nombre, teléfono, email..." oninput="applyFilters(true)" class="w-full text-sm border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+        <input id="filterSearch" type="text" placeholder="Nombre, teléfono, email..." oninput="applyFilters(true)" class="w-full text-sm border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
       </div>
     </div>
     <button onclick="clearFilters()" id="btnClear" class="text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg text-xs hover:bg-gray-100 transition hidden" title="Limpiar filtros">
@@ -595,7 +648,7 @@ tailwind.config = { theme: { extend: { colors: {
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full text-sm" id="mainTable">
-        <thead class="bg-gray-50/80 text-gray-500 text-[11px] uppercase tracking-wider">
+        <thead class="bg-gray-50/80 text-gray-500 text-2xs uppercase tracking-wider">
           <tr>
             <th class="px-3 py-2.5 text-left w-8"><input type="checkbox" id="checkAll" onchange="toggleAll(this)" class="rounded"></th>
             <th class="px-3 py-2.5 text-left w-10 sortable" data-col="ROW" onclick="sortBy(this)"># <span class="sort-icon">&#9650;</span></th>
@@ -630,7 +683,7 @@ tailwind.config = { theme: { extend: { colors: {
 
 <!-- Privacy footer -->
 <div class="max-w-[1400px] mx-auto px-4 pb-8">
-  <div class="flex items-center justify-center gap-2 text-[10px] text-gray-300">
+  <div class="flex items-center justify-center gap-2 text-2xs text-gray-300">
     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
     <span>Datos protegidos por RGPD (UE 2016/679) y LOPD-GDD (LO 3/2018) &mdash; Acceso exclusivo para personal autorizado de La Casa Agency</span>
   </div>
@@ -670,22 +723,22 @@ tailwind.config = { theme: { extend: { colors: {
     </div>
     <div class="p-5 space-y-4">
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Nombre</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Nombre</label>
         <input id="campName" type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Nombre de la campaña">
       </div>
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Canal</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Canal</label>
         <div class="flex gap-2">
           <button onclick="setCampChannel('whatsapp')" id="campChWA" class="flex-1 p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-center text-sm transition">WhatsApp</button>
           <button onclick="setCampChannel('email')" id="campChEmail" class="flex-1 p-3 rounded-xl border-2 border-gray-100 text-center text-sm transition">Email</button>
         </div>
       </div>
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Contenido del mensaje</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Contenido del mensaje</label>
         <textarea id="campContent" rows="4" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none" placeholder="Contenido..."></textarea>
       </div>
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Destinatarios (filtro)</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Destinatarios (filtro)</label>
         <div class="grid grid-cols-2 gap-2">
           <select id="campFilterSit" onchange="updateCampRecipientCount()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5">
             <option value="">Todas situaciones</option>
@@ -696,15 +749,15 @@ tailwind.config = { theme: { extend: { colors: {
             <option value="">Todas posiciones</option>
           </select>
         </div>
-        <p id="campRecipientCount" class="text-[10px] text-gray-400 mt-1">0 destinatarios coinciden</p>
+        <p id="campRecipientCount" class="text-2xs text-gray-400 mt-1">0 destinatarios coinciden</p>
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Fecha programada</label>
+          <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Fecha programada</label>
           <input id="campDate" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
         </div>
         <div>
-          <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Hora</label>
+          <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Hora</label>
           <input id="campTime" type="time" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
         </div>
       </div>
@@ -723,7 +776,7 @@ tailwind.config = { theme: { extend: { colors: {
 <div id="tab-configure" class="tab-section">
 <div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
   <!-- My Profile -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Mi Perfil</h2>
     <div class="flex flex-col sm:flex-row gap-6">
       <!-- Avatar -->
@@ -735,29 +788,29 @@ tailwind.config = { theme: { extend: { colors: {
           <img id="profileAvatarImg" class="profile-avatar hidden" src="" alt="Avatar">
         </div>
         <input type="file" id="profilePhotoInput" accept="image/*" class="hidden" onchange="handleProfilePhoto(this.files)">
-        <button onclick="removeProfilePhoto()" id="btnRemoveAvatar" class="text-[10px] text-gray-400 hover:text-red-500 hidden">Quitar foto</button>
+        <button onclick="removeProfilePhoto()" id="btnRemoveAvatar" class="text-2xs text-gray-400 hover:text-red-500 hidden">Quitar foto</button>
       </div>
       <!-- Info + password -->
       <div class="flex-1 space-y-3">
         <div class="flex items-center gap-3">
           <span id="profileName" class="font-semibold text-gray-800"></span>
-          <span id="profileRolBadge" class="px-2 py-0.5 rounded-full text-[10px] font-medium"></span>
+          <span id="profileRolBadge" class="px-2 py-0.5 rounded-full text-2xs font-medium"></span>
         </div>
         <p id="profileEmail" class="text-xs text-gray-400"></p>
         <!-- Change password -->
         <details class="mt-2">
           <summary class="text-xs font-medium text-brand-600 cursor-pointer hover:text-brand-800 select-none">Cambiar contraseña</summary>
           <div class="mt-2 space-y-2 max-w-xs">
-            <input id="pwOld" type="password" placeholder="Contraseña actual" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm">
-            <input id="pwNew" type="password" placeholder="Nueva contraseña" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm">
-            <input id="pwConfirm" type="password" placeholder="Confirmar nueva" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm">
-            <button onclick="changePassword()" class="bg-brand-600 text-white px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">Guardar</button>
+            <input id="pwOld" type="password" placeholder="Contraseña actual" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            <input id="pwNew" type="password" placeholder="Nueva contraseña" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            <input id="pwConfirm" type="password" placeholder="Confirmar nueva" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            <button onclick="changePassword()" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-xs font-medium hover:bg-brand-700 transition">Guardar</button>
           </div>
         </details>
       </div>
       <!-- Theme -->
       <div class="flex flex-col gap-2">
-        <p class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Tema</p>
+        <p class="text-2xs font-semibold text-gray-500 uppercase tracking-wider">Tema</p>
         <div class="flex flex-wrap gap-2" id="themeSwatches">
           <div class="theme-swatch" style="background:#2563eb" onclick="setTheme('default')" title="Azul (defecto)"></div>
           <div class="theme-swatch" style="background:#4f46e5" onclick="setTheme('indigo')" title="Indigo"></div>
@@ -770,7 +823,7 @@ tailwind.config = { theme: { extend: { colors: {
     </div>
   </div>
   <!-- User Management -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Gestion de Usuarios</h2>
       <button onclick="openAddUserModal()" id="btnAddUser" class="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">+ Nuevo usuario</button>
@@ -778,7 +831,7 @@ tailwind.config = { theme: { extend: { colors: {
     <div id="cfgUserList" class="divide-y divide-gray-100 text-sm"></div>
   </div>
   <!-- Audit Log -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Registro de Actividad</h2>
       <button onclick="clearLogs()" class="text-gray-400 hover:text-red-500 text-xs transition">Limpiar</button>
@@ -792,25 +845,25 @@ tailwind.config = { theme: { extend: { colors: {
 <div id="tab-master" class="tab-section">
 <div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
   <!-- WhatsApp Credits -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">WhatsApp — Creditos y Facturacion</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Creditos totales</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Creditos totales</label>
         <input id="masterCreditsTotal" type="number" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" value="0">
       </div>
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Creditos usados</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Creditos usados</label>
         <p id="masterCreditsUsed" class="text-2xl font-bold text-gray-800 py-1">0</p>
       </div>
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Precio por mensaje (&euro;)</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Precio por mensaje (&euro;)</label>
         <input id="masterPricePerMsg" type="number" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" value="0.05">
       </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Fecha expiracion</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Fecha expiracion</label>
         <input id="masterCreditsExpiry" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
       </div>
       <div class="flex items-end">
@@ -828,23 +881,23 @@ tailwind.config = { theme: { extend: { colors: {
     </div>
   </div>
   <!-- SMTP Config -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Configuracion SMTP (Email)</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Servidor SMTP</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Servidor SMTP</label>
         <input id="smtpHost" type="text" placeholder="smtp.gmail.com" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
       </div>
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Puerto</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Puerto</label>
         <input id="smtpPort" type="number" placeholder="587" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
       </div>
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Email</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Email</label>
         <input id="smtpUser" type="email" placeholder="user@company.com" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
       </div>
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Password</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Password</label>
         <input id="smtpPass" type="password" placeholder="App password..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
       </div>
     </div>
@@ -854,16 +907,16 @@ tailwind.config = { theme: { extend: { colors: {
     </div>
   </div>
   <!-- API Keys -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Claves API</h2>
     <div>
-      <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">OpenAI API Key</label>
+      <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">OpenAI API Key</label>
       <input id="masterOpenAIKey" type="password" placeholder="sk-proj-..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
     </div>
     <button onclick="saveMasterAPIKeys()" class="mt-3 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar</button>
   </div>
   <!-- Message Log -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Registro de Mensajes Enviados</h2>
     <div id="masterMsgLog" class="max-h-[300px] overflow-y-auto text-xs space-y-1">
       <p class="text-gray-300">Sin mensajes</p>
@@ -913,19 +966,19 @@ tailwind.config = { theme: { extend: { colors: {
     <div class="p-5 space-y-4">
       <!-- Template selector -->
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-2">Plantilla</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-2">Plantilla</label>
         <div id="waTemplateList" class="grid gap-2"></div>
       </div>
 
       <!-- Recipients list -->
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-2">Destinatarios (<span id="waRecipientCount">0</span>)</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-2">Destinatarios (<span id="waRecipientCount">0</span>)</label>
         <div id="waRecipientList" class="max-h-[180px] overflow-y-auto border border-gray-100 rounded-xl divide-y divide-gray-50"></div>
       </div>
 
       <!-- Preview -->
       <div id="waPreviewBox" class="hidden">
-        <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-2">Vista previa del mensaje</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-2">Vista previa del mensaje</label>
         <div id="waPreview" class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-sm text-gray-700 italic"></div>
       </div>
 
@@ -939,7 +992,7 @@ tailwind.config = { theme: { extend: { colors: {
 
       <!-- Second password -->
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1.5">Clave de autorización</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1.5">Clave de autorización</label>
         <div class="flex gap-2">
           <input type="password" id="waPassword" placeholder="Introduce la clave para enviar..." oninput="validateWAPassword()"
             class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 outline-none transition">
@@ -1418,15 +1471,15 @@ async function loadDriveFiles(force = false) {
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         </div>
         <div class="min-w-0">
-          <p class="truncate font-medium text-[11px]">${esc(truncName)}</p>
-          <p class="text-[9px] text-gray-400">${isPdf ? 'PDF' : 'Archivo'}</p>
+          <p class="truncate font-medium text-2xs">${esc(truncName)}</p>
+          <p class="text-2xs text-gray-400">${isPdf ? 'PDF' : 'Archivo'}</p>
         </div>
       </div>`;
     }).join('');
   } catch (e) {
     el.innerHTML = `<p class="text-gray-400 text-xs col-span-full text-center py-4">
       <svg class="w-5 h-5 mx-auto text-gray-300 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-      No se pudo cargar la carpeta<br><button onclick="loadDriveFiles(true)" class="text-blue-500 hover:text-blue-700 text-[10px] mt-1 font-medium">Reintentar</button></p>`;
+      No se pudo cargar la carpeta<br><button onclick="loadDriveFiles(true)" class="text-brand-500 hover:text-brand-700 text-2xs mt-1 font-medium">Reintentar</button></p>`;
   }
 }
 
@@ -1450,12 +1503,12 @@ async function handleCVDrop(files) {
 async function processSingleCV(file, progressEl) {
   // Create progress card
   const card = document.createElement('div');
-  card.className = 'cv-analyzing bg-blue-50 rounded-lg p-3 flex items-center gap-3';
+  card.className = 'cv-analyzing bg-brand-50 rounded-lg p-3 flex items-center gap-3';
   card.innerHTML = `
     <div class="cv-icon cv-file-pdf flex-shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
     <div class="flex-1 min-w-0">
       <p class="text-xs font-medium text-gray-700 truncate">${esc(file.name)}</p>
-      <p class="cv-status text-[10px] text-blue-600 mt-0.5">Subiendo archivo...</p>
+      <p class="cv-status text-2xs text-brand-600 mt-0.5">Subiendo archivo...</p>
     </div>
     <div class="loader w-5 h-5 flex-shrink-0"></div>
   `;
@@ -1512,7 +1565,7 @@ async function processSingleCV(file, progressEl) {
       <div class="cv-icon" style="background:#dcfce7;color:#16a34a"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
       <div class="flex-1 min-w-0">
         <p class="text-xs font-medium text-emerald-700">${esc(extractedData.nombre || file.name)}</p>
-        <p class="text-[10px] text-emerald-500">Candidato añadido correctamente</p>
+        <p class="text-2xs text-emerald-500">Candidato añadido correctamente</p>
       </div>
     `;
 
@@ -1541,7 +1594,7 @@ async function processSingleCV(file, progressEl) {
     card.querySelector('.loader')?.remove();
     card.style.background = '#fef2f2';
     statusEl.textContent = 'Error: ' + e.message;
-    statusEl.className = 'cv-status text-[10px] text-red-600 mt-0.5';
+    statusEl.className = 'cv-status text-2xs text-red-600 mt-0.5';
   }
 }
 
@@ -1665,7 +1718,7 @@ async function loadData(silent = false) {
         <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
         <p class="font-medium text-gray-500">No se pudo conectar</p>
         <p class="text-xs mt-1">${esc(e.message)}</p>
-        <button onclick="loadData()" class="mt-3 text-blue-600 hover:text-blue-800 text-xs font-medium">Reintentar</button>
+        <button onclick="loadData()" class="mt-3 text-brand-600 hover:text-brand-800 text-xs font-medium">Reintentar</button>
       </td></tr>`;
     }
   } finally {
@@ -1794,7 +1847,7 @@ function sitColorClass(s) {
   if (sl.includes('citad')) return 'bg-orange-100 text-orange-700';
   if (sl.includes('descart')) return 'bg-red-100 text-red-700';
   if (sl.includes('seleccion')) return 'bg-emerald-100 text-emerald-700';
-  return 'bg-blue-100 text-blue-700';
+  return 'bg-brand-100 text-brand-700';
 }
 
 function sitBar(rows, colIdx, name, total) {
@@ -1836,9 +1889,9 @@ function updateDashboardPanels() {
       const bar = sitBar(filtered, COL.POSICION, name, count);
       return `<div class="crud-item dash-clickable anim-card bg-gray-50 rounded-lg p-3 pb-4 text-center relative group card-bar" style="animation-delay:${i*40}ms" onclick="dashDrillDown('posicion','${esc(name).replace(/'/g,"\\'")}')">
         <p class="text-lg font-bold text-gray-800">${count}</p>
-        <p class="text-[10px] text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
+        <p class="text-2xs text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
         <div class="absolute top-1 right-1 flex gap-0.5 crud-btn">
-          <button onclick="event.stopPropagation();crudRename('posicion','${esc(name).replace(/'/g,"\\'")}')" class="text-gray-300 hover:text-blue-500 p-0.5" title="Renombrar">
+          <button onclick="event.stopPropagation();crudRename('posicion','${esc(name).replace(/'/g,"\\'")}')" class="text-gray-300 hover:text-brand-500 p-0.5" title="Renombrar">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
           </button>
           <button onclick="event.stopPropagation();crudDelete('posicion','${esc(name).replace(/'/g,"\\'")}')" class="text-gray-300 hover:text-red-500 p-0.5" title="Eliminar">
@@ -1867,9 +1920,9 @@ function updateDashboardPanels() {
       const bar = sitBar(filtered, COL.OFICINA, name, count);
       return `<div class="crud-item dash-clickable anim-card bg-gray-50 rounded-lg p-3 pb-4 text-center relative group card-bar" style="animation-delay:${i*40}ms" onclick="dashDrillDown('oficina','${esc(name).replace(/'/g,"\\'")}')">
         <p class="text-lg font-bold text-gray-800">${count}</p>
-        <p class="text-[10px] text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
+        <p class="text-2xs text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
         <div class="absolute top-1 right-1 flex gap-0.5 crud-btn">
-          <button onclick="event.stopPropagation();crudRename('oficina','${esc(name).replace(/'/g,"\\'")}')" class="text-gray-300 hover:text-blue-500 p-0.5" title="Renombrar">
+          <button onclick="event.stopPropagation();crudRename('oficina','${esc(name).replace(/'/g,"\\'")}')" class="text-gray-300 hover:text-brand-500 p-0.5" title="Renombrar">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
           </button>
           <button onclick="event.stopPropagation();crudDelete('oficina','${esc(name).replace(/'/g,"\\'")}')" class="text-gray-300 hover:text-red-500 p-0.5" title="Eliminar">
@@ -1895,9 +1948,9 @@ function updateDashboardPanels() {
       return `<div class="flex items-center justify-between gap-2 py-1.5 px-1 rounded-md hover:bg-gray-50 cursor-pointer" onclick="showDetail(${idx})">
         <div class="min-w-0">
           <p class="text-gray-800 font-medium truncate">${esc(row[COL.NOMBRE] || '-')}</p>
-          <p class="text-[10px] text-gray-400 truncate">${esc(row[COL.POSICION] || '-')} &middot; ${esc(row[COL.OFICINA] || '-')}</p>
+          <p class="text-2xs text-gray-400 truncate">${esc(row[COL.POSICION] || '-')} &middot; ${esc(row[COL.OFICINA] || '-')}</p>
         </div>
-        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${sitColorClass(sit)}">${esc(sit)}</span>
+        <span class="text-2xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${sitColorClass(sit)}">${esc(sit)}</span>
       </div>`;
     }).join('');
   }
@@ -2235,11 +2288,11 @@ function renderDrillDown() {
   const toggle = v => `document.getElementById('drillFilterSit').value=document.getElementById('drillFilterSit').value==='${v}'?'':'${v}';applyDrillFilters()`;
   const clickable = (count) => count > 0 ? 'cursor-pointer hover:ring-2' : 'opacity-50 cursor-default';
   document.getElementById('drillStats').innerHTML = `
-    <div class="bg-gray-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-gray-300 ${!sitFilter?'ring-2 ring-gray-300':''}" onclick="document.getElementById('drillFilterSit').value='';applyDrillFilters()"><p class="text-xl font-bold text-gray-800">${totalBase}</p><p class="text-[10px] text-gray-500">Total</p></div>
-    <div class="bg-blue-50 rounded-xl p-3 text-center ${clickable(nuevo)} hover:ring-blue-300 ${act('nuevo')?'ring-2 ring-blue-400':''}" ${nuevo?`onclick="${toggle('Nuevo')}"`:''}><p class="text-xl font-bold text-blue-700">${nuevo}</p><p class="text-[10px] text-blue-600">Nuevos</p></div>
-    <div class="bg-orange-50 rounded-xl p-3 text-center ${clickable(citado)} hover:ring-orange-300 ${act('citado')?'ring-2 ring-orange-400':''}" ${citado?`onclick="${toggle('Citado')}"`:''}><p class="text-xl font-bold text-orange-700">${citado}</p><p class="text-[10px] text-orange-600">Citados</p></div>
-    <div class="bg-red-50 rounded-xl p-3 text-center hidden sm:block ${clickable(descartado)} hover:ring-red-300 ${act('descartado')?'ring-2 ring-red-400':''}" ${descartado?`onclick="${toggle('Descartado')}"`:''}><p class="text-xl font-bold text-red-700">${descartado}</p><p class="text-[10px] text-red-600">Descart.</p></div>
-    <div class="bg-emerald-50 rounded-xl p-3 text-center hidden sm:block ${clickable(seleccionado)} hover:ring-emerald-300 ${act('seleccionado')?'ring-2 ring-emerald-400':''}" ${seleccionado?`onclick="${toggle('Seleccionado')}"`:''}><p class="text-xl font-bold text-emerald-700">${seleccionado}</p><p class="text-[10px] text-emerald-600">Selecc.</p></div>
+    <div class="bg-gray-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-gray-300 ${!sitFilter?'ring-2 ring-gray-300':''}" onclick="document.getElementById('drillFilterSit').value='';applyDrillFilters()"><p class="text-xl font-bold text-gray-800">${totalBase}</p><p class="text-2xs text-gray-500">Total</p></div>
+    <div class="bg-brand-50 rounded-xl p-3 text-center ${clickable(nuevo)} hover:ring-brand-300 ${act('nuevo')?'ring-2 ring-brand-400':''}" ${nuevo?`onclick="${toggle('Nuevo')}"`:''}><p class="text-xl font-bold text-brand-700">${nuevo}</p><p class="text-2xs text-brand-600">Nuevos</p></div>
+    <div class="bg-orange-50 rounded-xl p-3 text-center ${clickable(citado)} hover:ring-orange-300 ${act('citado')?'ring-2 ring-orange-400':''}" ${citado?`onclick="${toggle('Citado')}"`:''}><p class="text-xl font-bold text-orange-700">${citado}</p><p class="text-2xs text-orange-600">Citados</p></div>
+    <div class="bg-red-50 rounded-xl p-3 text-center hidden sm:block ${clickable(descartado)} hover:ring-red-300 ${act('descartado')?'ring-2 ring-red-400':''}" ${descartado?`onclick="${toggle('Descartado')}"`:''}><p class="text-xl font-bold text-red-700">${descartado}</p><p class="text-2xs text-red-600">Descart.</p></div>
+    <div class="bg-emerald-50 rounded-xl p-3 text-center hidden sm:block ${clickable(seleccionado)} hover:ring-emerald-300 ${act('seleccionado')?'ring-2 ring-emerald-400':''}" ${seleccionado?`onclick="${toggle('Seleccionado')}"`:''}><p class="text-xl font-bold text-emerald-700">${seleccionado}</p><p class="text-2xs text-emerald-600">Selecc.</p></div>
   `;
 
   // Table
@@ -2267,7 +2320,7 @@ function renderDrillDown() {
         <td class="px-3 py-2 text-gray-500 text-xs hidden md:table-cell">${esc(row[COL.OFICINA]||'-')}</td>
         <td class="px-3 py-2 text-gray-500 text-xs hidden lg:table-cell">${esc(fecha||'-')}</td>
         <td class="px-3 py-2 text-center">
-          <button onclick="event.stopPropagation();showDetail(${gi})" class="text-gray-400 hover:text-blue-600 transition p-1 rounded hover:bg-blue-50">
+          <button onclick="event.stopPropagation();showDetail(${gi})" class="text-gray-400 hover:text-brand-600 transition p-1 rounded hover:bg-brand-50">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </button>
         </td>
@@ -2500,7 +2553,7 @@ function renderTable() {
         </td>
         <td class="px-3 py-2 text-gray-500 hidden lg:table-cell text-xs">${highlight(row[COL.POSICION]||'')}</td>
         <td class="px-3 py-2 text-center">
-          <button onclick="showDetail(${gi})" class="text-gray-400 hover:text-blue-600 transition p-1 rounded hover:bg-blue-50">
+          <button onclick="showDetail(${gi})" class="text-gray-400 hover:text-brand-600 transition p-1 rounded hover:bg-brand-50">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </button>
         </td>
@@ -2665,7 +2718,7 @@ function renderModal() {
       const editable=!sec.readonly&&EDITABLE_FIELDS.includes(key);
       if(editable&&key==='SITUACION'){
         html+=`<div class="col-span-2 field-edit p-2">
-          <label class="text-[11px] text-gray-400 block mb-1">${esc(label)}</label>
+          <label class="text-2xs text-gray-400 block mb-1">${esc(label)}</label>
           <select onchange="modalUpdateField('${key}',${sheetRow},this.value)" class="sit-select ${getSitClass(val||'Nuevo')} text-sm">
             ${['Nuevo','Citado','Descartado','Seleccionado'].map(o=>
               `<option value="${o}" ${o.toLowerCase()===(val||'nuevo').toLowerCase()?'selected':''}>${o}</option>`
@@ -2675,14 +2728,14 @@ function renderModal() {
       } else if(editable){
         // Modal shows FULL unmasked data
         html+=`<div class="field-edit p-2 ${key==='COMENTARIOS'||key==='MOTIVO_DESCARTE'?'col-span-2':''}">
-          <label class="text-[11px] text-gray-400 block mb-1">${esc(label)}</label>
+          <label class="text-2xs text-gray-400 block mb-1">${esc(label)}</label>
           <input type="${key==='CORREO'?'email':key==='TELEFONO'?'tel':'text'}" value="${esc(val)}" data-key="${key}" data-row="${sheetRow}" data-original="${esc(val)}"
             onblur="handleFieldBlur(this)" onkeydown="if(event.key==='Enter')this.blur()"
             class="text-sm text-gray-800 w-full" placeholder="-">
         </div>`;
       } else {
         html+=`<div class="p-2 ${sec.readonly?'opacity-50':''}">
-          <p class="text-[11px] text-gray-400 mb-0.5">${esc(label)}</p>
+          <p class="text-2xs text-gray-400 mb-0.5">${esc(label)}</p>
           <p class="text-sm text-gray-700 ${val?'':'italic text-gray-300'}">${val?esc(val):'-'}</p>
         </div>`;
       }
@@ -2782,7 +2835,7 @@ function openWhatsAppModal() {
     <button onclick="selectWATemplate('${key}')" id="waTpl_${key}" class="wa-tpl-btn text-left p-3 rounded-xl border-2 border-gray-100 hover:border-emerald-300 transition">
       <div class="flex items-center justify-between">
         <span class="text-sm font-semibold text-gray-800">${esc(t.label)}</span>
-        <span class="text-[10px] px-2 py-0.5 rounded-full bg-${t.color}-100 text-${t.color}-700 font-medium">${key}</span>
+        <span class="text-2xs px-2 py-0.5 rounded-full font-medium ${{orange:'bg-orange-100 text-orange-700',emerald:'bg-emerald-100 text-emerald-700',red:'bg-red-100 text-red-700'}[t.color]||'bg-gray-100 text-gray-700'}">${key}</span>
       </div>
       <p class="text-xs text-gray-400 mt-0.5">${esc(t.desc)}</p>
     </button>
@@ -2794,7 +2847,7 @@ function openWhatsAppModal() {
   rList.innerHTML = recipients.map((r, i) => {
     const hasPhone = r.phone && r.phone.replace(/\D/g, '').length >= 6;
     return `<div class="flex items-center gap-2 px-3 py-2 text-sm" id="waR_${i}">
-      <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${hasPhone ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}">${hasPhone ? '&#10003;' : '!'}</span>
+      <span class="w-5 h-5 rounded-full flex items-center justify-center text-2xs font-bold ${hasPhone ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}">${hasPhone ? '&#10003;' : '!'}</span>
       <span class="flex-1 font-medium text-gray-800 truncate">${esc(r.nombre)}</span>
       <span class="text-gray-400 text-xs">${hasPhone ? esc(maskPhone(r.phone)) : 'Sin telefono'}</span>
       <button onclick="removeWARecipient(${r.sheetRow})" class="text-gray-300 hover:text-red-500 transition">&times;</button>
@@ -3013,9 +3066,9 @@ function renderUserList() {
     return;
   }
   el.innerHTML = users.map((u, i) => {
-    const rolBadge = u.rol === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600';
+    const rolBadge = u.rol === 'admin' ? 'bg-brand-100 text-brand-700' : 'bg-gray-100 text-gray-600';
     const actions = canManage ? `
-        <button onclick="toggleUserActive(${i})" class="text-gray-400 hover:text-blue-500 p-1" title="${u.activo?'Desactivar':'Activar'}">
+        <button onclick="toggleUserActive(${i})" class="text-gray-400 hover:text-brand-500 p-1" title="${u.activo?'Desactivar':'Activar'}">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${u.activo?'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636':'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'}"/></svg>
         </button>
         <button onclick="deleteUser(${i})" class="text-gray-400 hover:text-red-500 p-1" title="Eliminar">
@@ -3026,12 +3079,12 @@ function renderUserList() {
         <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 text-xs font-bold">${esc((u.nombre||'?')[0].toUpperCase())}</div>
         <div>
           <p class="font-medium text-gray-800 text-sm">${esc(u.nombre)}</p>
-          <p class="text-[10px] text-gray-400">${esc(u.email)}</p>
+          <p class="text-2xs text-gray-400">${esc(u.email)}</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <span class="px-2 py-0.5 rounded-full text-[10px] font-medium ${rolBadge}">${u.rol}</span>
-        <span class="text-[10px] ${u.activo?'text-emerald-500':'text-red-400'}">${u.activo?'Activo':'Inactivo'}</span>
+        <span class="px-2 py-0.5 rounded-full text-2xs font-medium ${rolBadge}">${u.rol}</span>
+        <span class="text-2xs ${u.activo?'text-emerald-500':'text-red-400'}">${u.activo?'Activo':'Inactivo'}</span>
         ${actions}
       </div>
     </div>`;
@@ -3112,8 +3165,8 @@ function renderProfileSection() {
   document.getElementById('profileName').textContent = currentUser.nombre;
   document.getElementById('profileEmail').textContent = currentUser.email;
   const badge = document.getElementById('profileRolBadge');
-  const rolMap = { master: 'bg-purple-100 text-purple-700', admin: 'bg-blue-100 text-blue-700', user: 'bg-gray-100 text-gray-600' };
-  badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-medium ' + (rolMap[currentUser.rol] || rolMap.user);
+  const rolMap = { master: 'bg-purple-100 text-purple-700', admin: 'bg-brand-100 text-brand-700', user: 'bg-gray-100 text-gray-600' };
+  badge.className = 'px-2 py-0.5 rounded-full text-2xs font-medium ' + (rolMap[currentUser.rol] || rolMap.user);
   badge.textContent = currentUser.rol;
   // Avatar
   const photo = getUserPref('avatar');
@@ -3247,7 +3300,7 @@ function renderAuditLog() {
       `<div class="flex gap-2 py-1 border-b border-gray-50">
         <span class="text-gray-400 tabular-nums shrink-0">${l.timestamp.replace('T',' ').substring(0,16)}</span>
         <span class="font-medium text-gray-700 shrink-0">${esc(l.usuario)}</span>
-        <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 shrink-0">${esc(l.accion)}</span>
+        <span class="px-1.5 py-0.5 rounded text-2xs font-medium bg-gray-100 text-gray-600 shrink-0">${esc(l.accion)}</span>
         <span class="text-gray-500 truncate">${esc(l.detalle)}</span>
       </div>`
     ).join('');
@@ -3350,7 +3403,7 @@ function renderMasterMsgLog() {
         <span class="text-gray-400 tabular-nums shrink-0">${m.timestamp.replace('T',' ').substring(0,16)}</span>
         <span class="text-gray-600 shrink-0">${esc(m.usuario)}</span>
         <span class="font-medium text-gray-800 truncate">${esc(m.destinatario)}</span>
-        <span class="px-1.5 py-0.5 rounded-full text-[10px] shrink-0 ${m.canal==='whatsapp'?'bg-emerald-100 text-emerald-700':'bg-blue-100 text-blue-700'}">${m.canal}</span>
+        <span class="px-1.5 py-0.5 rounded-full text-2xs shrink-0 ${m.canal==='whatsapp'?'bg-emerald-100 text-emerald-700':'bg-brand-100 text-brand-700'}">${m.canal}</span>
         <span class="${m.estado==='sent'?'text-emerald-600':'text-red-500'} shrink-0">${m.estado}</span>
       </div>`
     ).join('');
@@ -3549,7 +3602,7 @@ function closeCampaignModal() {
 function setCampChannel(ch) {
   campChannel = ch;
   document.getElementById('campChWA').className = 'flex-1 p-3 rounded-xl border-2 text-center text-sm transition ' + (ch === 'whatsapp' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-100');
-  document.getElementById('campChEmail').className = 'flex-1 p-3 rounded-xl border-2 text-center text-sm transition ' + (ch === 'email' ? 'border-blue-500 bg-blue-50' : 'border-gray-100');
+  document.getElementById('campChEmail').className = 'flex-1 p-3 rounded-xl border-2 text-center text-sm transition ' + (ch === 'email' ? 'border-brand-500 bg-brand-50' : 'border-gray-100');
   updateCampRecipientCount();
 }
 
@@ -3628,16 +3681,16 @@ function renderCampaignList() {
         <div class="flex items-center gap-2 min-w-0">
           <span class="text-base">${c.canal==='whatsapp'?'💬':'📧'}</span>
           <h3 class="font-semibold text-gray-800 text-sm truncate">${esc(c.nombre)}</h3>
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-${s.color}-100 text-${s.color}-700 shrink-0">${s.label}</span>
+          <span class="px-2 py-0.5 rounded-full text-2xs font-medium shrink-0 ${{gray:'bg-gray-100 text-gray-700',brand:'bg-brand-100 text-brand-700',amber:'bg-amber-100 text-amber-700',emerald:'bg-emerald-100 text-emerald-700',red:'bg-red-100 text-red-700'}[s.color]||'bg-gray-100 text-gray-700'}">${s.label}</span>
         </div>
         <div class="flex gap-1 shrink-0">
-          ${c.estado==='draft'||c.estado==='scheduled'?'<button onclick="openCampaignForm(\''+c.id+'\')" class="text-gray-400 hover:text-blue-500 p-1 rounded transition" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></button>':''}
+          ${c.estado==='draft'||c.estado==='scheduled'?'<button onclick="openCampaignForm(\''+c.id+'\')" class="text-gray-400 hover:text-brand-500 p-1 rounded transition" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></button>':''}
           ${c.estado==='scheduled'?'<button onclick="executeCampaign(\''+c.id+'\')" class="text-gray-400 hover:text-emerald-500 p-1 rounded transition" title="Enviar ahora"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg></button>':''}
           <button onclick="deleteCampaign('${c.id}')" class="text-gray-400 hover:text-red-500 p-1 rounded transition" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
         </div>
       </div>
       <p class="text-xs text-gray-500 line-clamp-2">${esc(c.contenido)}</p>
-      <div class="flex gap-3 mt-2 text-[10px] text-gray-400 flex-wrap">
+      <div class="flex gap-3 mt-2 text-2xs text-gray-400 flex-wrap">
         ${c.programado?'<span>Programada: '+c.programado.replace('T',' ')+'</span>':''}
         <span>Por: ${esc(c.creadoPor)}</span>
         ${c.enviadosOk?'<span class="text-emerald-500">'+c.enviadosOk+' enviados</span>':''}
