@@ -85,14 +85,16 @@ tailwind.config = { theme: { extend: {
   th.sorted-asc .sort-icon, th.sorted-desc .sort-icon { opacity: 1; color: #2563eb; }
   .stat-card { transition: all 0.15s; cursor: pointer; }
   .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .row-no-cv { background: #fffbeb; }
+  .row-no-cv:hover { background: #fef3c7 !important; }
   .row-hover:hover { background: #f1f5f9; }
   .row-flash { animation: flashGreen 0.8s ease-out; }
   @keyframes flashGreen { 0% { background: #d1fae5; } 100% { background: transparent; } }
   .modal-backdrop { background: rgba(15,23,42,0.5); backdrop-filter: blur(2px); }
   .modal-panel { transform: translateX(100%); transition: transform 0.25s ease-out; }
   .modal-panel.open { transform: translateX(0); }
-  .cv-split-panel { left:0; right:36rem; transform:translateX(100%); transition:transform 0.3s ease-out 0.1s; }
-  .cv-split-panel.open { transform:translateX(0); }
+  .cv-split-panel { left:0; right:36rem; transform:translateX(100%); transition:transform 0.2s ease-in; }
+  .cv-split-panel.open { transform:translateX(0); transition:transform 0.3s ease-out 0.15s; }
   @media (max-width:1023px) { .cv-split-panel { display:none !important; } }
   .sit-select { appearance: none; padding: 3px 22px 3px 8px; border-radius: 9999px; border: none; font-size: 10px; font-weight: 600; cursor: pointer; text-transform: uppercase; background-repeat: no-repeat; background-position: right 6px center; background-size: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); }
   .sit-nuevo { background-color: #dbeafe; color: #1e40af; }
@@ -163,6 +165,9 @@ tailwind.config = { theme: { extend: {
   .wk-row.month-highlight { background: rgba(59,130,246,0.08); }
   .wk-num { width: 22px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #475569; background: rgba(0,0,0,0.05); border-radius: 4px; flex-shrink: 0; }
   .wk-range { font-size: 10px; color: #64748b; white-space: nowrap; }
+  .wk-count { font-size: 9px; color: #94a3b8; margin-left: auto; min-width: 16px; text-align: right; font-weight: 600; }
+  .wk-count:empty { display: none; }
+  .wk-row.active .wk-count { color: rgba(255,255,255,0.7); }
   .wk-filter-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .wk-filter-chip { font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 9999px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: white; transition: all 0.15s; }
   .wk-filter-chip:hover { border-color: #94a3b8; }
@@ -581,12 +586,19 @@ tailwind.config = { theme: { extend: {
       <option value="">Todas las situaciones</option>
       <option value="Nuevo">Nuevo</option><option value="Citado">Citado</option><option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
     </select>
-    <select id="drillFilterWeek" onchange="applyDrillFilters()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
+    <select id="drillFilterWeek" onchange="applyDrillFilters()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition hidden">
       <option value="">Todas las semanas</option>
     </select>
     <button onclick="clearDrillFilters()" id="btnDrillClear" class="text-gray-400 hover:text-gray-600 px-1.5 py-1.5 rounded-lg text-xs hover:bg-gray-100 transition hidden" title="Limpiar filtros">
       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
+  </div>
+  <!-- Drill-down week calendar -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3">
+    <div class="wk-filter-bar mb-2.5" id="drillWeekFilterBar"></div>
+    <div class="wk-qtabs" id="drillQtabs"></div>
+    <div class="wk-mobile-scroll wk-scroll overflow-x-auto" id="drillMobileScroll" style="display:none"></div>
+    <div class="wk-desktop-grid grid sm:grid-cols-2 lg:grid-cols-4 gap-2.5" id="drillWeekRow"></div>
   </div>
   <!-- Mini stats -->
   <div class="grid grid-cols-3 sm:grid-cols-5 gap-2.5" id="drillStats"></div>
@@ -652,9 +664,10 @@ tailwind.config = { theme: { extend: {
             Actualizar
           </button>
         </div>
-        <div id="driveFileList" class="space-y-1 max-h-[220px] overflow-y-auto">
+        <div id="driveFileList" class="space-y-1 max-h-[220px] overflow-y-auto pr-1">
           <p class="text-gray-300 text-xs text-center py-4">Haz clic en Actualizar para ver los archivos</p>
         </div>
+        <div id="driveFileCount" class="text-2xs text-gray-400 mt-1.5 hidden"></div>
       </div>
     </div>
     <!-- Upload progress area -->
@@ -682,6 +695,11 @@ tailwind.config = { theme: { extend: {
     </div>
     <iframe id="pdfViewerFrame" class="w-full bg-gray-50" style="height:500px;border:none" src=""></iframe>
   </div>
+</div>
+
+<!-- Data tab mini-stats -->
+<div class="max-w-[1400px] mx-auto px-4 pt-2 pb-1">
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="dataTabStats"></div>
 </div>
 
 <!-- Filters -->
@@ -1715,6 +1733,7 @@ async function loadDriveFiles(force = false, folderId) {
       return (a.name || '').localeCompare(b.name || '');
     });
     const chevron = '<svg class="w-3.5 h-3.5 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
+    const knownFileIds = new Set(allRows.map(r => r[COL.FILE_ID]).filter(Boolean));
     el.innerHTML = files.map(f => {
       const name = f.name || f.fileName || 'archivo';
       const mime = f.mimeType || '';
@@ -1725,15 +1744,34 @@ async function loadDriveFiles(force = false, folderId) {
       const typeLabel = TYPE_LABELS[fType] || 'Archivo';
       const date = f.createdTime ? new Date(f.createdTime).toLocaleDateString('es-ES',{day:'numeric',month:'short'}) : '';
       const safeName = name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const isLinked = fType === 'pdf' && f.id && knownFileIds.has(f.id);
+      const statusDot = fType === 'pdf' ? (isLinked
+        ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" title="Asociado a candidato"></span>'
+        : '<span class="w-1.5 h-1.5 rounded-full bg-amber-300 flex-shrink-0" title="Pendiente de procesar"></span>') : '';
       return `<div class="cv-file-item" title="${esc(name)}" onclick="onDriveFileClick('${f.id||''}','${safeName}','${mime}')">
         <div class="cv-icon ${iconClass}">${DRIVE_ICONS[fType] || DRIVE_ICONS.other}</div>
         <div class="flex-1 min-w-0">
           <p class="truncate font-medium text-xs text-gray-700">${esc(name)}</p>
           <p class="text-2xs text-gray-400">${typeLabel}${date ? ' · '+date : ''}</p>
         </div>
+        ${statusDot}
         ${chevron}
       </div>`;
     }).join('');
+    // File count with association status
+    const countEl = document.getElementById('driveFileCount');
+    if (countEl) {
+      const pdfs = files.filter(f => getDriveFileType(f.name||'', f.mimeType||'') === 'pdf');
+      const folders = files.filter(f => (f.mimeType||'') === 'application/vnd.google-apps.folder');
+      const knownIds = new Set(allRows.map(r => r[COL.FILE_ID]).filter(Boolean));
+      const linked = pdfs.filter(f => knownIds.has(f.id)).length;
+      const parts = [];
+      if (folders.length) parts.push(folders.length + ' carpeta' + (folders.length>1?'s':''));
+      if (pdfs.length) parts.push(pdfs.length + ' PDF' + (pdfs.length>1?'s':''));
+      if (pdfs.length && linked < pdfs.length) parts.push('<span class="text-amber-500 font-medium">' + (pdfs.length - linked) + ' sin procesar</span>');
+      countEl.innerHTML = parts.join(' · ');
+      countEl.classList.remove('hidden');
+    }
   } catch (e) {
     el.innerHTML = `<div class="text-gray-400 text-xs text-center py-4">
       <svg class="w-5 h-5 mx-auto text-gray-300 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
@@ -2382,7 +2420,13 @@ function switchMobileQuarter(qi) {
   buildDashWeeks();
 }
 
-function buildQuarterHTML(qWeeks, qi, idSuffix) {
+function buildQuarterHTML(qWeeks, qi, idSuffix, opts) {
+  const o = opts || {};
+  const weekFilter = o.weekFilter !== undefined ? o.weekFilter : dashWeekFilter;
+  const monthFilter = o.monthFilter !== undefined ? o.monthFilter : dashMonthFilter;
+  const setWeekFn = o.setWeekFn || 'setDashWeek';
+  const setMonthFn = o.setMonthFn || 'setDashMonth';
+  const weekCounts = o.weekCounts || null;
   const c = WK_QCOLORS[qi];
   const now = new Date();
   const year = now.getFullYear();
@@ -2392,22 +2436,23 @@ function buildQuarterHTML(qWeeks, qi, idSuffix) {
   let lastMonth = -1;
   qWeeks.forEach(w => {
     if (w.month !== lastMonth) {
-      const mActive = dashMonthFilter === w.month;
-      html += `<div class="wk-month${mActive?' month-active':''}" style="color:${mActive?'white':c.head};background:${mActive?c.monthActive:'transparent'};border-radius:5px" onclick="setDashMonth(${w.month})">`;
+      const mActive = monthFilter === w.month;
+      html += `<div class="wk-month${mActive?' month-active':''}" style="color:${mActive?'white':c.head};background:${mActive?c.monthActive:'transparent'};border-radius:5px" onclick="${setMonthFn}(${w.month})">`;
       html += `<span>${w.monthLabel}</span>`;
       html += `<svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor" style="opacity:0.5"><path d="M7 3l7 7-7 7"/></svg>`;
       html += `</div>`;
       lastMonth = w.month;
     }
     const cls = ['wk-row'];
-    if (dashWeekFilter === w.key) cls.push('active');
+    if (weekFilter === w.key) cls.push('active');
     if (w.isCurrent) cls.push('current');
     if (w.isFuture) cls.push('future');
-    if (dashMonthFilter >= 0 && w.month === dashMonthFilter && dashWeekFilter !== w.key) cls.push('month-highlight');
-    const onclick = w.isFuture ? '' : `onclick="setDashWeek('${w.key}')"`;
+    if (monthFilter >= 0 && w.month === monthFilter && weekFilter !== w.key) cls.push('month-highlight');
+    const onclick = w.isFuture ? '' : `onclick="${setWeekFn}('${w.key}')"`;
     html += `<div class="${cls.join(' ')}" ${onclick} title="${w.isCurrent?'Semana actual':''}">`;
     html += `<span class="wk-num" style="background:${c.numBg}">${String(w.weekNum).padStart(2,'0')}</span>`;
     html += `<span class="wk-range">${w.range}</span>`;
+    if (weekCounts) html += `<span class="wk-count">${weekCounts[w.key] || ''}</span>`;
     html += `</div>`;
   });
   html += `</div>`;
@@ -2457,12 +2502,19 @@ function buildDashWeeks() {
     }
     bar.innerHTML = bHtml;
   }
+  // Count candidates per week
+  const dashWeekCounts = {};
+  for (const row of allRows) {
+    const wk = getWeekKey(row[COL.FECHA] || '');
+    if (wk) dashWeekCounts[wk] = (dashWeekCounts[wk] || 0) + 1;
+  }
+  const dashCalOpts = { weekCounts: dashWeekCounts };
   // Group by quarter
   const quarters = [[], [], [], []];
   weeks.forEach(w => quarters[w.quarter].push(w));
   // Desktop: 4-col grid
   let dHtml = '';
-  quarters.forEach((qw, qi) => { dHtml += buildQuarterHTML(qw, qi, ''); });
+  quarters.forEach((qw, qi) => { dHtml += buildQuarterHTML(qw, qi, '', dashCalOpts); });
   el.innerHTML = dHtml;
   // Mobile: tabs + single quarter
   if (tabs) {
@@ -2475,7 +2527,7 @@ function buildDashWeeks() {
     tabs.innerHTML = tHtml;
   }
   if (mScroll) {
-    mScroll.innerHTML = buildQuarterHTML(quarters[mobileQuarter], mobileQuarter, '-m');
+    mScroll.innerHTML = buildQuarterHTML(quarters[mobileQuarter], mobileQuarter, '-m', dashCalOpts);
   }
 }
 
@@ -2497,26 +2549,31 @@ function clearWeekFilters() {
   buildDashWeeks();
   updateStats();
 }
-// Mobile swipe between quarters
+// Mobile swipe between quarters (dashboard + drill-down)
 (function() {
   let sx = 0;
   document.addEventListener('touchstart', e => {
-    const ms = document.getElementById('wkMobileScroll');
+    const ms = document.getElementById('wkMobileScroll') || document.getElementById('drillMobileScroll');
     if (ms && ms.contains(e.target)) sx = e.touches[0].clientX;
   }, { passive: true });
   document.addEventListener('touchend', e => {
     const ms = document.getElementById('wkMobileScroll');
-    if (!ms || !ms.contains(e.target)) return;
+    const dms = document.getElementById('drillMobileScroll');
     const dx = e.changedTouches[0].clientX - sx;
-    if (Math.abs(dx) > 50) {
+    if (Math.abs(dx) <= 50) return;
+    if (ms && ms.contains(e.target)) {
       const next = dx < 0 ? Math.min(3, mobileQuarter + 1) : Math.max(0, mobileQuarter - 1);
       if (next !== mobileQuarter) switchMobileQuarter(next);
+    } else if (dms && dms.contains(e.target)) {
+      const next = dx < 0 ? Math.min(3, drillMobileQuarter + 1) : Math.max(0, drillMobileQuarter - 1);
+      if (next !== drillMobileQuarter) switchDrillMobileQuarter(next);
     }
   }, { passive: true });
 })();
 
 // ==================== DASHBOARD DRILL-DOWN ====================
 let drillType = '', drillValue = '', drillBaseRows = [];
+let drillCalWeekFilter = '', drillCalMonthFilter = -1, drillMobileQuarter = 0;
 
 function getWeekKey(dateStr) {
   if (!dateStr) return '';
@@ -2580,8 +2637,11 @@ function dashDrillDown(type, value) {
   // Pre-select situacion filter if entering via stat card
   document.getElementById('drillFilterSit').value = type === 'situacion' ? value : '';
   weekSel.value = '';
+  drillCalWeekFilter = '';
+  drillCalMonthFilter = -1;
   document.getElementById('btnDrillClear').classList.toggle('hidden', type !== 'situacion');
 
+  buildDrillWeeks();
   renderDrillDown();
 
   document.getElementById('dashMain').classList.add('hidden');
@@ -2594,32 +2654,141 @@ function dashDrillDown(type, value) {
 
 function applyDrillFilters() {
   const sitEl = document.getElementById('drillFilterSit');
-  const weekEl = document.getElementById('drillFilterWeek');
-  const hasFilter = sitEl.value || weekEl.value;
+  const hasFilter = sitEl.value || drillCalWeekFilter || drillCalMonthFilter >= 0;
   document.getElementById('btnDrillClear').classList.toggle('hidden', !hasFilter);
+  buildDrillWeeks();
   renderDrillDown();
 }
 
 function clearDrillFilters() {
   document.getElementById('drillFilterSit').value = '';
   document.getElementById('drillFilterWeek').value = '';
+  drillCalWeekFilter = '';
+  drillCalMonthFilter = -1;
   document.getElementById('btnDrillClear').classList.add('hidden');
+  buildDrillWeeks();
   renderDrillDown();
+}
+
+function buildDrillWeeks() {
+  const el = document.getElementById('drillWeekRow');
+  const mScroll = document.getElementById('drillMobileScroll');
+  const tabs = document.getElementById('drillQtabs');
+  const bar = document.getElementById('drillWeekFilterBar');
+  if (!el) return;
+  // Count candidates per week
+  const weekCounts = {};
+  for (const row of drillBaseRows) {
+    const wk = getWeekKey(row[COL.FECHA] || '');
+    if (wk) weekCounts[wk] = (weekCounts[wk] || 0) + 1;
+  }
+  // Generate weeks (reuse same logic as buildDashWeeks)
+  const now = new Date();
+  const year = now.getFullYear();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dec31 = new Date(year, 11, 31);
+  const jan1 = new Date(year, 0, 1);
+  const d = new Date(jan1);
+  const dy = d.getDay() || 7;
+  d.setDate(d.getDate() - dy + 1);
+  const weeks = [];
+  let weekNum = 1;
+  while (d <= dec31) {
+    const mon = new Date(d);
+    const sun = new Date(d); sun.setDate(d.getDate() + 6);
+    const key = `${String(mon.getDate()).padStart(2,'0')}/${String(mon.getMonth()+1).padStart(2,'0')}/${mon.getFullYear()}`;
+    const range = `${mon.getDate()} ${WK_MES[mon.getMonth()]} \u2013 ${sun.getDate()} ${WK_MES[sun.getMonth()]}`;
+    const isCurrent = today >= mon && today <= sun;
+    const isFuture = mon > today;
+    const thu = new Date(d); thu.setDate(d.getDate() + 3);
+    const isoMonth = thu.getMonth();
+    const quarter = Math.floor(isoMonth / 3);
+    weeks.push({ key, range, isCurrent, isFuture, quarter, month: isoMonth, weekNum, monthLabel: WK_MES[isoMonth] });
+    weekNum++;
+    d.setDate(d.getDate() + 7);
+  }
+  // Filter bar
+  if (bar) {
+    let bHtml = `<button class="wk-filter-chip ${!drillCalWeekFilter&&drillCalMonthFilter<0?'active':''}" onclick="clearDrillWeekFilters()">Todo ${year}</button>`;
+    if (drillCalMonthFilter >= 0) {
+      bHtml += `<span class="wk-filter-chip active" onclick="setDrillMonth(-1)" style="cursor:pointer">${WK_MESFULL[drillCalMonthFilter]} <span style="margin-left:3px;opacity:0.7">&times;</span></span>`;
+    }
+    if (drillCalWeekFilter) {
+      const aw = weeks.find(w => w.key === drillCalWeekFilter);
+      if (aw) bHtml += `<span class="wk-filter-chip active" onclick="setDrillWeek('')" style="cursor:pointer">S${aw.weekNum}: ${aw.range} <span style="margin-left:3px;opacity:0.7">&times;</span></span>`;
+    }
+    bar.innerHTML = bHtml;
+  }
+  const quarters = [[], [], [], []];
+  weeks.forEach(w => quarters[w.quarter].push(w));
+  const calOpts = { weekFilter: drillCalWeekFilter, monthFilter: drillCalMonthFilter, setWeekFn: 'setDrillWeek', setMonthFn: 'setDrillMonth', weekCounts };
+  let dHtml = '';
+  quarters.forEach((qw, qi) => { dHtml += buildQuarterHTML(qw, qi, '-drill', calOpts); });
+  el.innerHTML = dHtml;
+  // Mobile tabs
+  if (tabs) {
+    let tHtml = '';
+    WK_QNAMES.forEach((name, qi) => {
+      const c = WK_QCOLORS[qi];
+      const isActive = drillMobileQuarter === qi;
+      tHtml += `<div class="wk-qtab ${isActive?'active':''}" style="background:${isActive?c.tabBg:'#f1f5f9'};${isActive?'':'color:#94a3b8'}" onclick="switchDrillMobileQuarter(${qi})">${name}</div>`;
+    });
+    tabs.innerHTML = tHtml;
+  }
+  if (mScroll) {
+    mScroll.innerHTML = buildQuarterHTML(quarters[drillMobileQuarter], drillMobileQuarter, '-drill-m', calOpts);
+  }
+}
+
+function setDrillWeek(key) {
+  drillCalWeekFilter = drillCalWeekFilter === key ? '' : key;
+  if (drillCalWeekFilter) drillCalMonthFilter = -1;
+  applyDrillFilters();
+}
+function setDrillMonth(m) {
+  drillCalMonthFilter = drillCalMonthFilter === m ? -1 : m;
+  if (drillCalMonthFilter >= 0) drillCalWeekFilter = '';
+  applyDrillFilters();
+}
+function clearDrillWeekFilters() {
+  drillCalWeekFilter = '';
+  drillCalMonthFilter = -1;
+  applyDrillFilters();
+}
+function switchDrillMobileQuarter(qi) {
+  drillMobileQuarter = qi;
+  buildDrillWeeks();
 }
 
 function renderDrillDown() {
   const sitFilter = document.getElementById('drillFilterSit').value;
-  const weekFilter = document.getElementById('drillFilterWeek').value;
+  // Calendar filter: week takes priority, then month
+  const activeWeekFilter = drillCalWeekFilter;
+  const activeMonthFilter = drillCalMonthFilter;
 
   const rows = drillBaseRows.filter(row => {
     if (sitFilter && !matchSit(row[COL.SITUACION]||'', sitFilter)) return false;
-    if (weekFilter && getWeekKey(row[COL.FECHA]||'') !== weekFilter) return false;
+    if (activeWeekFilter && getWeekKey(row[COL.FECHA]||'') !== activeWeekFilter) return false;
+    if (!activeWeekFilter && activeMonthFilter >= 0) {
+      const fecha = (row[COL.FECHA]||'').trim();
+      if (!fecha) return false;
+      let d;
+      if (fecha.includes('/')) { const p=fecha.split('/'); d=new Date(+p[2],+p[1]-1,+p[0]); }
+      else d=new Date(fecha);
+      if (!d || isNaN(d.getTime()) || d.getMonth() !== activeMonthFilter) return false;
+    }
     return true;
   });
 
-  // Mini stats — always count from base rows (only week filter, not sit)
-  const weekOnly = weekFilter
-    ? drillBaseRows.filter(r => getWeekKey(r[COL.FECHA]||'') === weekFilter)
+  // Mini stats — always count from base rows (time filter only, not sit)
+  const hasTimeFilter = activeWeekFilter || activeMonthFilter >= 0;
+  const weekOnly = hasTimeFilter
+    ? drillBaseRows.filter(r => {
+        if (activeWeekFilter) return getWeekKey(r[COL.FECHA]||'') === activeWeekFilter;
+        const f=(r[COL.FECHA]||'').trim(); if(!f) return false;
+        let d; if(f.includes('/')){const p=f.split('/');d=new Date(+p[2],+p[1]-1,+p[0]);}else d=new Date(f);
+        return d&&!isNaN(d.getTime())&&d.getMonth()===activeMonthFilter;
+      })
     : drillBaseRows;
   let nuevo=0, citado=0, descartado=0, seleccionado=0;
   for (const row of weekOnly) {
@@ -2653,8 +2822,12 @@ function renderDrillDown() {
       const sit = (row[COL.SITUACION] || 'Nuevo').trim();
       const phone = maskPhone((row[COL.TELEFONO]||'').trim());
       const fecha = (row[COL.FECHA]||'').trim();
-      return `<tr class="border-t border-gray-50 row-hover cursor-pointer" onclick="showDetail(${gi})">
-        <td class="px-3 py-2 font-medium text-gray-800">${esc(row[COL.NOMBRE]||'-')}</td>
+      const dHasCV = !!(row[COL.FILE_ID]);
+      const dCvDot = dHasCV
+        ? '<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 flex-shrink-0" title="CV cargado"></span>'
+        : '<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-300 mr-1.5 flex-shrink-0" title="Sin CV"></span>';
+      return `<tr class="border-t border-gray-50 row-hover cursor-pointer${dHasCV?'':' row-no-cv'}" onclick="showDetail(${gi})">
+        <td class="px-3 py-2 font-medium text-gray-800"><div class="flex items-center">${dCvDot}${esc(row[COL.NOMBRE]||'-')}</div></td>
         <td class="px-3 py-2 text-gray-500 hidden sm:table-cell"><span class="masked">${esc(phone||'-')}</span></td>
         <td class="px-3 py-2" onclick="event.stopPropagation()">
           <select class="sit-select ${getSitClass(sit)}" data-row="${sr}" data-original="${esc(sit)}" onchange="updateSituacionDrill(this)">
@@ -2714,10 +2887,14 @@ function dashDrillBack() {
 
 function openDrillWhatsApp() {
   const sitFilter = document.getElementById('drillFilterSit').value;
-  const weekFilter = document.getElementById('drillFilterWeek').value;
   const rows = drillBaseRows.filter(row => {
     if (sitFilter && !matchSit(row[COL.SITUACION]||'', sitFilter)) return false;
-    if (weekFilter && getWeekKey(row[COL.FECHA]||'') !== weekFilter) return false;
+    if (drillCalWeekFilter && getWeekKey(row[COL.FECHA]||'') !== drillCalWeekFilter) return false;
+    if (!drillCalWeekFilter && drillCalMonthFilter >= 0) {
+      const f=(row[COL.FECHA]||'').trim(); if(!f) return false;
+      let d; if(f.includes('/')){const p=f.split('/');d=new Date(+p[2],+p[1]-1,+p[0]);}else d=new Date(f);
+      if(!d||isNaN(d.getTime())||d.getMonth()!==drillCalMonthFilter) return false;
+    }
     return true;
   });
   if (rows.length === 0) { toast('No hay candidatos para enviar', 'info'); return; }
@@ -2886,10 +3063,14 @@ function renderTable() {
       const maskedEmail = maskEmail(email);
       const phoneHtml=phone?`<span class="text-gray-600 masked" title="Ver en detalle">${highlight(maskedPhone)}</span>`:'<span class="text-gray-300">-</span>';
       const emailHtml=email?`<span class="text-gray-600 masked truncate block max-w-[140px]" title="Ver en detalle">${highlight(maskedEmail)}</span>`:'<span class="text-gray-300">-</span>';
-      return `<tr class="border-t border-gray-50 row-hover" id="row-${sr}">
+      const hasCV = !!(row[COL.FILE_ID]);
+      const cvDot = hasCV
+        ? '<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 flex-shrink-0" title="CV cargado"></span>'
+        : '<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-300 mr-1.5 flex-shrink-0" title="Sin CV"></span>';
+      return `<tr class="border-t border-gray-50 row-hover${hasCV?'':' row-no-cv'}" id="row-${sr}">
         <td class="px-3 py-2"><input type="checkbox" value="${sr}" ${ck} onchange="toggleRow(this)" class="rounded"></td>
         <td class="px-3 py-2 text-gray-300 text-xs">${sr}</td>
-        <td class="px-3 py-2 font-medium text-gray-800">${highlight(row[COL.NOMBRE]||'')}</td>
+        <td class="px-3 py-2 font-medium text-gray-800"><div class="flex items-center">${cvDot}${highlight(row[COL.NOMBRE]||'')}</div></td>
         <td class="px-3 py-2 text-gray-500 hidden md:table-cell">${esc(row[COL.MES]||'')}</td>
         <td class="px-3 py-2 text-gray-500 hidden lg:table-cell">${highlight(row[COL.OFICINA]||'')}</td>
         <td class="px-3 py-2 hidden sm:table-cell">${phoneHtml}</td>
@@ -2916,6 +3097,46 @@ function renderTable() {
   document.getElementById('btnPrev').disabled=currentPage===0;
   document.getElementById('btnNext').disabled=start+PAGE_SIZE>=filteredRows.length;
   updateBulkUI();
+  updateDataTabStats();
+}
+
+function updateDataTabStats() {
+  const el = document.getElementById('dataTabStats');
+  if (!el) return;
+  const total = allRows.length;
+  let withCV = 0, thisWeek = 0;
+  const now = new Date();
+  const weekStart = new Date(now); weekStart.setHours(0,0,0,0);
+  const day = weekStart.getDay() || 7; weekStart.setDate(weekStart.getDate() - day + 1);
+  for (const row of allRows) {
+    if (row[COL.FILE_ID]) withCV++;
+    const fecha = (row[COL.FECHA]||'').trim();
+    if (fecha) {
+      let d;
+      if (fecha.includes('/')) { const p=fecha.split('/'); d=new Date(+p[2],+p[1]-1,+p[0]); }
+      else d=new Date(fecha);
+      if (d && !isNaN(d.getTime()) && d >= weekStart && d <= now) thisWeek++;
+    }
+  }
+  const noCV = total - withCV;
+  const pctCV = total ? Math.round(withCV/total*100) : 0;
+  el.innerHTML = `
+    <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100 text-center">
+      <p class="text-lg font-bold text-gray-800">${total}</p>
+      <p class="text-2xs text-gray-500">Total candidatos</p>
+    </div>
+    <div class="bg-emerald-50/70 rounded-xl p-3 shadow-sm border border-emerald-100/60 text-center">
+      <p class="text-lg font-bold text-emerald-700">${withCV} <span class="text-xs font-normal text-emerald-500">${pctCV}%</span></p>
+      <p class="text-2xs text-emerald-600">Con CV</p>
+    </div>
+    <div class="bg-amber-50/70 rounded-xl p-3 shadow-sm border border-amber-100/60 text-center">
+      <p class="text-lg font-bold text-amber-700">${noCV}</p>
+      <p class="text-2xs text-amber-600">Sin CV</p>
+    </div>
+    <div class="bg-brand-50/70 rounded-xl p-3 shadow-sm border border-brand-100/60 text-center">
+      <p class="text-lg font-bold text-brand-700">${thisWeek}</p>
+      <p class="text-2xs text-brand-600">Esta semana</p>
+    </div>`;
 }
 
 function flashRow(sheetRow) {
@@ -3128,8 +3349,10 @@ async function modalUpdateField(key,row,val) {
 
 function closeModal() {
   hideCvSplit();
-  document.querySelector('.modal-panel').classList.remove('open');
-  setTimeout(()=>document.getElementById('modal').classList.add('hidden'),350);
+  setTimeout(() => {
+    document.querySelector('.modal-panel').classList.remove('open');
+    setTimeout(() => document.getElementById('modal').classList.add('hidden'), 300);
+  }, 120);
   modalRowIdx=-1; modalFilteredIdx=-1;
 }
 
@@ -3189,7 +3412,7 @@ function hideCvSplit() {
     panel.classList.add('hidden');
     document.getElementById('cvSplitFrame').src = '';
     cleanupCvSplitBlob();
-  }, 350);
+  }, 250);
   const mobileBtn = document.getElementById('modalCvBtn');
   if (mobileBtn) mobileBtn.classList.add('hidden');
 }
