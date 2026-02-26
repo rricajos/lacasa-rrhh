@@ -249,6 +249,10 @@ tailwind.config = { theme: { extend: { colors: {
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         <span id="deleteCount">0</span>
       </button>
+      <button onclick="openWhatsAppModal()" class="bg-emerald-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-700 transition flex items-center gap-1.5" title="Enviar WhatsApp">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.09.54 4.09 1.56 5.88L.05 23.56a.75.75 0 00.9.9l5.68-1.51A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.69 9.69 0 01-5.22-1.524l-.375-.224-3.375.9.9-3.375-.246-.39A9.693 9.693 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z"/></svg>
+        <span>WhatsApp</span>
+      </button>
     </div>
   </div>
 </div>
@@ -320,6 +324,84 @@ tailwind.config = { theme: { extend: { colors: {
   </div>
 </div>
 
+<!-- WhatsApp Send Modal -->
+<div id="waModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="display:none;">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeWAModal()"></div>
+  <div class="confirm-modal relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+    <!-- Header -->
+    <div class="sticky top-0 bg-white border-b px-5 py-4 rounded-t-2xl z-10">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+          </div>
+          <h3 class="font-bold text-gray-800">Enviar WhatsApp</h3>
+        </div>
+        <button onclick="closeWAModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100">&times;</button>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <!-- Template selector -->
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-2">Plantilla</label>
+        <div id="waTemplateList" class="grid gap-2"></div>
+      </div>
+
+      <!-- Recipients list -->
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-2">Destinatarios (<span id="waRecipientCount">0</span>)</label>
+        <div id="waRecipientList" class="max-h-[180px] overflow-y-auto border border-gray-100 rounded-xl divide-y divide-gray-50"></div>
+      </div>
+
+      <!-- Preview -->
+      <div id="waPreviewBox" class="hidden">
+        <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-2">Vista previa del mensaje</label>
+        <div id="waPreview" class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-sm text-gray-700 italic"></div>
+      </div>
+
+      <!-- Cost estimate -->
+      <div id="waCostBox" class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between">
+        <div class="text-sm text-amber-800">
+          <span id="waCostCount">0</span> mensajes &times; <span id="waCostUnit">0.05</span>&euro;
+        </div>
+        <div class="text-lg font-bold text-amber-900" id="waCostTotal">&euro;0.00</div>
+      </div>
+
+      <!-- Second password -->
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1.5">Clave de autorizacion</label>
+        <div class="flex gap-2">
+          <input type="password" id="waPassword" placeholder="Introduce la clave para enviar..." oninput="validateWAPassword()"
+            class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 outline-none transition">
+          <span id="waPasswordStatus" class="flex items-center text-xs text-gray-300"></span>
+        </div>
+      </div>
+
+      <!-- Progress bar (hidden until sending) -->
+      <div id="waProgress" class="hidden">
+        <div class="flex justify-between text-xs text-gray-500 mb-1">
+          <span id="waProgressLabel">Enviando...</span>
+          <span id="waProgressCount">0/0</span>
+        </div>
+        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div id="waProgressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="sticky bottom-0 bg-white border-t px-5 py-3 rounded-b-2xl flex justify-between items-center">
+      <button onclick="closeWAModal()" class="px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition">Cancelar</button>
+      <button onclick="sendWhatsAppBatch()" id="waSendBtn" disabled
+        class="px-5 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        Enviar
+      </button>
+    </div>
+  </div>
+</div>
+
 </div><!-- end dashboardScreen -->
 
 <script>
@@ -367,6 +449,34 @@ const EDITABLE_FIELDS = ['NOMBRE','OFICINA','RESIDENCIA','FECHA','HORA','CORREO'
   'SITUACION','POSICION','CITADO_POR','ASISTENCIA','ENTREVISTADO_POR',
   'MOTIVO_DESCARTE','COMENTARIOS','CONFIRMACION','FUENTE'];
 
+// WhatsApp configuration
+const WA_COST_PER_MSG = 0.05; // EUR estimated (Twilio + Meta fee)
+const WA_PASSWORD_HASH = 'ea850829b7cf219f34c40728f7b3452f6f92f226821c506c7598b64af1b8efb4'; // lacasa.2026
+
+const WA_TEMPLATES = {
+  citado: {
+    label: 'Citado a entrevista',
+    desc: 'Convoca al candidato a una entrevista',
+    color: 'amber',
+    params: ['nombre','posicion','fecha','hora','oficina'],
+    preview: 'Hola {nombre}, te informamos de que has sido citado/a para el puesto de {posicion}. La entrevista sera el {fecha} a las {hora} en {oficina}.'
+  },
+  seleccionado: {
+    label: 'Seleccionado',
+    desc: 'Informa al candidato de su seleccion',
+    color: 'emerald',
+    params: ['nombre','posicion','oficina'],
+    preview: 'Hola {nombre}, nos complace comunicarte que has sido seleccionado/a para el puesto de {posicion} en {oficina}.'
+  },
+  descartado: {
+    label: 'Descartado',
+    desc: 'Informa al candidato del descarte del proceso',
+    color: 'red',
+    params: ['nombre','posicion'],
+    preview: 'Hola {nombre}, lamentamos informarte que no has sido seleccionado/a para el puesto de {posicion}. Te deseamos mucha suerte.'
+  }
+};
+
 // ==================== STATE ====================
 let allRows = [], filteredRows = [], headers = [];
 let currentPage = 0, selectedRows = new Set();
@@ -377,6 +487,8 @@ let confirmResolve = null;
 let searchTerm = '';
 let lastActivity = Date.now();
 let sessionTimerId = null;
+let waSelectedTemplate = null;
+let waPasswordOk = false;
 
 // ==================== AUTH ====================
 // Pure JS SHA-256 (works on HTTP and file:// too, no crypto.subtle needed)
@@ -1037,6 +1149,196 @@ function toast(msg,type='info') {
   el.innerHTML=`<span class="text-xs">${icons[type]||''}</span> ${esc(msg)}`;
   c.appendChild(el);
   setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity 0.3s';setTimeout(()=>el.remove(),300);},3500);
+}
+
+// ==================== WHATSAPP ====================
+function openWhatsAppModal() {
+  if (selectedRows.size === 0) return;
+  waSelectedTemplate = null;
+  waPasswordOk = false;
+
+  // Build template selector
+  const tList = document.getElementById('waTemplateList');
+  tList.innerHTML = Object.entries(WA_TEMPLATES).map(([key, t]) => `
+    <button onclick="selectWATemplate('${key}')" id="waTpl_${key}" class="wa-tpl-btn text-left p-3 rounded-xl border-2 border-gray-100 hover:border-emerald-300 transition">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-semibold text-gray-800">${esc(t.label)}</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-${t.color}-100 text-${t.color}-700 font-medium">${key}</span>
+      </div>
+      <p class="text-xs text-gray-400 mt-0.5">${esc(t.desc)}</p>
+    </button>
+  `).join('');
+
+  // Build recipient list
+  const recipients = getWARecipients();
+  const rList = document.getElementById('waRecipientList');
+  rList.innerHTML = recipients.map((r, i) => {
+    const hasPhone = r.phone && r.phone.replace(/\D/g, '').length >= 6;
+    return `<div class="flex items-center gap-2 px-3 py-2 text-sm" id="waR_${i}">
+      <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${hasPhone ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}">${hasPhone ? '&#10003;' : '!'}</span>
+      <span class="flex-1 font-medium text-gray-800 truncate">${esc(r.nombre)}</span>
+      <span class="text-gray-400 text-xs">${hasPhone ? esc(maskPhone(r.phone)) : 'Sin telefono'}</span>
+      <button onclick="removeWARecipient(${r.sheetRow})" class="text-gray-300 hover:text-red-500 transition">&times;</button>
+    </div>`;
+  }).join('');
+
+  const validCount = recipients.filter(r => r.phone && r.phone.replace(/\D/g, '').length >= 6).length;
+  document.getElementById('waRecipientCount').textContent = `${validCount} validos de ${recipients.length}`;
+
+  // Update cost
+  document.getElementById('waCostCount').textContent = validCount;
+  document.getElementById('waCostUnit').textContent = WA_COST_PER_MSG.toFixed(2);
+  document.getElementById('waCostTotal').textContent = '\u20ac' + (validCount * WA_COST_PER_MSG).toFixed(2);
+
+  // Reset state
+  document.getElementById('waPassword').value = '';
+  document.getElementById('waPasswordStatus').textContent = '';
+  document.getElementById('waSendBtn').disabled = true;
+  document.getElementById('waPreviewBox').classList.add('hidden');
+  document.getElementById('waProgress').classList.add('hidden');
+
+  // Show modal
+  const m = document.getElementById('waModal');
+  m.style.display = 'flex';
+  m.classList.remove('hidden');
+}
+
+function closeWAModal() {
+  const m = document.getElementById('waModal');
+  m.style.display = 'none';
+  m.classList.add('hidden');
+}
+
+function getWARecipients() {
+  const recipients = [];
+  for (const sr of selectedRows) {
+    const idx = sr - 2;
+    const row = allRows[idx];
+    if (!row) continue;
+    recipients.push({
+      sheetRow: sr,
+      nombre: (row[COL.NOMBRE] || '').trim(),
+      phone: (row[COL.TELEFONO] || '').trim(),
+      posicion: (row[COL.POSICION] || '').trim(),
+      oficina: (row[COL.OFICINA] || '').trim(),
+      fecha: (row[COL.FECHA] || '').trim(),
+      hora: (row[COL.HORA] || '').trim()
+    });
+  }
+  return recipients;
+}
+
+function removeWARecipient(sheetRow) {
+  selectedRows.delete(sheetRow);
+  const el = document.querySelectorAll(`#waRecipientList > div`);
+  // Refresh the modal
+  if (selectedRows.size === 0) { closeWAModal(); updateBulkUI(); return; }
+  openWhatsAppModal();
+}
+
+function selectWATemplate(key) {
+  waSelectedTemplate = key;
+  document.querySelectorAll('.wa-tpl-btn').forEach(b => {
+    b.classList.remove('border-emerald-500', 'bg-emerald-50');
+    b.classList.add('border-gray-100');
+  });
+  const btn = document.getElementById('waTpl_' + key);
+  btn.classList.remove('border-gray-100');
+  btn.classList.add('border-emerald-500', 'bg-emerald-50');
+
+  // Show preview with first recipient data
+  const t = WA_TEMPLATES[key];
+  const recipients = getWARecipients();
+  const first = recipients[0] || {};
+  let preview = t.preview
+    .replace('{nombre}', first.nombre || 'Candidato')
+    .replace('{posicion}', first.posicion || 'la vacante')
+    .replace('{oficina}', first.oficina || 'nuestra oficina')
+    .replace('{fecha}', first.fecha || 'por confirmar')
+    .replace('{hora}', first.hora || 'por confirmar');
+  document.getElementById('waPreview').textContent = preview;
+  document.getElementById('waPreviewBox').classList.remove('hidden');
+
+  checkWASendReady();
+}
+
+function validateWAPassword() {
+  const pw = document.getElementById('waPassword').value;
+  if (!pw) {
+    waPasswordOk = false;
+    document.getElementById('waPasswordStatus').innerHTML = '';
+    checkWASendReady();
+    return;
+  }
+  const hash = sha256(pw);
+  waPasswordOk = (hash === WA_PASSWORD_HASH);
+  document.getElementById('waPasswordStatus').innerHTML = waPasswordOk
+    ? '<span class="text-emerald-500 font-bold">&#10003;</span>'
+    : '<span class="text-red-400">&#10007;</span>';
+  checkWASendReady();
+}
+
+function checkWASendReady() {
+  const ready = waSelectedTemplate && waPasswordOk;
+  document.getElementById('waSendBtn').disabled = !ready;
+}
+
+async function sendWhatsAppBatch() {
+  if (!waSelectedTemplate || !waPasswordOk) return;
+  const recipients = getWARecipients().filter(r => r.phone && r.phone.replace(/\D/g, '').length >= 6);
+  if (recipients.length === 0) { toast('No hay destinatarios validos', 'info'); return; }
+
+  // Disable UI
+  document.getElementById('waSendBtn').disabled = true;
+  document.getElementById('waPassword').disabled = true;
+  const progress = document.getElementById('waProgress');
+  progress.classList.remove('hidden');
+
+  let sent = 0, failed = 0;
+  for (let i = 0; i < recipients.length; i++) {
+    const r = recipients[i];
+    const pct = ((i + 1) / recipients.length * 100).toFixed(0);
+    document.getElementById('waProgressLabel').textContent = `Enviando a ${r.nombre}...`;
+    document.getElementById('waProgressCount').textContent = `${i + 1}/${recipients.length}`;
+    document.getElementById('waProgressBar').style.width = pct + '%';
+
+    try {
+      const result = await apiCall({
+        action: 'send_whatsapp',
+        to: r.phone,
+        template: waSelectedTemplate,
+        nombre: r.nombre,
+        posicion: r.posicion,
+        oficina: r.oficina,
+        fecha: r.fecha,
+        hora: r.hora
+      });
+      // Check for error in response
+      if (result.ok === false || result.error) {
+        failed++;
+      } else {
+        sent++;
+      }
+    } catch (e) {
+      failed++;
+    }
+  }
+
+  // Done
+  document.getElementById('waProgressLabel').textContent = 'Completado';
+  document.getElementById('waProgressBar').style.width = '100%';
+
+  if (failed === 0) {
+    toast(`WhatsApp: ${sent}/${recipients.length} enviados`, 'success');
+  } else {
+    toast(`WhatsApp: ${sent} enviados, ${failed} fallidos`, sent > 0 ? 'info' : 'error');
+  }
+
+  setTimeout(() => {
+    closeWAModal();
+    selectedRows.clear();
+    renderTable();
+  }, 1500);
 }
 
 // Keyboard
