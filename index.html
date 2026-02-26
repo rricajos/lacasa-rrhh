@@ -177,10 +177,13 @@ tailwind.config = { theme: { extend: {
   .cv-drop:hover, .cv-drop.dragover { border-color: #3b82f6; background: #eff6ff; }
   .cv-drop.dragover::after { content: 'Soltar CV aquí'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     background: rgba(59,130,246,0.08); border-radius: 10px; font-size: 12px; font-weight: 600; color: #2563eb; pointer-events: none; }
-  .cv-file-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; font-size: 10px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; }
+  .cv-file-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 11px; color: #475569; background: #f8fafc; border: 1px solid #f1f5f9; cursor: pointer; transition: all 0.15s; }
+  .cv-file-item:hover { background: #eff6ff; border-color: #dbeafe; }
   .cv-file-item .cv-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .cv-file-pdf { background: #fef2f2; color: #dc2626; }
-  .cv-file-other { background: #f0fdf4; color: #16a34a; }
+  .cv-file-sheet { background: #ecfdf5; color: #059669; }
+  .cv-file-folder { background: #eff6ff; color: #2563eb; }
+  .cv-file-other { background: #f5f5f5; color: #6b7280; }
   .cv-analyzing { position: relative; overflow: hidden; }
   .cv-analyzing::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
     background: linear-gradient(90deg, transparent, rgba(59,130,246,0.1), transparent); animation: cvShimmer 1.5s infinite; }
@@ -582,13 +585,35 @@ tailwind.config = { theme: { extend: {
             Actualizar
           </button>
         </div>
-        <div id="driveFileList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-[160px] overflow-y-auto">
-          <p class="text-gray-300 text-xs col-span-full text-center py-4">Haz clic en Actualizar para ver los archivos</p>
+        <div id="driveFileList" class="space-y-1 max-h-[220px] overflow-y-auto">
+          <p class="text-gray-300 text-xs text-center py-4">Haz clic en Actualizar para ver los archivos</p>
         </div>
       </div>
     </div>
     <!-- Upload progress area -->
     <div id="cvUploadProgress" class="hidden mt-3 space-y-2"></div>
+  </div>
+</div>
+
+<!-- PDF Viewer -->
+<div id="pdfViewer" class="hidden max-w-[1400px] mx-auto px-4 pt-2 pb-2">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-2.5 bg-gray-50 border-b">
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-6 h-6 rounded bg-red-50 flex items-center justify-center flex-shrink-0">
+          <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <span id="pdfViewerName" class="text-xs font-medium text-gray-700 truncate"></span>
+      </div>
+      <div class="flex items-center gap-3">
+        <a id="pdfViewerLink" href="#" target="_blank" rel="noopener" class="text-2xs text-brand-500 hover:text-brand-700 font-medium flex items-center gap-1 transition">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          Abrir en Drive
+        </a>
+        <button onclick="closePdfViewer()" class="text-gray-400 hover:text-gray-600 w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100 transition" aria-label="Cerrar">&times;</button>
+      </div>
+    </div>
+    <iframe id="pdfViewerFrame" class="w-full bg-gray-50" style="height:500px;border:none" src=""></iframe>
   </div>
 </div>
 
@@ -1459,34 +1484,77 @@ async function loadDriveFiles(force = false) {
   const el = document.getElementById('driveFileList');
   if (!el) return;
   if (driveFilesLoaded && !force) return;
-  el.innerHTML = '<p class="text-gray-400 text-xs col-span-full text-center py-4"><span class="loader inline-block w-4 h-4"></span> Cargando archivos...</p>';
+  el.innerHTML = '<div class="flex items-center justify-center gap-2 text-gray-400 text-xs py-4"><span class="loader inline-block w-4 h-4"></span> Cargando archivos...</div>';
   try {
     const data = await apiCall({ action: 'list_drive' });
     const files = Array.isArray(data) ? data : (data.files || []);
     driveFilesLoaded = true;
     if (!files.length) {
-      el.innerHTML = '<p class="text-gray-300 text-xs col-span-full text-center py-4">Carpeta vacía — sube CVs arrastrándolos a la izquierda</p>';
+      el.innerHTML = '<p class="text-gray-300 text-xs text-center py-4">Carpeta vacía — sube CVs arrastrándolos a la izquierda</p>';
       return;
     }
+    const DRIVE_ICONS = {
+      pdf: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>',
+      sheet: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>',
+      folder: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>',
+      other: '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>'
+    };
+    const chevron = '<svg class="w-3.5 h-3.5 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
     el.innerHTML = files.map(f => {
-      const isPdf = (f.name || f.fileName || '').toLowerCase().endsWith('.pdf');
       const name = f.name || f.fileName || 'archivo';
-      const truncName = name.length > 25 ? name.substring(0, 22) + '...' : name;
-      return `<div class="cv-file-item" title="${esc(name)}">
-        <div class="cv-icon ${isPdf ? 'cv-file-pdf' : 'cv-file-other'}">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      const mime = f.mimeType || '';
+      const isPdf = name.toLowerCase().endsWith('.pdf') || mime === 'application/pdf';
+      const isSheet = mime.includes('spreadsheet') || mime.includes('excel') || /\.(xlsx?|csv)$/i.test(name);
+      const isFolder = mime === 'application/vnd.google-apps.folder';
+      const fType = isPdf ? 'pdf' : isSheet ? 'sheet' : isFolder ? 'folder' : 'other';
+      const iconClass = isPdf ? 'cv-file-pdf' : isSheet ? 'cv-file-sheet' : isFolder ? 'cv-file-folder' : 'cv-file-other';
+      const typeLabel = isPdf ? 'PDF' : isSheet ? 'Hoja de cálculo' : isFolder ? 'Carpeta' : 'Archivo';
+      const date = f.createdTime ? new Date(f.createdTime).toLocaleDateString('es-ES',{day:'numeric',month:'short'}) : '';
+      const safeName = name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      return `<div class="cv-file-item" title="${esc(name)}" onclick="onDriveFileClick('${f.id||''}','${safeName}','${mime}')">
+        <div class="cv-icon ${iconClass}">${DRIVE_ICONS[fType]}</div>
+        <div class="flex-1 min-w-0">
+          <p class="truncate font-medium text-xs text-gray-700">${esc(name)}</p>
+          <p class="text-2xs text-gray-400">${typeLabel}${date ? ' · '+date : ''}</p>
         </div>
-        <div class="min-w-0">
-          <p class="truncate font-medium text-2xs">${esc(truncName)}</p>
-          <p class="text-2xs text-gray-400">${isPdf ? 'PDF' : 'Archivo'}</p>
-        </div>
+        ${chevron}
       </div>`;
     }).join('');
   } catch (e) {
-    el.innerHTML = `<p class="text-gray-400 text-xs col-span-full text-center py-4">
+    el.innerHTML = `<div class="text-gray-400 text-xs text-center py-4">
       <svg class="w-5 h-5 mx-auto text-gray-300 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-      No se pudo cargar la carpeta<br><button onclick="loadDriveFiles(true)" class="text-brand-500 hover:text-brand-700 text-2xs mt-1 font-medium">Reintentar</button></p>`;
+      No se pudo cargar la carpeta<br><button onclick="loadDriveFiles(true)" class="text-brand-500 hover:text-brand-700 text-2xs mt-1 font-medium">Reintentar</button></div>`;
   }
+}
+
+function onDriveFileClick(fileId, name, mimeType) {
+  const isPdf = name.toLowerCase().endsWith('.pdf') || mimeType === 'application/pdf';
+  const isSheet = mimeType.includes('spreadsheet') || mimeType.includes('excel') || /\.(xlsx?|csv)$/i.test(name);
+  if (isPdf && fileId) {
+    openPdfViewer(fileId, name);
+  } else if (isSheet) {
+    closePdfViewer();
+    const tableWrap = document.getElementById('mainTable').closest('.bg-white');
+    tableWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    tableWrap.classList.add('ring-2', 'ring-brand-300');
+    setTimeout(() => tableWrap.classList.remove('ring-2', 'ring-brand-300'), 1500);
+  } else if (fileId) {
+    window.open('https://drive.google.com/file/d/' + fileId + '/view', '_blank');
+  }
+}
+
+function openPdfViewer(fileId, name) {
+  document.getElementById('pdfViewerName').textContent = name;
+  document.getElementById('pdfViewerFrame').src = 'https://drive.google.com/file/d/' + fileId + '/preview';
+  document.getElementById('pdfViewerLink').href = 'https://drive.google.com/file/d/' + fileId + '/view';
+  const viewer = document.getElementById('pdfViewer');
+  viewer.classList.remove('hidden');
+  viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closePdfViewer() {
+  document.getElementById('pdfViewer').classList.add('hidden');
+  document.getElementById('pdfViewerFrame').src = '';
 }
 
 async function handleCVDrop(files) {
