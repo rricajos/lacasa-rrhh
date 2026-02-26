@@ -269,6 +269,56 @@ tailwind.config = { theme: { extend: { colors: {
     <div class="wk-desktop-grid grid sm:grid-cols-2 lg:grid-cols-4 gap-2.5" id="dashWeekRow"></div>
   </div>
 
+  <!-- Donuts row + Recent activity -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <!-- Donut: Situación -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center">
+      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Situación</p>
+      <svg viewBox="0 0 36 36" class="w-24 h-24">
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
+        <circle id="donutNuevo" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+        <circle id="donutCitado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#f97316" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+        <circle id="donutDescartado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#ef4444" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+        <circle id="donutSeleccionado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+        <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700" id="donutCenter">-</text>
+      </svg>
+      <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-[10px]">
+        <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span><span class="text-gray-500">Nuevos</span></div>
+        <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-500"></span><span class="text-gray-500">Citados</span></div>
+        <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span><span class="text-gray-500">Descartados</span></div>
+        <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-gray-500">Seleccionados</span></div>
+      </div>
+    </div>
+    <!-- Donut: Posición -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center">
+      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Posición</p>
+      <svg viewBox="0 0 36 36" class="w-24 h-24">
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
+        <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700" id="donutPosCenter">-</text>
+      </svg>
+      <div id="donutPosLegend" class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-[10px]"></div>
+    </div>
+    <!-- Donut: Oficina -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center">
+      <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Oficina</p>
+      <svg viewBox="0 0 36 36" class="w-24 h-24">
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
+        <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700" id="donutOffCenter">-</text>
+      </svg>
+      <div id="donutOffLegend" class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-[10px]"></div>
+    </div>
+    <!-- Recent candidates -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Actividad reciente</p>
+        <button onclick="dashDrillDown('reciente','')" class="text-[10px] text-brand-600 hover:text-brand-700 font-medium hover:underline transition">Ver todo</button>
+      </div>
+      <div id="dashRecent" class="space-y-2 max-h-[200px] overflow-y-auto text-sm">
+        <p class="text-gray-300 text-xs">Cargando...</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Por Situación -->
   <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Por situación</p>
@@ -308,39 +358,6 @@ tailwind.config = { theme: { extend: { colors: {
         </div>
         <p class="text-[11px] text-emerald-600 mt-0.5">Seleccionados</p>
         <div class="mt-1.5 bg-emerald-100 rounded-full overflow-hidden"><div class="pct-bar bg-emerald-500" id="barSeleccionado"></div></div>
-      </div>
-    </div>
-    <!-- Donut + Recent activity -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-      <!-- Donut chart -->
-      <div class="bg-gray-50/50 rounded-xl p-5 border border-gray-100 flex flex-col items-center justify-center">
-        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Distribución</p>
-        <svg viewBox="0 0 36 36" class="w-32 h-32">
-          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.5"/>
-          <circle id="donutNuevo" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-          <circle id="donutCitado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#f97316" stroke-width="2.5" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-          <circle id="donutDescartado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-          <circle id="donutSeleccionado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="2.5" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-          <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700" id="donutCenter">-</text>
-        </svg>
-        <!-- Legend -->
-        <div class="grid grid-cols-2 gap-x-4 gap-y-1 mt-3 text-[11px]">
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span><span class="text-gray-600">Nuevos</span></div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span><span class="text-gray-600">Citados</span></div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span><span class="text-gray-600">Descartados</span></div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span class="text-gray-600">Seleccionados</span></div>
-        </div>
-      </div>
-
-      <!-- Recent candidates -->
-      <div class="bg-gray-50/50 rounded-xl p-5 border border-gray-100">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Actividad reciente</p>
-          <button onclick="dashDrillDown('reciente','')" class="text-[10px] text-brand-600 hover:text-brand-700 font-medium hover:underline transition">Ver todo</button>
-        </div>
-        <div id="dashRecent" class="space-y-2 max-h-[240px] overflow-y-auto text-sm">
-          <p class="text-gray-300 text-xs">Cargando...</p>
-        </div>
       </div>
     </div>
   </div>
@@ -1308,7 +1325,50 @@ function updateStats() {
   setDonut('donutDescartado', pD, offset); offset -= pD;
   setDonut('donutSeleccionado', pS, offset);
   document.getElementById('donutCenter').textContent = total;
+  // Dynamic donuts: position + office
+  renderDynamicDonut(filtered, COL.POSICION, 'donutPos', 'donutPosCenter', 'donutPosLegend');
+  renderDynamicDonut(filtered, COL.OFICINA, 'donutOff', 'donutOffCenter', 'donutOffLegend');
   updateDashboardPanels();
+}
+
+const DONUT_COLORS = ['#6366f1','#8b5cf6','#ec4899','#f43f5e','#f97316','#eab308','#22c55e','#14b8a6','#06b6d4','#3b82f6','#a855f7','#d946ef'];
+function renderDynamicDonut(rows, colIdx, svgPrefix, centerId, legendId) {
+  const map = {};
+  for (const r of rows) {
+    const v = (r[colIdx] || '').trim();
+    if (v) map[v] = (map[v] || 0) + 1;
+  }
+  const sorted = Object.entries(map).sort((a,b) => b[1] - a[1]);
+  const total = rows.length;
+  // Find the SVG (parent of center text)
+  const centerEl = document.getElementById(centerId);
+  if (!centerEl) return;
+  const svg = centerEl.closest('svg');
+  // Remove old dynamic arcs
+  svg.querySelectorAll('.donut-dyn').forEach(el => el.remove());
+  let offset = 25;
+  sorted.forEach(([name, count], i) => {
+    const pct = total ? count / total * 100 : 0;
+    const color = DONUT_COLORS[i % DONUT_COLORS.length];
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('class', 'donut-ring donut-dyn');
+    circle.setAttribute('cx', '18'); circle.setAttribute('cy', '18'); circle.setAttribute('r', '15.9');
+    circle.setAttribute('fill', 'none'); circle.setAttribute('stroke', color);
+    circle.setAttribute('stroke-width', '2.8'); circle.setAttribute('stroke-linecap', 'round');
+    circle.setAttribute('stroke-dasharray', `${pct} ${100 - pct}`);
+    circle.setAttribute('stroke-dashoffset', String(offset));
+    svg.insertBefore(circle, centerEl);
+    offset -= pct;
+  });
+  centerEl.textContent = total;
+  // Legend
+  const legendEl = document.getElementById(legendId);
+  if (legendEl) {
+    const top5 = sorted.slice(0, 6);
+    legendEl.innerHTML = top5.map(([name, count], i) =>
+      `<div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full flex-shrink-0" style="background:${DONUT_COLORS[i % DONUT_COLORS.length]}"></span><span class="text-gray-500 truncate" title="${name}">${name}</span></div>`
+    ).join('');
+  }
 }
 
 function sitColorClass(s) {
