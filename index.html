@@ -4,85 +4,133 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Casa Agency - Panel RRHH</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
 <script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: { colors: {
+    brand: { 50:'#eff6ff', 100:'#dbeafe', 600:'#2563eb', 700:'#1d4ed8', 800:'#1e40af' }
+  }}}
+}
+</script>
 <style>
-  body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; }
-  .loader { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; display: inline-block; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; }
+  .loader { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
   table th { position: sticky; top: 0; z-index: 10; }
-  .badge { padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-  .badge-nuevo { background: #dbeafe; color: #1e40af; }
-  .badge-citado { background: #fef3c7; color: #92400e; }
-  .badge-descartado { background: #fee2e2; color: #991b1b; }
-  .badge-seleccionado { background: #d1fae5; color: #065f46; }
-  .badge-default { background: #e2e8f0; color: #475569; }
-  .stat-card { transition: transform 0.15s; }
-  .stat-card:hover { transform: translateY(-2px); }
-  .row-hover:hover { background: #f8fafc; }
-  .modal-backdrop { background: rgba(0,0,0,0.4); }
-  select.sit-select { appearance: none; padding: 4px 24px 4px 8px; border-radius: 6px; border: 1px solid #d1d5db; font-size: 0.8rem; cursor: pointer; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E") no-repeat right 6px center; }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: #1d4ed8; }
+  th .sort-icon { opacity: 0.3; font-size: 10px; }
+  th.sorted-asc .sort-icon, th.sorted-desc .sort-icon { opacity: 1; color: #2563eb; }
+  .stat-card { transition: all 0.15s; cursor: pointer; }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .stat-card.active { ring: 2px; box-shadow: 0 0 0 2px #3b82f6; }
+  .row-hover:hover { background: #f1f5f9; }
+  .modal-backdrop { background: rgba(15,23,42,0.5); backdrop-filter: blur(2px); }
+  .modal-panel { transform: translateX(100%); transition: transform 0.25s ease-out; }
+  .modal-panel.open { transform: translateX(0); }
+  .sit-select { appearance: none; padding: 3px 22px 3px 8px; border-radius: 9999px; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; text-transform: uppercase; background-repeat: no-repeat; background-position: right 6px center; background-size: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); }
+  .sit-nuevo { background-color: #dbeafe; color: #1e40af; }
+  .sit-citado { background-color: #fef3c7; color: #92400e; }
+  .sit-descartado { background-color: #fee2e2; color: #991b1b; }
+  .sit-seleccionado { background-color: #d1fae5; color: #065f46; }
   .toast { animation: slideIn 0.3s ease-out; }
-  @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .field-edit { transition: all 0.15s; }
+  .field-edit:hover { background: #f1f5f9; border-radius: 6px; }
+  .field-edit input, .field-edit select { border: 1px solid #d1d5db; border-radius: 6px; padding: 4px 8px; font-size: 0.875rem; width: 100%; }
+  .field-edit input:focus, .field-edit select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+  .pct-bar { height: 4px; border-radius: 2px; transition: width 0.4s ease; }
 </style>
 </head>
 <body class="min-h-screen">
 
-<!-- Toast container -->
 <div id="toasts" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 
 <!-- Header -->
-<header class="bg-white shadow-sm border-b border-gray-200">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-    <div>
-      <h1 class="text-xl font-bold text-gray-800">La Casa Agency</h1>
-      <p class="text-sm text-gray-500">Panel de Recursos Humanos</p>
+<header class="bg-white border-b border-gray-200">
+  <div class="max-w-[1400px] mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">LC</div>
+      <div>
+        <h1 class="text-lg font-bold text-gray-800 leading-tight">La Casa Agency</h1>
+        <p class="text-xs text-gray-400">Panel RRHH</p>
+      </div>
     </div>
     <div class="flex items-center gap-3">
-      <span id="lastUpdate" class="text-xs text-gray-400"></span>
-      <button onclick="loadData()" id="btnRefresh" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        Actualizar
+      <span id="lastUpdate" class="text-xs text-gray-400 hidden sm:inline"></span>
+      <button onclick="exportCSV()" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg text-xs font-medium hover:bg-gray-100 transition flex items-center gap-1.5" title="Exportar CSV">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        CSV
+      </button>
+      <button onclick="loadData()" id="btnRefresh" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition flex items-center gap-2">
+        <svg id="refreshIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <span id="refreshText">Actualizar</span>
       </button>
     </div>
   </div>
 </header>
 
 <!-- Stats -->
-<div class="max-w-7xl mx-auto px-4 py-4">
-  <div id="stats" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-    <div class="stat-card bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-      <p class="text-2xl font-bold text-gray-800" id="statTotal">-</p>
-      <p class="text-xs text-gray-500 mt-1">Total</p>
+<div class="max-w-[1400px] mx-auto px-4 py-4">
+  <div class="grid grid-cols-3 md:grid-cols-6 gap-2.5">
+    <div class="stat-card bg-white rounded-xl p-3 shadow-sm border border-gray-100" onclick="filterByStat('')">
+      <div class="flex items-baseline justify-between">
+        <p class="text-2xl font-bold text-gray-800" id="statTotal">-</p>
+        <span class="text-[10px] text-gray-400 font-medium" id="pctTotal"></span>
+      </div>
+      <p class="text-[11px] text-gray-500 mt-0.5">Total</p>
     </div>
-    <div class="stat-card bg-blue-50 rounded-xl p-4 shadow-sm border border-blue-100">
-      <p class="text-2xl font-bold text-blue-700" id="statNuevo">-</p>
-      <p class="text-xs text-blue-600 mt-1">Nuevos</p>
+    <div class="stat-card bg-blue-50/70 rounded-xl p-3 shadow-sm border border-blue-100/60" onclick="filterByStat('Nuevo')">
+      <div class="flex items-baseline justify-between">
+        <p class="text-2xl font-bold text-blue-700" id="statNuevo">-</p>
+        <span class="text-[10px] text-blue-400 font-medium" id="pctNuevo"></span>
+      </div>
+      <p class="text-[11px] text-blue-600 mt-0.5">Nuevos</p>
+      <div class="mt-1.5 bg-blue-100 rounded-full overflow-hidden"><div class="pct-bar bg-blue-500" id="barNuevo"></div></div>
     </div>
-    <div class="stat-card bg-yellow-50 rounded-xl p-4 shadow-sm border border-yellow-100">
-      <p class="text-2xl font-bold text-yellow-700" id="statCitado">-</p>
-      <p class="text-xs text-yellow-600 mt-1">Citados</p>
+    <div class="stat-card bg-amber-50/70 rounded-xl p-3 shadow-sm border border-amber-100/60" onclick="filterByStat('Citado')">
+      <div class="flex items-baseline justify-between">
+        <p class="text-2xl font-bold text-amber-700" id="statCitado">-</p>
+        <span class="text-[10px] text-amber-400 font-medium" id="pctCitado"></span>
+      </div>
+      <p class="text-[11px] text-amber-600 mt-0.5">Citados</p>
+      <div class="mt-1.5 bg-amber-100 rounded-full overflow-hidden"><div class="pct-bar bg-amber-500" id="barCitado"></div></div>
     </div>
-    <div class="stat-card bg-red-50 rounded-xl p-4 shadow-sm border border-red-100">
-      <p class="text-2xl font-bold text-red-700" id="statDescartado">-</p>
-      <p class="text-xs text-red-600 mt-1">Descartados</p>
+    <div class="stat-card bg-red-50/70 rounded-xl p-3 shadow-sm border border-red-100/60" onclick="filterByStat('Descartado')">
+      <div class="flex items-baseline justify-between">
+        <p class="text-2xl font-bold text-red-700" id="statDescartado">-</p>
+        <span class="text-[10px] text-red-400 font-medium" id="pctDescartado"></span>
+      </div>
+      <p class="text-[11px] text-red-600 mt-0.5">Descartados</p>
+      <div class="mt-1.5 bg-red-100 rounded-full overflow-hidden"><div class="pct-bar bg-red-500" id="barDescartado"></div></div>
     </div>
-    <div class="stat-card bg-green-50 rounded-xl p-4 shadow-sm border border-green-100">
-      <p class="text-2xl font-bold text-green-700" id="statSeleccionado">-</p>
-      <p class="text-xs text-green-600 mt-1">Seleccionados</p>
+    <div class="stat-card bg-emerald-50/70 rounded-xl p-3 shadow-sm border border-emerald-100/60" onclick="filterByStat('Seleccionado')">
+      <div class="flex items-baseline justify-between">
+        <p class="text-2xl font-bold text-emerald-700" id="statSeleccionado">-</p>
+        <span class="text-[10px] text-emerald-400 font-medium" id="pctSeleccionado"></span>
+      </div>
+      <p class="text-[11px] text-emerald-600 mt-0.5">Seleccionados</p>
+      <div class="mt-1.5 bg-emerald-100 rounded-full overflow-hidden"><div class="pct-bar bg-emerald-500" id="barSeleccionado"></div></div>
     </div>
-    <div class="stat-card bg-purple-50 rounded-xl p-4 shadow-sm border border-purple-100">
-      <p class="text-2xl font-bold text-purple-700" id="statOrganizado">-</p>
-      <p class="text-xs text-purple-600 mt-1">Organizados</p>
+    <div class="stat-card bg-violet-50/70 rounded-xl p-3 shadow-sm border border-violet-100/60" onclick="filterByStat('')">
+      <div class="flex items-baseline justify-between">
+        <p class="text-2xl font-bold text-violet-700" id="statOrganizado">-</p>
+        <span class="text-[10px] text-violet-400 font-medium" id="pctOrganizado"></span>
+      </div>
+      <p class="text-[11px] text-violet-600 mt-0.5">Organizados</p>
+      <div class="mt-1.5 bg-violet-100 rounded-full overflow-hidden"><div class="pct-bar bg-violet-500" id="barOrganizado"></div></div>
     </div>
   </div>
 </div>
 
 <!-- Filters -->
-<div class="max-w-7xl mx-auto px-4 pb-3">
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-wrap gap-3 items-center">
+<div class="max-w-[1400px] mx-auto px-4 pb-3">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 flex flex-wrap gap-2.5 items-end">
     <div>
-      <label class="text-xs text-gray-500 block mb-1">Situacion</label>
-      <select id="filterSituacion" onchange="applyFilters()" class="text-sm border border-gray-300 rounded-lg px-3 py-1.5">
+      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Situacion</label>
+      <select id="filterSituacion" onchange="applyFilters()" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
         <option value="">Todas</option>
         <option value="Nuevo">Nuevo</option>
         <option value="Citado">Citado</option>
@@ -91,59 +139,67 @@
       </select>
     </div>
     <div>
-      <label class="text-xs text-gray-500 block mb-1">Mes</label>
-      <select id="filterMes" onchange="applyFilters()" class="text-sm border border-gray-300 rounded-lg px-3 py-1.5">
+      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Mes</label>
+      <select id="filterMes" onchange="applyFilters()" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
         <option value="">Todos</option>
       </select>
     </div>
     <div>
-      <label class="text-xs text-gray-500 block mb-1">Posicion</label>
-      <select id="filterPosicion" onchange="applyFilters()" class="text-sm border border-gray-300 rounded-lg px-3 py-1.5">
+      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Posicion</label>
+      <select id="filterPosicion" onchange="applyFilters()" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
         <option value="">Todas</option>
       </select>
     </div>
-    <div class="flex-1 min-w-[200px]">
-      <label class="text-xs text-gray-500 block mb-1">Buscar</label>
-      <input id="filterSearch" type="text" placeholder="Nombre, telefono, email..." oninput="applyFilters()" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-1.5">
+    <div class="flex-1 min-w-[180px]">
+      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Buscar</label>
+      <div class="relative">
+        <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="filterSearch" type="text" placeholder="Nombre, telefono, email..." oninput="applyFilters()" class="w-full text-sm border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+      </div>
     </div>
-    <div class="self-end">
-      <button onclick="deleteSelected()" id="btnDelete" class="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-200 transition hidden">
-        Eliminar seleccionados
-      </button>
-    </div>
+    <button onclick="clearFilters()" id="btnClear" class="text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg text-xs hover:bg-gray-100 transition hidden" title="Limpiar filtros">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    <button onclick="deleteSelected()" id="btnDelete" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-100 transition hidden items-center gap-1 border border-red-200">
+      <svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      Eliminar (<span id="deleteCount">0</span>)
+    </button>
   </div>
 </div>
 
 <!-- Table -->
-<div class="max-w-7xl mx-auto px-4 pb-8">
+<div class="max-w-[1400px] mx-auto px-4 pb-8">
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
+      <table class="w-full text-sm" id="mainTable">
+        <thead class="bg-gray-50/80 text-gray-500 text-[11px] uppercase tracking-wider">
           <tr>
-            <th class="px-3 py-3 text-left"><input type="checkbox" id="checkAll" onchange="toggleAll(this)"></th>
-            <th class="px-3 py-3 text-left">#</th>
-            <th class="px-3 py-3 text-left">Nombre</th>
-            <th class="px-3 py-3 text-left">Mes</th>
-            <th class="px-3 py-3 text-left">Oficina</th>
-            <th class="px-3 py-3 text-left">Telefono</th>
-            <th class="px-3 py-3 text-left">Situacion</th>
-            <th class="px-3 py-3 text-left">Posicion</th>
-            <th class="px-3 py-3 text-left">Comentarios</th>
-            <th class="px-3 py-3 text-center">Detalle</th>
+            <th class="px-3 py-2.5 text-left w-8"><input type="checkbox" id="checkAll" onchange="toggleAll(this)" class="rounded"></th>
+            <th class="px-3 py-2.5 text-left w-10 sortable" data-col="ROW" onclick="sortBy(this)"># <span class="sort-icon">&#9650;</span></th>
+            <th class="px-3 py-2.5 text-left sortable" data-col="NOMBRE" onclick="sortBy(this)">Nombre <span class="sort-icon">&#9650;</span></th>
+            <th class="px-3 py-2.5 text-left sortable hidden md:table-cell" data-col="MES" onclick="sortBy(this)">Mes <span class="sort-icon">&#9650;</span></th>
+            <th class="px-3 py-2.5 text-left sortable hidden lg:table-cell" data-col="OFICINA" onclick="sortBy(this)">Oficina <span class="sort-icon">&#9650;</span></th>
+            <th class="px-3 py-2.5 text-left hidden sm:table-cell">Telefono</th>
+            <th class="px-3 py-2.5 text-left sortable" data-col="SITUACION" onclick="sortBy(this)">Situacion <span class="sort-icon">&#9650;</span></th>
+            <th class="px-3 py-2.5 text-left sortable hidden lg:table-cell" data-col="POSICION" onclick="sortBy(this)">Posicion <span class="sort-icon">&#9650;</span></th>
+            <th class="px-3 py-2.5 text-left hidden xl:table-cell">Comentarios</th>
+            <th class="px-3 py-2.5 text-center w-16"></th>
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="10" class="text-center py-12 text-gray-400"><div class="loader"></div><p class="mt-2">Cargando datos...</p></td></tr>
+          <tr><td colspan="10" class="text-center py-16 text-gray-400">
+            <div class="loader mx-auto"></div>
+            <p class="mt-3 text-sm">Conectando con el servidor...</p>
+          </td></tr>
         </tbody>
       </table>
     </div>
-    <div id="tableFooter" class="px-4 py-3 bg-gray-50 border-t text-xs text-gray-500 flex justify-between items-center">
+    <div class="px-4 py-2.5 bg-gray-50/50 border-t text-xs text-gray-400 flex justify-between items-center">
       <span id="rowCount">-</span>
-      <div class="flex gap-2">
-        <button onclick="prevPage()" id="btnPrev" class="px-3 py-1 rounded border bg-white hover:bg-gray-50 disabled:opacity-40" disabled>&laquo; Anterior</button>
-        <span id="pageInfo" class="px-2 py-1">-</span>
-        <button onclick="nextPage()" id="btnNext" class="px-3 py-1 rounded border bg-white hover:bg-gray-50 disabled:opacity-40" disabled>Siguiente &raquo;</button>
+      <div class="flex items-center gap-1.5">
+        <button onclick="prevPage()" id="btnPrev" class="px-2.5 py-1 rounded-md border bg-white hover:bg-gray-50 disabled:opacity-30 transition text-gray-600" disabled>&#8249;</button>
+        <span id="pageInfo" class="px-2 py-1 text-gray-500 min-w-[80px] text-center">-</span>
+        <button onclick="nextPage()" id="btnNext" class="px-2.5 py-1 rounded-md border bg-white hover:bg-gray-50 disabled:opacity-30 transition text-gray-600" disabled>&#8250;</button>
       </div>
     </div>
   </div>
@@ -152,14 +208,17 @@
 <!-- Detail Modal -->
 <div id="modal" class="fixed inset-0 z-40 hidden">
   <div class="modal-backdrop absolute inset-0" onclick="closeModal()"></div>
-  <div class="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-xl overflow-y-auto">
-    <div class="p-6">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-lg font-bold text-gray-800" id="modalTitle">Detalle</h2>
-        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+  <div class="modal-panel absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl overflow-y-auto">
+    <div class="sticky top-0 bg-white/95 backdrop-blur-sm border-b px-6 py-4 z-10">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-lg font-bold text-gray-800" id="modalTitle">Detalle</h2>
+          <p class="text-xs text-gray-400" id="modalSubtitle"></p>
+        </div>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition">&times;</button>
       </div>
-      <div id="modalContent" class="space-y-4"></div>
     </div>
+    <div id="modalContent" class="p-6 space-y-5"></div>
   </div>
 </div>
 
@@ -168,32 +227,48 @@
 const WEBHOOK_URL = 'https://lacasa-webhook.conexiatec.com/webhook/demo-lacasa';
 const PAGE_SIZE = 50;
 
-// Column indices (0-based)
 const COL = {
-  MES: 0, NOMBRE: 1, FORMATO: 2, OFICINA: 3, RESIDENCIA: 4, FECHA: 5,
-  HORA: 6, CORREO: 7, TELEFONO: 8, FUENTE: 9, CONFIRMACION: 10,
-  CITADO_POR: 11, ASISTENCIA: 12, ENTREVISTADO_POR: 13, MOTIVO_DESCARTE: 14,
-  MAIL_DESCARTE: 15, COMENTARIOS: 16, SITUACION: 17, POSICION: 18,
-  INICIO: 19, FIN: 20, CAUSA: 21, ACCION: 22, FILE_ID: 23, FILE_NAME: 24, ULTIMO_SYNC: 25
+  MES:0, NOMBRE:1, FORMATO:2, OFICINA:3, RESIDENCIA:4, FECHA:5,
+  HORA:6, CORREO:7, TELEFONO:8, FUENTE:9, CONFIRMACION:10,
+  CITADO_POR:11, ASISTENCIA:12, ENTREVISTADO_POR:13, MOTIVO_DESCARTE:14,
+  MAIL_DESCARTE:15, COMENTARIOS:16, SITUACION:17, POSICION:18,
+  INICIO:19, FIN:20, CAUSA:21, ACCION:22, FILE_ID:23, FILE_NAME:24, ULTIMO_SYNC:25
+};
+
+// Sheet column letters for update_cell API
+const COL_LETTER = {
+  MES:'A', NOMBRE:'B', FORMATO:'C', OFICINA:'D', RESIDENCIA:'E', FECHA:'F',
+  HORA:'G', CORREO:'H', TELEFONO:'I', FUENTE:'J', CONFIRMACION:'K',
+  CITADO_POR:'L', ASISTENCIA:'M', ENTREVISTADO_POR:'N', MOTIVO_DESCARTE:'O',
+  MAIL_DESCARTE:'P', COMENTARIOS:'Q', SITUACION:'R', POSICION:'S',
+  INICIO:'T', FIN:'U', CAUSA:'V'
 };
 
 const COL_LABELS = {
-  MES: 'Mes', NOMBRE: 'Nombre', FORMATO: 'Formato', OFICINA: 'Oficina',
-  RESIDENCIA: 'Residencia', FECHA: 'Fecha', HORA: 'Hora', CORREO: 'Correo',
-  TELEFONO: 'Telefono', FUENTE: 'Fuente', CONFIRMACION: 'Confirmacion',
-  CITADO_POR: 'Citado por', ASISTENCIA: 'Asistencia', ENTREVISTADO_POR: 'Entrevistado por',
-  MOTIVO_DESCARTE: 'Motivo descarte', MAIL_DESCARTE: 'Mail descarte',
-  COMENTARIOS: 'Comentarios', SITUACION: 'Situacion', POSICION: 'Posicion',
-  INICIO: 'Inicio', FIN: 'Fin', CAUSA: 'Causa', ACCION: '_accion',
-  FILE_ID: '_fileId', FILE_NAME: '_fileName', ULTIMO_SYNC: '_ultimo_sync'
+  MES:'Mes', NOMBRE:'Nombre', FORMATO:'Formato', OFICINA:'Oficina',
+  RESIDENCIA:'Residencia', FECHA:'Fecha', HORA:'Hora', CORREO:'Correo',
+  TELEFONO:'Telefono', FUENTE:'Fuente', CONFIRMACION:'Confirmacion',
+  CITADO_POR:'Citado por', ASISTENCIA:'Asistencia', ENTREVISTADO_POR:'Entrevistado por',
+  MOTIVO_DESCARTE:'Motivo descarte', MAIL_DESCARTE:'Mail descarte',
+  COMENTARIOS:'Comentarios', SITUACION:'Situacion', POSICION:'Posicion',
+  INICIO:'Inicio', FIN:'Fin', CAUSA:'Causa', ACCION:'_accion',
+  FILE_ID:'_fileId', FILE_NAME:'_fileName', ULTIMO_SYNC:'_ultimo_sync'
 };
 
+// Editable fields (shown in modal with edit capability)
+const EDITABLE_FIELDS = ['NOMBRE','OFICINA','RESIDENCIA','FECHA','HORA','CORREO','TELEFONO',
+  'SITUACION','POSICION','CITADO_POR','ASISTENCIA','ENTREVISTADO_POR',
+  'MOTIVO_DESCARTE','COMENTARIOS','CONFIRMACION','FUENTE'];
+
 // --- STATE ---
-let allRows = [];       // raw rows (without header)
-let filteredRows = [];  // after filters
+let allRows = [];
+let filteredRows = [];
 let headers = [];
 let currentPage = 0;
 let selectedRows = new Set();
+let sortCol = null;
+let sortAsc = true;
+let modalRowIdx = -1;
 
 // --- API ---
 async function apiCall(body) {
@@ -206,11 +281,14 @@ async function apiCall(body) {
   return resp.json();
 }
 
-// --- LOAD DATA ---
+// --- LOAD ---
 async function loadData() {
   const btn = document.getElementById('btnRefresh');
+  const icon = document.getElementById('refreshIcon');
+  const text = document.getElementById('refreshText');
   btn.disabled = true;
-  btn.innerHTML = '<span class="loader"></span> Cargando...';
+  icon.classList.add('animate-spin');
+  text.textContent = 'Cargando...';
   try {
     const data = await apiCall({ action: 'read_sheet' });
     const values = data.values || [];
@@ -221,20 +299,27 @@ async function loadData() {
     populateFilters();
     applyFilters();
     updateStats();
-    document.getElementById('lastUpdate').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-ES');
-    toast('Datos cargados', 'success');
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'});
+    toast('Datos cargados correctamente', 'success');
   } catch (e) {
     toast('Error al cargar: ' + e.message, 'error');
+    document.getElementById('tableBody').innerHTML = `<tr><td colspan="10" class="text-center py-16 text-gray-400">
+      <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+      <p class="font-medium text-gray-500">No se pudo conectar</p>
+      <p class="text-xs mt-1">${esc(e.message)}</p>
+      <button onclick="loadData()" class="mt-3 text-blue-600 hover:text-blue-800 text-xs font-medium">Reintentar</button>
+    </td></tr>`;
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Actualizar';
+    icon.classList.remove('animate-spin');
+    text.textContent = 'Actualizar';
   }
 }
 
 // --- STATS ---
 function updateStats() {
   const total = allRows.length;
-  let nuevo = 0, citado = 0, descartado = 0, seleccionado = 0, organizado = 0;
+  let nuevo=0, citado=0, descartado=0, seleccionado=0, organizado=0;
   for (const row of allRows) {
     const sit = (row[COL.SITUACION] || '').toLowerCase();
     const acc = (row[COL.ACCION] || '').toLowerCase();
@@ -244,36 +329,45 @@ function updateStats() {
     else if (sit.includes('seleccion')) seleccionado++;
     if (acc === 'organized') organizado++;
   }
+  const pct = n => total ? Math.round(n/total*100) : 0;
   document.getElementById('statTotal').textContent = total;
   document.getElementById('statNuevo').textContent = nuevo;
   document.getElementById('statCitado').textContent = citado;
   document.getElementById('statDescartado').textContent = descartado;
   document.getElementById('statSeleccionado').textContent = seleccionado;
   document.getElementById('statOrganizado').textContent = organizado;
+  document.getElementById('pctNuevo').textContent = pct(nuevo)+'%';
+  document.getElementById('pctCitado').textContent = pct(citado)+'%';
+  document.getElementById('pctDescartado').textContent = pct(descartado)+'%';
+  document.getElementById('pctSeleccionado').textContent = pct(seleccionado)+'%';
+  document.getElementById('pctOrganizado').textContent = pct(organizado)+'%';
+  document.getElementById('barNuevo').style.width = pct(nuevo)+'%';
+  document.getElementById('barCitado').style.width = pct(citado)+'%';
+  document.getElementById('barDescartado').style.width = pct(descartado)+'%';
+  document.getElementById('barSeleccionado').style.width = pct(seleccionado)+'%';
+  document.getElementById('barOrganizado').style.width = pct(organizado)+'%';
+}
+
+function filterByStat(val) {
+  document.getElementById('filterSituacion').value = val;
+  applyFilters();
 }
 
 // --- FILTERS ---
 function populateFilters() {
-  const meses = new Set();
-  const posiciones = new Set();
+  const meses = new Set(), posiciones = new Set();
   for (const row of allRows) {
-    const m = (row[COL.MES] || '').trim();
-    const p = (row[COL.POSICION] || '').trim();
+    const m = (row[COL.MES]||'').trim(), p = (row[COL.POSICION]||'').trim();
     if (m) meses.add(m);
     if (p) posiciones.add(p);
   }
   const selMes = document.getElementById('filterMes');
   const selPos = document.getElementById('filterPosicion');
-  const curMes = selMes.value;
-  const curPos = selPos.value;
+  const curMes = selMes.value, curPos = selPos.value;
   selMes.innerHTML = '<option value="">Todos</option>';
   selPos.innerHTML = '<option value="">Todas</option>';
-  [...meses].sort().forEach(m => {
-    selMes.innerHTML += `<option value="${esc(m)}" ${m === curMes ? 'selected' : ''}>${esc(m)}</option>`;
-  });
-  [...posiciones].sort().forEach(p => {
-    selPos.innerHTML += `<option value="${esc(p)}" ${p === curPos ? 'selected' : ''}>${esc(p)}</option>`;
-  });
+  [...meses].sort().forEach(m => selMes.innerHTML += `<option value="${esc(m)}" ${m===curMes?'selected':''}>${esc(m)}</option>`);
+  [...posiciones].sort().forEach(p => selPos.innerHTML += `<option value="${esc(p)}" ${p===curPos?'selected':''}>${esc(p)}</option>`);
 }
 
 function applyFilters() {
@@ -282,20 +376,61 @@ function applyFilters() {
   const pos = document.getElementById('filterPosicion').value;
   const search = document.getElementById('filterSearch').value.toLowerCase().trim();
 
-  filteredRows = allRows.filter((row, idx) => {
-    if (sit && !(row[COL.SITUACION] || '').toLowerCase().includes(sit)) return false;
-    if (mes && (row[COL.MES] || '').trim() !== mes) return false;
-    if (pos && (row[COL.POSICION] || '').trim() !== pos) return false;
+  filteredRows = allRows.filter(row => {
+    if (sit && !(row[COL.SITUACION]||'').toLowerCase().includes(sit)) return false;
+    if (mes && (row[COL.MES]||'').trim() !== mes) return false;
+    if (pos && (row[COL.POSICION]||'').trim() !== pos) return false;
     if (search) {
-      const haystack = [row[COL.NOMBRE], row[COL.TELEFONO], row[COL.CORREO], row[COL.COMENTARIOS]]
-        .map(v => (v || '').toLowerCase()).join(' ');
-      if (!haystack.includes(search)) return false;
+      const h = [row[COL.NOMBRE],row[COL.TELEFONO],row[COL.CORREO],row[COL.COMENTARIOS],row[COL.POSICION],row[COL.OFICINA]]
+        .map(v=>(v||'').toLowerCase()).join(' ');
+      if (!h.includes(search)) return false;
     }
     return true;
   });
 
+  // Apply sort
+  if (sortCol !== null) doSort();
+
   currentPage = 0;
   renderTable();
+
+  // Show/hide clear button
+  const hasFilter = sit || mes || pos || search;
+  document.getElementById('btnClear').classList.toggle('hidden', !hasFilter);
+}
+
+function clearFilters() {
+  document.getElementById('filterSituacion').value = '';
+  document.getElementById('filterMes').value = '';
+  document.getElementById('filterPosicion').value = '';
+  document.getElementById('filterSearch').value = '';
+  sortCol = null; sortAsc = true;
+  document.querySelectorAll('th.sortable').forEach(th => { th.classList.remove('sorted-asc','sorted-desc'); });
+  applyFilters();
+}
+
+// --- SORT ---
+function sortBy(th) {
+  const col = th.dataset.col;
+  if (sortCol === col) { sortAsc = !sortAsc; } else { sortCol = col; sortAsc = true; }
+  document.querySelectorAll('th.sortable').forEach(t => t.classList.remove('sorted-asc','sorted-desc'));
+  th.classList.add(sortAsc ? 'sorted-asc' : 'sorted-desc');
+  doSort();
+  currentPage = 0;
+  renderTable();
+}
+
+function doSort() {
+  if (!sortCol) return;
+  const colIdx = sortCol === 'ROW' ? -1 : COL[sortCol];
+  filteredRows.sort((a, b) => {
+    let va, vb;
+    if (colIdx === -1) { va = allRows.indexOf(a); vb = allRows.indexOf(b); }
+    else { va = (a[colIdx]||'').toLowerCase(); vb = (b[colIdx]||'').toLowerCase(); }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
 }
 
 // --- TABLE ---
@@ -306,175 +441,275 @@ function renderTable() {
   const totalPages = Math.ceil(filteredRows.length / PAGE_SIZE) || 1;
 
   if (page.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-12 text-gray-400">Sin resultados</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-16 text-gray-400">
+      <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+      <p class="text-sm">Sin resultados</p></td></tr>`;
   } else {
-    tbody.innerHTML = page.map((row, i) => {
-      const globalIdx = allRows.indexOf(row);
-      const sheetRow = globalIdx + 2; // +1 for header, +1 for 1-indexed
-      const sit = (row[COL.SITUACION] || 'Nuevo').trim();
-      const badgeClass = getBadgeClass(sit);
-      const checked = selectedRows.has(sheetRow) ? 'checked' : '';
-      return `<tr class="border-t border-gray-100 row-hover">
-        <td class="px-3 py-2"><input type="checkbox" value="${sheetRow}" ${checked} onchange="toggleRow(this)"></td>
-        <td class="px-3 py-2 text-gray-400">${sheetRow}</td>
-        <td class="px-3 py-2 font-medium text-gray-800">${esc(row[COL.NOMBRE] || '')}</td>
-        <td class="px-3 py-2 text-gray-600">${esc(row[COL.MES] || '')}</td>
-        <td class="px-3 py-2 text-gray-600">${esc(row[COL.OFICINA] || '')}</td>
-        <td class="px-3 py-2 text-gray-600">${esc(row[COL.TELEFONO] || '')}</td>
+    tbody.innerHTML = page.map(row => {
+      const gi = allRows.indexOf(row);
+      const sr = gi + 2;
+      const sit = (row[COL.SITUACION]||'Nuevo').trim();
+      const sitClass = getSitClass(sit);
+      const ck = selectedRows.has(sr) ? 'checked' : '';
+      const phone = (row[COL.TELEFONO]||'').trim();
+      const phoneLink = phone ? `<a href="tel:${phone}" class="text-gray-600 hover:text-blue-600 transition">${esc(phone)}</a>` : '<span class="text-gray-300">-</span>';
+      return `<tr class="border-t border-gray-50 row-hover">
+        <td class="px-3 py-2"><input type="checkbox" value="${sr}" ${ck} onchange="toggleRow(this)" class="rounded"></td>
+        <td class="px-3 py-2 text-gray-300 text-xs">${sr}</td>
+        <td class="px-3 py-2 font-medium text-gray-800">${esc(row[COL.NOMBRE]||'')}</td>
+        <td class="px-3 py-2 text-gray-500 hidden md:table-cell">${esc(row[COL.MES]||'')}</td>
+        <td class="px-3 py-2 text-gray-500 hidden lg:table-cell">${esc(row[COL.OFICINA]||'')}</td>
+        <td class="px-3 py-2 hidden sm:table-cell">${phoneLink}</td>
         <td class="px-3 py-2">
-          <select class="sit-select" data-row="${sheetRow}" data-original="${esc(sit)}" onchange="updateSituacion(this)">
+          <select class="sit-select ${sitClass}" data-row="${sr}" data-original="${esc(sit)}" onchange="updateSituacion(this)">
             ${['Nuevo','Citado','Descartado','Seleccionado'].map(o =>
-              `<option value="${o}" ${o.toLowerCase() === sit.toLowerCase() ? 'selected' : ''}>${o}</option>`
+              `<option value="${o}" ${o.toLowerCase()===sit.toLowerCase()?'selected':''}>${o}</option>`
             ).join('')}
           </select>
         </td>
-        <td class="px-3 py-2 text-gray-600">${esc(row[COL.POSICION] || '')}</td>
-        <td class="px-3 py-2 text-gray-500 max-w-[200px] truncate" title="${esc(row[COL.COMENTARIOS] || '')}">${esc(row[COL.COMENTARIOS] || '')}</td>
+        <td class="px-3 py-2 text-gray-500 hidden lg:table-cell text-xs">${esc(row[COL.POSICION]||'')}</td>
+        <td class="px-3 py-2 text-gray-400 max-w-[180px] truncate text-xs hidden xl:table-cell" title="${esc(row[COL.COMENTARIOS]||'')}">${esc(row[COL.COMENTARIOS]||'')}</td>
         <td class="px-3 py-2 text-center">
-          <button onclick="showDetail(${globalIdx})" class="text-blue-600 hover:text-blue-800 text-xs font-medium">Ver</button>
+          <button onclick="showDetail(${gi})" class="text-gray-400 hover:text-blue-600 transition p-1 rounded hover:bg-blue-50">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
         </td>
       </tr>`;
     }).join('');
   }
 
-  document.getElementById('rowCount').textContent = `${filteredRows.length} de ${allRows.length} filas`;
-  document.getElementById('pageInfo').textContent = `Pag ${currentPage + 1} / ${totalPages}`;
+  document.getElementById('rowCount').textContent = `${filteredRows.length} de ${allRows.length} candidatos`;
+  document.getElementById('pageInfo').textContent = `${currentPage+1} / ${totalPages}`;
   document.getElementById('btnPrev').disabled = currentPage === 0;
   document.getElementById('btnNext').disabled = start + PAGE_SIZE >= filteredRows.length;
-
-  // Show/hide delete button
-  document.getElementById('btnDelete').classList.toggle('hidden', selectedRows.size === 0);
+  updateDeleteBtn();
 }
 
 function prevPage() { if (currentPage > 0) { currentPage--; renderTable(); } }
-function nextPage() { if ((currentPage + 1) * PAGE_SIZE < filteredRows.length) { currentPage++; renderTable(); } }
+function nextPage() { if ((currentPage+1)*PAGE_SIZE < filteredRows.length) { currentPage++; renderTable(); } }
 
 function toggleAll(el) {
-  const checkboxes = document.querySelectorAll('#tableBody input[type=checkbox]');
-  checkboxes.forEach(cb => {
+  document.querySelectorAll('#tableBody input[type=checkbox]').forEach(cb => {
     cb.checked = el.checked;
-    const row = parseInt(cb.value);
-    if (el.checked) selectedRows.add(row); else selectedRows.delete(row);
+    const r = parseInt(cb.value);
+    if (el.checked) selectedRows.add(r); else selectedRows.delete(r);
   });
-  document.getElementById('btnDelete').classList.toggle('hidden', selectedRows.size === 0);
+  updateDeleteBtn();
 }
 
 function toggleRow(el) {
-  const row = parseInt(el.value);
-  if (el.checked) selectedRows.add(row); else selectedRows.delete(row);
-  document.getElementById('btnDelete').classList.toggle('hidden', selectedRows.size === 0);
+  const r = parseInt(el.value);
+  if (el.checked) selectedRows.add(r); else selectedRows.delete(r);
+  updateDeleteBtn();
 }
 
-// --- EDIT SITUACION ---
+function updateDeleteBtn() {
+  const n = selectedRows.size;
+  const btn = document.getElementById('btnDelete');
+  btn.classList.toggle('hidden', n === 0);
+  btn.classList.toggle('flex', n > 0);
+  document.getElementById('deleteCount').textContent = n;
+}
+
+// --- EDIT ---
 async function updateSituacion(select) {
   const row = select.dataset.row;
   const value = select.value;
   const original = select.dataset.original;
   if (value === original) return;
-
   select.disabled = true;
   try {
-    await apiCall({ action: 'update_cell', range: `R${row}`, value });
+    await apiCall({ action:'update_cell', range:`R${row}`, value });
     select.dataset.original = value;
-    // Update local data
+    select.className = 'sit-select ' + getSitClass(value);
     const idx = parseInt(row) - 2;
     if (allRows[idx]) allRows[idx][COL.SITUACION] = value;
     updateStats();
-    toast(`Fila ${row}: ${original} -> ${value}`, 'success');
+    toast(`${original} → ${value}`, 'success');
   } catch (e) {
     select.value = original;
-    toast('Error al actualizar: ' + e.message, 'error');
-  } finally {
-    select.disabled = false;
+    toast('Error: ' + e.message, 'error');
+  } finally { select.disabled = false; }
+}
+
+async function updateField(colKey, sheetRow, newValue) {
+  const letter = COL_LETTER[colKey];
+  if (!letter) return;
+  try {
+    await apiCall({ action:'update_cell', range:`${letter}${sheetRow}`, value: newValue });
+    const idx = sheetRow - 2;
+    if (allRows[idx]) allRows[idx][COL[colKey]] = newValue;
+    if (colKey === 'SITUACION') updateStats();
+    toast(`${COL_LABELS[colKey]} actualizado`, 'success');
+  } catch (e) {
+    toast('Error: ' + e.message, 'error');
+    throw e;
   }
 }
 
-// --- DELETE ROWS ---
+// --- DELETE ---
 async function deleteSelected() {
   if (selectedRows.size === 0) return;
-  const count = selectedRows.size;
-  if (!confirm(`Eliminar ${count} fila(s)?`)) return;
-
-  const rows = [...selectedRows].sort((a, b) => a - b);
+  const n = selectedRows.size;
+  if (!confirm(`Eliminar ${n} fila(s) permanentemente?`)) return;
+  const rows = [...selectedRows].sort((a,b)=>a-b);
   try {
-    await apiCall({ action: 'delete_rows', rows });
-    toast(`${count} fila(s) eliminadas`, 'success');
+    await apiCall({ action:'delete_rows', rows });
+    toast(`${n} fila(s) eliminadas`, 'success');
     selectedRows.clear();
     await loadData();
-  } catch (e) {
-    toast('Error al eliminar: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Error: '+e.message, 'error'); }
 }
 
 // --- DETAIL MODAL ---
 function showDetail(idx) {
+  modalRowIdx = idx;
   const row = allRows[idx];
   if (!row) return;
   const sheetRow = idx + 2;
-
   document.getElementById('modalTitle').textContent = row[COL.NOMBRE] || `Fila ${sheetRow}`;
+  document.getElementById('modalSubtitle').textContent = `Fila ${sheetRow} · ${row[COL.SITUACION]||'Nuevo'} · ${row[COL.POSICION]||'Sin posicion'}`;
 
-  const fields = [
-    ['MES', 'NOMBRE', 'OFICINA', 'RESIDENCIA', 'FECHA', 'HORA'],
-    ['CORREO', 'TELEFONO', 'FUENTE'],
-    ['SITUACION', 'POSICION', 'COMENTARIOS'],
-    ['CONFIRMACION', 'CITADO_POR', 'ASISTENCIA', 'ENTREVISTADO_POR'],
-    ['MOTIVO_DESCARTE', 'MAIL_DESCARTE'],
-    ['INICIO', 'FIN', 'CAUSA'],
-    ['ACCION', 'FILE_NAME', 'ULTIMO_SYNC']
+  const sections = [
+    { title:'Datos personales', fields:['NOMBRE','RESIDENCIA','CORREO','TELEFONO'] },
+    { title:'Proceso', fields:['SITUACION','POSICION','OFICINA','FECHA','HORA','FUENTE'] },
+    { title:'Evaluacion', fields:['CONFIRMACION','CITADO_POR','ASISTENCIA','ENTREVISTADO_POR'] },
+    { title:'Resultado', fields:['MOTIVO_DESCARTE','MAIL_DESCARTE','COMENTARIOS'] },
+    { title:'Contrato', fields:['INICIO','FIN','CAUSA'] },
+    { title:'Sistema', fields:['ACCION','FILE_NAME','ULTIMO_SYNC'], readonly:true }
   ];
 
   let html = '';
-  for (const group of fields) {
-    html += '<div class="grid grid-cols-1 gap-3">';
-    for (const key of group) {
+  for (const sec of sections) {
+    html += `<div>
+      <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">${sec.title}</h3>
+      <div class="grid grid-cols-2 gap-x-4 gap-y-2">`;
+    for (const key of sec.fields) {
       const val = row[COL[key]] || '';
       const label = COL_LABELS[key] || key;
-      const isInternal = key.startsWith('ACCION') || key.startsWith('FILE') || key.startsWith('ULTIMO');
-      html += `<div class="${isInternal ? 'opacity-60' : ''}">
-        <p class="text-xs text-gray-500 mb-0.5">${esc(label)}</p>
-        <p class="text-sm text-gray-800 ${val ? '' : 'italic text-gray-400'}">${val ? esc(val) : 'Sin datos'}</p>
-      </div>`;
+      const editable = !sec.readonly && EDITABLE_FIELDS.includes(key);
+      if (editable && key === 'SITUACION') {
+        const sitClass = getSitClass(val||'Nuevo');
+        html += `<div class="col-span-2 field-edit p-2">
+          <label class="text-[11px] text-gray-400 block mb-1">${esc(label)}</label>
+          <select onchange="modalUpdateField('${key}',${sheetRow},this.value)" class="sit-select ${sitClass} text-sm">
+            ${['Nuevo','Citado','Descartado','Seleccionado'].map(o =>
+              `<option value="${o}" ${o.toLowerCase()===(val||'nuevo').toLowerCase()?'selected':''}>${o}</option>`
+            ).join('')}
+          </select>
+        </div>`;
+      } else if (editable) {
+        html += `<div class="field-edit p-2 ${key==='COMENTARIOS'||key==='MOTIVO_DESCARTE'?'col-span-2':''}">
+          <label class="text-[11px] text-gray-400 block mb-1">${esc(label)}</label>
+          <input type="text" value="${esc(val)}" data-key="${key}" data-row="${sheetRow}" data-original="${esc(val)}"
+            onblur="handleFieldBlur(this)" onkeydown="if(event.key==='Enter')this.blur()"
+            class="text-sm text-gray-800 w-full" placeholder="Sin datos">
+        </div>`;
+      } else {
+        html += `<div class="p-2 ${sec.readonly?'opacity-50':''}">
+          <p class="text-[11px] text-gray-400 mb-0.5">${esc(label)}</p>
+          <p class="text-sm text-gray-700 ${val?'':'italic text-gray-300'}">${val ? esc(val) : '-'}</p>
+        </div>`;
+      }
     }
-    html += '</div><hr class="border-gray-100">';
+    html += '</div></div>';
   }
 
   document.getElementById('modalContent').innerHTML = html;
-  document.getElementById('modal').classList.remove('hidden');
+  const modal = document.getElementById('modal');
+  modal.classList.remove('hidden');
+  requestAnimationFrame(() => modal.querySelector('.modal-panel').classList.add('open'));
+}
+
+async function handleFieldBlur(input) {
+  const key = input.dataset.key;
+  const row = parseInt(input.dataset.row);
+  const original = input.dataset.original;
+  const val = input.value.trim();
+  if (val === original) return;
+  input.style.opacity = '0.5';
+  try {
+    await updateField(key, row, val);
+    input.dataset.original = val;
+    if (key === 'NOMBRE') {
+      document.getElementById('modalTitle').textContent = val || `Fila ${row}`;
+    }
+    renderTable();
+  } catch(e) { input.value = original; }
+  input.style.opacity = '1';
+}
+
+async function modalUpdateField(key, row, val) {
+  try {
+    await updateField(key, row, val);
+    renderTable();
+    // Refresh subtitle
+    const r = allRows[row-2];
+    if (r) document.getElementById('modalSubtitle').textContent = `Fila ${row} · ${r[COL.SITUACION]||'Nuevo'} · ${r[COL.POSICION]||'Sin posicion'}`;
+  } catch(e) {}
 }
 
 function closeModal() {
-  document.getElementById('modal').classList.add('hidden');
+  const panel = document.querySelector('.modal-panel');
+  panel.classList.remove('open');
+  setTimeout(() => document.getElementById('modal').classList.add('hidden'), 250);
+  modalRowIdx = -1;
+}
+
+// --- EXPORT CSV ---
+function exportCSV() {
+  if (filteredRows.length === 0) { toast('Sin datos para exportar', 'info'); return; }
+  const visibleCols = ['NOMBRE','MES','OFICINA','RESIDENCIA','FECHA','TELEFONO','CORREO','SITUACION','POSICION','COMENTARIOS'];
+  const csvHeaders = visibleCols.map(k => COL_LABELS[k]);
+  const csvRows = filteredRows.map(row => visibleCols.map(k => {
+    const v = (row[COL[k]]||'').replace(/"/g,'""');
+    return `"${v}"`;
+  }));
+  const csv = [csvHeaders.join(','), ...csvRows.map(r=>r.join(','))].join('\n');
+  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `candidatos_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast(`${filteredRows.length} filas exportadas`, 'success');
 }
 
 // --- UTILS ---
 function esc(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
 }
 
-function getBadgeClass(situacion) {
-  const s = situacion.toLowerCase();
-  if (s.includes('nuevo') || s === '') return 'badge-nuevo';
-  if (s.includes('citad')) return 'badge-citado';
-  if (s.includes('descart')) return 'badge-descartado';
-  if (s.includes('seleccion')) return 'badge-seleccionado';
-  return 'badge-default';
+function getSitClass(sit) {
+  const s = (sit||'').toLowerCase();
+  if (s.includes('citad')) return 'sit-citado';
+  if (s.includes('descart')) return 'sit-descartado';
+  if (s.includes('seleccion')) return 'sit-seleccionado';
+  return 'sit-nuevo';
 }
 
-function toast(msg, type = 'info') {
-  const container = document.getElementById('toasts');
-  const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+function toast(msg, type='info') {
+  const c = document.getElementById('toasts');
+  const colors = {success:'bg-emerald-600',error:'bg-red-600',info:'bg-gray-700'};
+  const icons = {success:'&#10003;',error:'&#10007;',info:'&#8505;'};
   const el = document.createElement('div');
-  el.className = `toast ${colors[type] || colors.info} text-white px-4 py-2 rounded-lg shadow-lg text-sm`;
-  el.textContent = msg;
-  container.appendChild(el);
-  setTimeout(() => el.remove(), 4000);
+  el.className = `toast ${colors[type]||colors.info} text-white px-4 py-2.5 rounded-lg shadow-lg text-sm flex items-center gap-2 max-w-xs`;
+  el.innerHTML = `<span class="text-xs">${icons[type]||''}</span> ${esc(msg)}`;
+  c.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity 0.3s'; setTimeout(()=>el.remove(),300); }, 3500);
 }
 
-// Keyboard: Escape to close modal
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
+  if (e.key === 'ArrowLeft') prevPage();
+  if (e.key === 'ArrowRight') nextPage();
+  if (e.key === 'r' && !e.ctrlKey && !e.metaKey) loadData();
+});
 
 // --- INIT ---
 loadData();
