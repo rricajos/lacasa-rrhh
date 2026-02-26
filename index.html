@@ -1443,15 +1443,17 @@ function buildDashWeeks() {
   if (!el) return;
   const MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   const now = new Date();
+  const year = now.getFullYear();
   const weeks = [];
-  const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const end = new Date(now.getFullYear(), now.getMonth() + 2, 0);
-  const d = new Date(start);
+  // Start from first Monday on or before Jan 1
+  const jan1 = new Date(year, 0, 1);
+  const d = new Date(jan1);
   const day = d.getDay() || 7;
   d.setDate(d.getDate() - day + 1);
   const today = new Date(); today.setHours(0,0,0,0);
+  const dec31 = new Date(year, 11, 31);
   let currentIdx = -1;
-  while (d <= end) {
+  while (d <= dec31) {
     const mon = new Date(d);
     const sun = new Date(d); sun.setDate(d.getDate() + 6);
     const key = `${String(mon.getDate()).padStart(2,'0')}/${String(mon.getMonth()+1).padStart(2,'0')}/${mon.getFullYear()}`;
@@ -1460,16 +1462,20 @@ function buildDashWeeks() {
       ? `${mon.getDate()} – ${sun.getDate()} ${MES[sun.getMonth()]}`
       : `${mon.getDate()} ${MES[mon.getMonth()]} – ${sun.getDate()} ${MES[sun.getMonth()]}`;
     const isCurrent = today >= mon && today <= sun;
+    const isFuture = mon > today;
     if (isCurrent) currentIdx = weeks.length;
-    // Month separator: if first week or this week starts in a different month than previous
     const isNewMonth = weeks.length === 0 || mon.getMonth() !== weeks[weeks.length-1]._mon;
-    weeks.push({ key, label, isCurrent, isNewMonth, monthLabel: MES[mon.getMonth()], _mon: mon.getMonth() });
+    weeks.push({ key, label, isCurrent, isFuture, isNewMonth, monthLabel: MES[mon.getMonth()], _mon: mon.getMonth() });
     d.setDate(d.getDate() + 7);
   }
   let html = `<button class="week-chip ${!dashWeekFilter?'active':''}" onclick="setDashWeek('')">Todas</button>`;
   weeks.forEach((w, i) => {
     if (w.isNewMonth) html += `<span class="flex items-center text-[10px] font-semibold text-gray-400 uppercase px-1 shrink-0">${w.monthLabel}</span>`;
-    html += `<button class="week-chip ${dashWeekFilter===w.key?'active':''} ${w.isCurrent?'ring-1 ring-blue-400':''}" id="wchip_${i}" onclick="setDashWeek('${w.key}')" title="${w.isCurrent?'Semana actual':''}">${w.label}</button>`;
+    const disabled = w.isFuture;
+    const cls = disabled
+      ? 'week-chip opacity-40 cursor-default'
+      : `week-chip ${dashWeekFilter===w.key?'active':''} ${w.isCurrent?'ring-1 ring-blue-400':''}`;
+    html += `<button class="${cls}" id="wchip_${i}" ${disabled?'disabled':'onclick="setDashWeek(\''+w.key+'\')"'} title="${w.isCurrent?'Semana actual':w.isFuture?'Semana futura':''}">${w.label}</button>`;
   });
   el.innerHTML = html;
   // Auto-scroll to current or active week
