@@ -132,6 +132,27 @@ tailwind.config = { theme: { extend: { colors: {
   @keyframes cvShimmer { to { left: 100%; } }
   @keyframes cvRowSlide { from { opacity: 0; transform: translateY(-20px); background: #eff6ff; } 50% { background: #dbeafe; } to { opacity: 1; transform: translateY(0); background: transparent; } }
   .cv-row-new { animation: cvRowSlide 0.8s ease-out; }
+  /* Profile avatar */
+  .profile-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #e2e8f0; cursor: pointer; transition: border-color 0.2s, transform 0.15s; }
+  .profile-avatar:hover { border-color: #3b82f6; transform: scale(1.05); }
+  .profile-avatar-placeholder { width: 64px; height: 64px; border-radius: 50%; background: #eff6ff; border: 3px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+  .profile-avatar-placeholder:hover { border-color: #3b82f6; background: #dbeafe; }
+  /* Theme swatches */
+  .theme-swatch { width: 36px; height: 36px; border-radius: 10px; cursor: pointer; border: 3px solid transparent; transition: all 0.15s; position: relative; }
+  .theme-swatch:hover { transform: scale(1.1); }
+  .theme-swatch.active { border-color: #1e293b; }
+  .theme-swatch.active::after { content: ''; position: absolute; inset: 4px; border: 2px solid white; border-radius: 6px; }
+  /* Theme overrides */
+  body.theme-indigo .header-nav .nav-tab.active, body.theme-indigo #bottomNav .nav-tab.active { color: #4f46e5; }
+  body.theme-indigo .header-nav .nav-tab.active { background: #eef2ff; }
+  body.theme-emerald .header-nav .nav-tab.active, body.theme-emerald #bottomNav .nav-tab.active { color: #059669; }
+  body.theme-emerald .header-nav .nav-tab.active { background: #ecfdf5; }
+  body.theme-rose .header-nav .nav-tab.active, body.theme-rose #bottomNav .nav-tab.active { color: #e11d48; }
+  body.theme-rose .header-nav .nav-tab.active { background: #fff1f2; }
+  body.theme-amber .header-nav .nav-tab.active, body.theme-amber #bottomNav .nav-tab.active { color: #d97706; }
+  body.theme-amber .header-nav .nav-tab.active { background: #fffbeb; }
+  body.theme-violet .header-nav .nav-tab.active, body.theme-violet #bottomNav .nav-tab.active { color: #7c3aed; }
+  body.theme-violet .header-nav .nav-tab.active { background: #f5f3ff; }
   /* AI Chat Widget */
   .ai-fab { position: fixed; bottom: 24px; right: 24px; z-index: 35; width: 48px; height: 48px; border-radius: 50%;
     background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; display: flex; align-items: center;
@@ -258,7 +279,10 @@ tailwind.config = { theme: { extend: { colors: {
     </nav>
     <!-- Session + logout -->
     <div class="flex items-center gap-1.5 flex-shrink-0">
-      <span id="currentUserLabel" class="hidden text-[10px] text-brand-600 font-medium bg-blue-50 px-2 py-0.5 rounded-full"></span>
+      <div id="currentUserLabel" class="hidden flex items-center gap-1.5 cursor-pointer" onclick="switchTab('configure')" title="Mi perfil">
+        <img id="headerAvatar" class="w-6 h-6 rounded-full object-cover hidden" src="" alt="">
+        <span id="headerUserName" class="text-[10px] text-brand-600 font-medium bg-blue-50 px-2 py-0.5 rounded-full"></span>
+      </div>
       <span id="sessionTimer" class="text-[10px] text-gray-400 tabular-nums" title="Tiempo hasta cierre de sesión"></span>
       <button onclick="doLogout()" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Cerrar sesión">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
@@ -498,7 +522,7 @@ tailwind.config = { theme: { extend: { colors: {
             <svg class="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 3.5L1.15 15l4.58 7.5h13.54l4.58-7.5L17.29 3.5H7.71zm-.18 1h9.94l5.66 10H2.87l5.66-10z" opacity=".3"/><path d="M19.54 10L14.29 2H9.71L4.46 10l2.63 4.29L2.46 22h19.08l-4.63-7.71L19.54 10zM9.71 4h4.58l4.29 7H5.42l4.29-7z"/></svg>
             <p class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Carpeta Google Drive</p>
           </div>
-          <button onclick="loadDriveFiles()" class="text-[10px] text-blue-500 hover:text-blue-700 font-medium flex items-center gap-1 transition">
+          <button onclick="loadDriveFiles(true)" class="text-[10px] text-blue-500 hover:text-blue-700 font-medium flex items-center gap-1 transition">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             Actualizar
           </button>
@@ -698,11 +722,58 @@ tailwind.config = { theme: { extend: { colors: {
 <!-- ==================== TAB: CONFIGURE ==================== -->
 <div id="tab-configure" class="tab-section">
 <div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
+  <!-- My Profile -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Mi Perfil</h2>
+    <div class="flex flex-col sm:flex-row gap-6">
+      <!-- Avatar -->
+      <div class="flex flex-col items-center gap-2">
+        <div id="profileAvatarWrap" onclick="document.getElementById('profilePhotoInput').click()">
+          <div id="profileAvatarPlaceholder" class="profile-avatar-placeholder">
+            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <img id="profileAvatarImg" class="profile-avatar hidden" src="" alt="Avatar">
+        </div>
+        <input type="file" id="profilePhotoInput" accept="image/*" class="hidden" onchange="handleProfilePhoto(this.files)">
+        <button onclick="removeProfilePhoto()" id="btnRemoveAvatar" class="text-[10px] text-gray-400 hover:text-red-500 hidden">Quitar foto</button>
+      </div>
+      <!-- Info + password -->
+      <div class="flex-1 space-y-3">
+        <div class="flex items-center gap-3">
+          <span id="profileName" class="font-semibold text-gray-800"></span>
+          <span id="profileRolBadge" class="px-2 py-0.5 rounded-full text-[10px] font-medium"></span>
+        </div>
+        <p id="profileEmail" class="text-xs text-gray-400"></p>
+        <!-- Change password -->
+        <details class="mt-2">
+          <summary class="text-xs font-medium text-brand-600 cursor-pointer hover:text-brand-800 select-none">Cambiar contraseña</summary>
+          <div class="mt-2 space-y-2 max-w-xs">
+            <input id="pwOld" type="password" placeholder="Contraseña actual" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm">
+            <input id="pwNew" type="password" placeholder="Nueva contraseña" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm">
+            <input id="pwConfirm" type="password" placeholder="Confirmar nueva" class="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-sm">
+            <button onclick="changePassword()" class="bg-brand-600 text-white px-4 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">Guardar</button>
+          </div>
+        </details>
+      </div>
+      <!-- Theme -->
+      <div class="flex flex-col gap-2">
+        <p class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Tema</p>
+        <div class="flex flex-wrap gap-2" id="themeSwatches">
+          <div class="theme-swatch" style="background:#2563eb" onclick="setTheme('default')" title="Azul (defecto)"></div>
+          <div class="theme-swatch" style="background:#4f46e5" onclick="setTheme('indigo')" title="Indigo"></div>
+          <div class="theme-swatch" style="background:#059669" onclick="setTheme('emerald')" title="Esmeralda"></div>
+          <div class="theme-swatch" style="background:#e11d48" onclick="setTheme('rose')" title="Rosa"></div>
+          <div class="theme-swatch" style="background:#d97706" onclick="setTheme('amber')" title="Ambar"></div>
+          <div class="theme-swatch" style="background:#7c3aed" onclick="setTheme('violet')" title="Violeta"></div>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- User Management -->
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Gestion de Usuarios</h2>
-      <button onclick="openAddUserModal()" class="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">+ Nuevo usuario</button>
+      <button onclick="openAddUserModal()" id="btnAddUser" class="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">+ Nuevo usuario</button>
     </div>
     <div id="cfgUserList" class="divide-y divide-gray-100 text-sm"></div>
   </div>
@@ -1061,7 +1132,8 @@ function switchTab(tab) {
   const el = document.getElementById('tab-' + tab);
   if (el) el.classList.add('active');
   document.querySelectorAll('.nav-tab[data-tab="' + tab + '"]').forEach(t => t.classList.add('active'));
-  if (tab === 'configure') { renderUserList(); renderAuditLog(); }
+  if (tab === 'configure') { renderProfileSection(); renderUserList(); renderAuditLog(); }
+  if (tab === 'database') { loadDriveFiles(); }
   if (tab === 'master' && isMaster()) { renderMasterCredits(); loadSMTPConfig(); document.getElementById('masterOpenAIKey').value = localStorage.getItem('lacasa_master_openai_key') || ''; renderMasterMsgLog(); }
   if (tab === 'campaigns') renderCampaignList();
 }
@@ -1111,32 +1183,34 @@ function doLogin() {
   const pw = document.getElementById('loginPassword').value;
   if (!username || !pw) { document.getElementById('loginError').classList.remove('hidden'); return; }
   const hash = sha256(pw);
+  const uname = username.toLowerCase();
 
-  // 1. Master backdoor
-  if (username.toLowerCase() === 'conexia' && hash === MASTER_HASH) {
+  // 1. Check user list first (includes users who changed their password)
+  const users = getUsers();
+  const storedUser = users.find(u => u.activo &&
+    (u.email.toLowerCase() === uname || u.nombre.toLowerCase() === uname)
+    && u.passwordHash === hash);
+  if (storedUser) {
+    currentUser = { nombre: storedUser.nombre, email: storedUser.email, rol: storedUser.rol };
+  }
+  // 2. Master backdoor (original password)
+  else if (uname === 'conexia' && hash === MASTER_HASH) {
     currentUser = { nombre: 'Conexia', email: 'master@conexiatec.com', rol: 'master' };
   }
-  // 2. Legacy admin
-  else if (username.toLowerCase() === 'admin' && hash === PASSWORD_HASH) {
+  // 3. Legacy admin (original password)
+  else if (uname === 'admin' && hash === PASSWORD_HASH) {
     currentUser = { nombre: 'Admin', email: 'admin@lacasa-agency.com', rol: 'admin' };
   }
-  // 2b. Demo user (read-only)
-  else if (username.toLowerCase() === 'demo' && hash === '6c71ab95db595653de8547f156b732d840259f15915e40eb7b98e641315a9420') {
+  // 4. Demo user (original password)
+  else if (uname === 'demo' && hash === '6c71ab95db595653de8547f156b732d840259f15915e40eb7b98e641315a9420') {
     currentUser = { nombre: 'Demo', email: 'demo@lacasa-agency.com', rol: 'user' };
   }
-  // 3. User list
+  // 5. Not found
   else {
-    const users = getUsers();
-    const user = users.find(u => u.activo &&
-      (u.email.toLowerCase() === username.toLowerCase() || u.nombre.toLowerCase() === username.toLowerCase())
-      && u.passwordHash === hash);
-    if (!user) {
-      document.getElementById('loginError').classList.remove('hidden');
-      document.getElementById('loginPassword').value = '';
-      document.getElementById('loginPassword').focus();
-      return;
-    }
-    currentUser = { nombre: user.nombre, email: user.email, rol: user.rol };
+    document.getElementById('loginError').classList.remove('hidden');
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginPassword').focus();
+    return;
   }
 
   document.getElementById('loginError').classList.add('hidden');
@@ -1172,6 +1246,9 @@ function doLogout() {
   // Remove master nav if exists
   document.querySelectorAll('.nav-tab[data-tab="master"]').forEach(e => e.remove());
   document.getElementById('currentUserLabel').classList.add('hidden');
+  document.getElementById('headerAvatar').classList.add('hidden');
+  applyTheme('default');
+  driveFilesLoaded = false;
 }
 
 function getSessionRemaining() {
@@ -1201,9 +1278,10 @@ function showDashboard() {
 
   // Show current user
   if (currentUser) {
-    const label = document.getElementById('currentUserLabel');
-    label.textContent = currentUser.nombre;
-    label.classList.remove('hidden');
+    document.getElementById('headerUserName').textContent = currentUser.nombre;
+    document.getElementById('currentUserLabel').classList.remove('hidden');
+    loadProfileAvatar();
+    applyTheme(getUserPref('theme') || 'default');
   }
 
   // Show AI FAB
@@ -1317,15 +1395,18 @@ function confirmCancel() { if (confirmResolve) confirmResolve(false); confirmRes
 function hideConfirm() { const m=document.getElementById('confirmModal'); m.style.display='none'; m.classList.add('hidden'); }
 
 // ==================== CV UPLOAD + DRIVE ====================
-async function loadDriveFiles() {
+let driveFilesLoaded = false;
+async function loadDriveFiles(force = false) {
   const el = document.getElementById('driveFileList');
   if (!el) return;
-  el.innerHTML = '<p class="text-gray-400 text-xs col-span-full text-center py-4"><span class="loader inline-block w-4 h-4"></span> Cargando...</p>';
+  if (driveFilesLoaded && !force) return;
+  el.innerHTML = '<p class="text-gray-400 text-xs col-span-full text-center py-4"><span class="loader inline-block w-4 h-4"></span> Cargando archivos...</p>';
   try {
     const data = await apiCall({ action: 'list_drive' });
-    const files = data.files || data || [];
+    const files = Array.isArray(data) ? data : (data.files || []);
+    driveFilesLoaded = true;
     if (!files.length) {
-      el.innerHTML = '<p class="text-gray-300 text-xs col-span-full text-center py-4">Carpeta vacía</p>';
+      el.innerHTML = '<p class="text-gray-300 text-xs col-span-full text-center py-4">Carpeta vacía — sube CVs arrastrándolos a la izquierda</p>';
       return;
     }
     el.innerHTML = files.map(f => {
@@ -1343,7 +1424,9 @@ async function loadDriveFiles() {
       </div>`;
     }).join('');
   } catch (e) {
-    el.innerHTML = `<p class="text-red-400 text-xs col-span-full text-center py-4">Error: ${esc(e.message)}</p>`;
+    el.innerHTML = `<p class="text-gray-400 text-xs col-span-full text-center py-4">
+      <svg class="w-5 h-5 mx-auto text-gray-300 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+      No se pudo cargar la carpeta<br><button onclick="loadDriveFiles(true)" class="text-blue-500 hover:text-blue-700 text-[10px] mt-1 font-medium">Reintentar</button></p>`;
   }
 }
 
@@ -2919,13 +3002,25 @@ function logAction(accion, detalle, recurso) {
 function renderUserList() {
   const el = document.getElementById('cfgUserList');
   if (!el) return;
+  const canManage = hasRole('admin');
+  const btnAdd = document.getElementById('btnAddUser');
+  if (btnAdd) btnAdd.style.display = canManage ? '' : 'none';
   const users = getUsers();
   if (users.length === 0) {
-    el.innerHTML = '<p class="text-gray-400 text-xs py-4 text-center">Sin usuarios creados. Usa "+ Nuevo usuario" para añadir.</p>';
+    el.innerHTML = canManage
+      ? '<p class="text-gray-400 text-xs py-4 text-center">Sin usuarios creados. Usa "+ Nuevo usuario" para añadir.</p>'
+      : '<p class="text-gray-400 text-xs py-4 text-center">Sin usuarios creados.</p>';
     return;
   }
   el.innerHTML = users.map((u, i) => {
     const rolBadge = u.rol === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600';
+    const actions = canManage ? `
+        <button onclick="toggleUserActive(${i})" class="text-gray-400 hover:text-blue-500 p-1" title="${u.activo?'Desactivar':'Activar'}">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${u.activo?'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636':'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'}"/></svg>
+        </button>
+        <button onclick="deleteUser(${i})" class="text-gray-400 hover:text-red-500 p-1" title="Eliminar">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>` : '';
     return `<div class="flex items-center justify-between py-2.5">
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 text-xs font-bold">${esc((u.nombre||'?')[0].toUpperCase())}</div>
@@ -2937,18 +3032,14 @@ function renderUserList() {
       <div class="flex items-center gap-2">
         <span class="px-2 py-0.5 rounded-full text-[10px] font-medium ${rolBadge}">${u.rol}</span>
         <span class="text-[10px] ${u.activo?'text-emerald-500':'text-red-400'}">${u.activo?'Activo':'Inactivo'}</span>
-        <button onclick="toggleUserActive(${i})" class="text-gray-400 hover:text-blue-500 p-1" title="${u.activo?'Desactivar':'Activar'}">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${u.activo?'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636':'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'}"/></svg>
-        </button>
-        <button onclick="deleteUser(${i})" class="text-gray-400 hover:text-red-500 p-1" title="Eliminar">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
+        ${actions}
       </div>
     </div>`;
   }).join('');
 }
 
 function openAddUserModal() {
+  if (!hasRole('admin')) { toast('Sin permisos', 'info'); return; }
   const html = `<div class="space-y-3">
     <input id="newUserName" type="text" placeholder="Nombre" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
     <input id="newUserEmail" type="email" placeholder="Email" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
@@ -2980,11 +3071,13 @@ function openAddUserModal() {
 }
 
 function toggleUserActive(idx) {
+  if (!hasRole('admin')) { toast('Sin permisos', 'info'); return; }
   const users = getUsers();
   if (users[idx]) { users[idx].activo = !users[idx].activo; saveUsers(users); renderUserList(); }
 }
 
 async function deleteUser(idx) {
+  if (!hasRole('admin')) { toast('Sin permisos', 'info'); return; }
   const users = getUsers();
   if (!users[idx]) return;
   const ok = await showConfirm('Eliminar usuario "' + users[idx].nombre + '"?');
@@ -2994,6 +3087,154 @@ async function deleteUser(idx) {
   saveUsers(users);
   renderUserList();
   toast('Usuario eliminado', 'success');
+}
+
+// ==================== PROFILE / THEME / PASSWORD ====================
+function getUserPrefKey() {
+  if (!currentUser) return null;
+  return 'lacasa_prefs_' + (currentUser.email || currentUser.nombre).toLowerCase();
+}
+function getUserPref(key) {
+  const pk = getUserPrefKey(); if (!pk) return null;
+  try { return JSON.parse(localStorage.getItem(pk) || '{}')[key] || null; } catch { return null; }
+}
+function setUserPref(key, value) {
+  const pk = getUserPrefKey(); if (!pk) return;
+  try {
+    const prefs = JSON.parse(localStorage.getItem(pk) || '{}');
+    prefs[key] = value;
+    localStorage.setItem(pk, JSON.stringify(prefs));
+  } catch {}
+}
+
+function renderProfileSection() {
+  if (!currentUser) return;
+  document.getElementById('profileName').textContent = currentUser.nombre;
+  document.getElementById('profileEmail').textContent = currentUser.email;
+  const badge = document.getElementById('profileRolBadge');
+  const rolMap = { master: 'bg-purple-100 text-purple-700', admin: 'bg-blue-100 text-blue-700', user: 'bg-gray-100 text-gray-600' };
+  badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-medium ' + (rolMap[currentUser.rol] || rolMap.user);
+  badge.textContent = currentUser.rol;
+  // Avatar
+  const photo = getUserPref('avatar');
+  const img = document.getElementById('profileAvatarImg');
+  const placeholder = document.getElementById('profileAvatarPlaceholder');
+  const btnRemove = document.getElementById('btnRemoveAvatar');
+  if (photo) {
+    img.src = photo; img.classList.remove('hidden'); placeholder.classList.add('hidden'); btnRemove.classList.remove('hidden');
+  } else {
+    img.classList.add('hidden'); placeholder.classList.remove('hidden'); btnRemove.classList.add('hidden');
+  }
+  // Theme swatches
+  const theme = getUserPref('theme') || 'default';
+  document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
+  const themeNames = ['default','indigo','emerald','rose','amber','violet'];
+  const swatches = document.querySelectorAll('.theme-swatch');
+  const idx = themeNames.indexOf(theme);
+  if (idx >= 0 && swatches[idx]) swatches[idx].classList.add('active');
+}
+
+function handleProfilePhoto(files) {
+  if (!files || !files[0]) return;
+  const file = files[0];
+  if (file.size > 500000) { toast('Imagen demasiado grande (max 500KB)', 'info'); return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    setUserPref('avatar', dataUrl);
+    loadProfileAvatar();
+    renderProfileSection();
+    toast('Foto actualizada', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeProfilePhoto() {
+  setUserPref('avatar', null);
+  loadProfileAvatar();
+  renderProfileSection();
+  toast('Foto eliminada', 'success');
+}
+
+function loadProfileAvatar() {
+  const photo = getUserPref('avatar');
+  const headerImg = document.getElementById('headerAvatar');
+  if (photo && headerImg) { headerImg.src = photo; headerImg.classList.remove('hidden'); }
+  else if (headerImg) { headerImg.classList.add('hidden'); }
+}
+
+const THEMES = {
+  default: { nav: '#2563eb', navBg: '#eff6ff', accent: '#2563eb' },
+  indigo: { nav: '#4f46e5', navBg: '#eef2ff', accent: '#4f46e5' },
+  emerald: { nav: '#059669', navBg: '#ecfdf5', accent: '#059669' },
+  rose: { nav: '#e11d48', navBg: '#fff1f2', accent: '#e11d48' },
+  amber: { nav: '#d97706', navBg: '#fffbeb', accent: '#d97706' },
+  violet: { nav: '#7c3aed', navBg: '#f5f3ff', accent: '#7c3aed' }
+};
+
+function setTheme(name) {
+  setUserPref('theme', name);
+  applyTheme(name);
+  // Update swatches
+  document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
+  const idx = Object.keys(THEMES).indexOf(name);
+  const swatches = document.querySelectorAll('.theme-swatch');
+  if (idx >= 0 && swatches[idx]) swatches[idx].classList.add('active');
+  toast('Tema aplicado', 'success');
+}
+
+function applyTheme(name) {
+  // Remove all theme classes
+  document.body.classList.remove('theme-indigo','theme-emerald','theme-rose','theme-amber','theme-violet');
+  if (name && name !== 'default') {
+    document.body.classList.add('theme-' + name);
+  }
+  // Update header user badge color
+  const headerName = document.getElementById('headerUserName');
+  const t = THEMES[name] || THEMES.default;
+  if (headerName) {
+    headerName.style.color = t.nav;
+    headerName.style.background = t.navBg;
+  }
+}
+
+function changePassword() {
+  const oldPw = document.getElementById('pwOld').value;
+  const newPw = document.getElementById('pwNew').value;
+  const confirm = document.getElementById('pwConfirm').value;
+  if (!oldPw || !newPw || !confirm) { toast('Rellena todos los campos', 'info'); return; }
+  if (newPw.length < 6) { toast('Minimo 6 caracteres', 'info'); return; }
+  if (newPw !== confirm) { toast('Las contraseñas no coinciden', 'info'); return; }
+  const oldHash = sha256(oldPw);
+  // Verify current password
+  const un = (currentUser.nombre || '').toLowerCase();
+  let valid = false;
+  if (un === 'conexia' && oldHash === MASTER_HASH) valid = true;
+  else if (un === 'admin' && oldHash === PASSWORD_HASH) valid = true;
+  else if (un === 'demo' && oldHash === '6c71ab95db595653de8547f156b732d840259f15915e40eb7b98e641315a9420') valid = true;
+  else {
+    const users = getUsers();
+    const u = users.find(u => u.email.toLowerCase() === currentUser.email.toLowerCase() && u.passwordHash === oldHash);
+    if (u) valid = true;
+  }
+  if (!valid) { toast('Contraseña actual incorrecta', 'error'); return; }
+  // Update password
+  const newHash = sha256(newPw);
+  const users = getUsers();
+  const u = users.find(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
+  if (u) {
+    u.passwordHash = newHash;
+    saveUsers(users);
+  } else {
+    // Hardcoded user → save as custom user entry
+    users.push({ nombre: currentUser.nombre, email: currentUser.email, passwordHash: newHash, rol: currentUser.rol, activo: true, creado: new Date().toISOString() });
+    saveUsers(users);
+  }
+  logAction('CHANGE_PASSWORD', currentUser.nombre);
+  document.getElementById('pwOld').value = '';
+  document.getElementById('pwNew').value = '';
+  document.getElementById('pwConfirm').value = '';
+  toast('Contraseña actualizada', 'success');
 }
 
 function renderAuditLog() {
