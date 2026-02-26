@@ -110,6 +110,10 @@ tailwind.config = { theme: { extend: { colors: {
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
           <span>Clave incorrecta</span>
         </div>
+        <label class="flex items-center gap-2 mb-5 cursor-pointer select-none">
+          <input type="checkbox" id="keepSession" class="rounded border-gray-300 text-brand-600 focus:ring-blue-200 w-4 h-4">
+          <span class="text-xs text-gray-500">Mantener sesion activa hasta las 23:59h</span>
+        </label>
         <button onclick="doLogin()" class="w-full bg-brand-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-brand-700 transition flex items-center justify-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
           Acceder
@@ -163,10 +167,9 @@ tailwind.config = { theme: { extend: { colors: {
         Configure
       </button>
     </nav>
-    <!-- Action buttons -->
-    <div class="flex items-center gap-1 flex-shrink-0">
-      <span id="sessionTimer" class="text-[10px] text-gray-400 hidden lg:inline mr-1" title="Tiempo hasta cierre de sesion"></span>
-      <span id="lastUpdate" class="text-[10px] text-gray-400 hidden lg:inline mr-1"></span>
+    <!-- Session + logout -->
+    <div class="flex items-center gap-1.5 flex-shrink-0">
+      <span id="sessionTimer" class="text-[10px] text-gray-400 tabular-nums" title="Tiempo hasta cierre de sesion"></span>
       <button onclick="doLogout()" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Cerrar sesion">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
       </button>
@@ -604,6 +607,7 @@ let confirmResolve = null;
 let searchTerm = '';
 let lastActivity = Date.now();
 let sessionTimerId = null;
+let keepSessionUntilMidnight = false;
 let waSelectedTemplate = null;
 let waPasswordOk = false;
 let activeTab = 'dashboard';
@@ -668,13 +672,17 @@ function doLogin() {
     return;
   }
   document.getElementById('loginError').classList.add('hidden');
+  keepSessionUntilMidnight = document.getElementById('keepSession').checked;
   sessionStorage.setItem(SESSION_KEY, String(Date.now()));
+  sessionStorage.setItem('lacasa_keep_session', keepSessionUntilMidnight ? '1' : '0');
   lastActivity = Date.now();
   showDashboard();
 }
 
 function doLogout() {
   sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem('lacasa_keep_session');
+  keepSessionUntilMidnight = false;
   if (autoRefreshId) { clearInterval(autoRefreshId); autoRefreshId = null; }
   if (sessionTimerId) { clearInterval(sessionTimerId); sessionTimerId = null; }
   allRows = []; filteredRows = []; headers = [];
@@ -682,15 +690,25 @@ function doLogout() {
   document.getElementById('loginScreen').classList.remove('hidden');
   document.body.classList.remove('logged-in');
   document.getElementById('loginPassword').value = '';
+  document.getElementById('keepSession').checked = false;
   document.getElementById('loginPassword').focus();
+}
+
+function getSessionRemaining() {
+  if (keepSessionUntilMidnight) {
+    const now = new Date();
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0);
+    return midnight - now;
+  }
+  return SESSION_TIMEOUT_MS - (Date.now() - lastActivity);
 }
 
 function checkSession() {
   const ts = sessionStorage.getItem(SESSION_KEY);
   if (!ts) return false;
-  if (Date.now() - lastActivity > SESSION_TIMEOUT_MS) {
+  if (getSessionRemaining() <= 0) {
     doLogout();
-    toast('Sesion expirada por inactividad', 'info');
+    toast('Sesion expirada', 'info');
     return false;
   }
   return true;
@@ -707,22 +725,29 @@ function showDashboard() {
 
 function startSessionTimer() {
   if (sessionTimerId) clearInterval(sessionTimerId);
-  sessionTimerId = setInterval(() => {
+  const tick = () => {
     if (!checkSession()) return;
-    const remaining = SESSION_TIMEOUT_MS - (Date.now() - lastActivity);
-    const mins = Math.floor(remaining / 60000);
-    const secs = Math.floor((remaining % 60000) / 1000);
+    const remaining = getSessionRemaining();
     const el = document.getElementById('sessionTimer');
+    const h = Math.floor(remaining / 3600000);
+    const m = Math.floor((remaining % 3600000) / 60000);
+    const s = Math.floor((remaining % 60000) / 1000);
     if (remaining < 120000) {
-      el.textContent = `Sesion: ${mins}:${String(secs).padStart(2,'0')}`;
+      el.textContent = `${m}:${String(s).padStart(2,'0')}`;
       el.classList.add('text-red-400');
       el.classList.remove('text-gray-400');
+    } else if (h > 0) {
+      el.textContent = `${h}h ${String(m).padStart(2,'0')}m`;
+      el.classList.remove('text-red-400');
+      el.classList.add('text-gray-400');
     } else {
-      el.textContent = `${mins}min`;
+      el.textContent = `${m}min`;
       el.classList.remove('text-red-400');
       el.classList.add('text-gray-400');
     }
-  }, 1000);
+  };
+  tick();
+  sessionTimerId = setInterval(tick, 1000);
 }
 
 // Reset activity timer on user interaction
@@ -806,7 +831,6 @@ async function loadData(silent = false) {
     populateFilters();
     applyFilters(false);
     updateStats();
-    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'});
     if (!silent) toast('Datos cargados', 'success');
   } catch (e) {
     toast('Error: ' + e.message, 'error');
@@ -1553,12 +1577,15 @@ document.addEventListener('keydown',e=>{
 // ==================== INIT ====================
 // Check if there's an active session
 if (sessionStorage.getItem(SESSION_KEY)) {
+  keepSessionUntilMidnight = sessionStorage.getItem('lacasa_keep_session') === '1';
   const elapsed = Date.now() - parseInt(sessionStorage.getItem(SESSION_KEY));
-  if (elapsed < SESSION_TIMEOUT_MS) {
+  const stillValid = keepSessionUntilMidnight ? getSessionRemaining() > 0 : elapsed < SESSION_TIMEOUT_MS;
+  if (stillValid) {
     lastActivity = Date.now();
     showDashboard();
   } else {
     sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem('lacasa_keep_session');
   }
 } else {
   document.getElementById('loginPassword').focus();
