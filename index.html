@@ -13,7 +13,7 @@ tailwind.config = { theme: { extend: { colors: {
 </script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-  body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; overflow-y: scroll; }
   .loader { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
   table th { position: sticky; top: 0; z-index: 10; }
@@ -931,6 +931,11 @@ function updateStats() {
   document.getElementById('barCitado').style.width = pct(citado)+'%';
   document.getElementById('barDescartado').style.width = pct(descartado)+'%';
   document.getElementById('barSeleccionado').style.width = pct(seleccionado)+'%';
+  // Disable 0-count stat cards
+  [['Nuevo',nuevo],['Citado',citado],['Descartado',descartado],['Seleccionado',seleccionado]].forEach(([name,count]) => {
+    const card = document.querySelector(`.stat-card[onclick="filterByStat('${name}')"]`);
+    if (card) { card.style.opacity = count ? '' : '0.5'; card.style.pointerEvents = count ? '' : 'none'; }
+  });
   // Donut
   const circ = 100;
   const pN=total?nuevo/total*circ:0, pC=total?citado/total*circ:0, pD=total?descartado/total*circ:0, pS=total?seleccionado/total*circ:0;
@@ -1214,12 +1219,13 @@ function renderDrillDown() {
   const sf = sitFilter.toLowerCase();
   const act = v => sf === v ? 'ring-2' : '';
   const toggle = v => `document.getElementById('drillFilterSit').value=document.getElementById('drillFilterSit').value==='${v}'?'':'${v}';applyDrillFilters()`;
+  const clickable = (count) => count > 0 ? 'cursor-pointer hover:ring-2' : 'opacity-50 cursor-default';
   document.getElementById('drillStats').innerHTML = `
     <div class="bg-gray-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-gray-300 ${!sitFilter?'ring-2 ring-gray-300':''}" onclick="document.getElementById('drillFilterSit').value='';applyDrillFilters()"><p class="text-xl font-bold text-gray-800">${totalBase}</p><p class="text-[10px] text-gray-500">Total</p></div>
-    <div class="bg-blue-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-blue-300 ${act('nuevo')?'ring-2 ring-blue-400':''}" onclick="${toggle('Nuevo')}"><p class="text-xl font-bold text-blue-700">${nuevo}</p><p class="text-[10px] text-blue-600">Nuevos</p></div>
-    <div class="bg-orange-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-orange-300 ${act('citado')?'ring-2 ring-orange-400':''}" onclick="${toggle('Citado')}"><p class="text-xl font-bold text-orange-700">${citado}</p><p class="text-[10px] text-orange-600">Citados</p></div>
-    <div class="bg-red-50 rounded-xl p-3 text-center hidden sm:block cursor-pointer hover:ring-2 hover:ring-red-300 ${act('descartado')?'ring-2 ring-red-400':''}" onclick="${toggle('Descartado')}"><p class="text-xl font-bold text-red-700">${descartado}</p><p class="text-[10px] text-red-600">Descart.</p></div>
-    <div class="bg-emerald-50 rounded-xl p-3 text-center hidden sm:block cursor-pointer hover:ring-2 hover:ring-emerald-300 ${act('seleccionado')?'ring-2 ring-emerald-400':''}" onclick="${toggle('Seleccionado')}"><p class="text-xl font-bold text-emerald-700">${seleccionado}</p><p class="text-[10px] text-emerald-600">Selecc.</p></div>
+    <div class="bg-blue-50 rounded-xl p-3 text-center ${clickable(nuevo)} hover:ring-blue-300 ${act('nuevo')?'ring-2 ring-blue-400':''}" ${nuevo?`onclick="${toggle('Nuevo')}"`:''}><p class="text-xl font-bold text-blue-700">${nuevo}</p><p class="text-[10px] text-blue-600">Nuevos</p></div>
+    <div class="bg-orange-50 rounded-xl p-3 text-center ${clickable(citado)} hover:ring-orange-300 ${act('citado')?'ring-2 ring-orange-400':''}" ${citado?`onclick="${toggle('Citado')}"`:''}><p class="text-xl font-bold text-orange-700">${citado}</p><p class="text-[10px] text-orange-600">Citados</p></div>
+    <div class="bg-red-50 rounded-xl p-3 text-center hidden sm:block ${clickable(descartado)} hover:ring-red-300 ${act('descartado')?'ring-2 ring-red-400':''}" ${descartado?`onclick="${toggle('Descartado')}"`:''}><p class="text-xl font-bold text-red-700">${descartado}</p><p class="text-[10px] text-red-600">Descart.</p></div>
+    <div class="bg-emerald-50 rounded-xl p-3 text-center hidden sm:block ${clickable(seleccionado)} hover:ring-emerald-300 ${act('seleccionado')?'ring-2 ring-emerald-400':''}" ${seleccionado?`onclick="${toggle('Seleccionado')}"`:''}><p class="text-xl font-bold text-emerald-700">${seleccionado}</p><p class="text-[10px] text-emerald-600">Selecc.</p></div>
   `;
 
   // Table
