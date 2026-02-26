@@ -1139,15 +1139,12 @@ function dashDrillDown(type, value) {
   drillType = type;
   drillValue = value;
 
-  if (type === 'reciente') {
-    drillBaseRows = allRows.filter(r => r[COL.NOMBRE]).slice().reverse();
+  if (type === 'reciente' || type === 'situacion') {
+    drillBaseRows = allRows.filter(r => r[COL.NOMBRE]);
+    if (type === 'reciente') drillBaseRows = drillBaseRows.slice().reverse();
   } else {
-    const colIdx = type === 'oficina' ? COL.OFICINA : type === 'posicion' ? COL.POSICION : COL.SITUACION;
-    drillBaseRows = allRows.filter(row => {
-      const v = (row[colIdx] || '').trim();
-      if (type === 'situacion') return matchSit(v, value);
-      return v === value;
-    });
+    const colIdx = type === 'oficina' ? COL.OFICINA : COL.POSICION;
+    drillBaseRows = allRows.filter(row => (row[colIdx] || '').trim() === value);
   }
 
   const typeLabels = { oficina: 'Oficina', posicion: 'Posición', situacion: 'Situación', reciente: 'Actividad reciente' };
@@ -1165,10 +1162,10 @@ function dashDrillDown(type, value) {
     weekSel.innerHTML += `<option value="${wk}">${getWeekLabel(wk)} (${weekMap[wk]})</option>`;
   });
 
-  // Reset sub-filters
-  document.getElementById('drillFilterSit').value = '';
+  // Pre-select situacion filter if entering via stat card
+  document.getElementById('drillFilterSit').value = type === 'situacion' ? value : '';
   weekSel.value = '';
-  document.getElementById('btnDrillClear').classList.add('hidden');
+  document.getElementById('btnDrillClear').classList.toggle('hidden', type !== 'situacion');
 
   renderDrillDown();
 
