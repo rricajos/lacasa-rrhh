@@ -76,6 +76,16 @@ tailwind.config = { theme: { extend: { colors: {
   .card-bar::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: #e2e8f0; }
   .card-bar-fill { position: absolute; bottom: 0; left: 0; height: 3px; z-index: 1; display: flex; }
   .card-bar-fill span { display: block; height: 100%; }
+  /* Animations */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
+  .tab-section.active { animation: fadeUp 0.25s ease-out; }
+  .anim-card { animation: fadeUp 0.3s ease-out both; }
+  .anim-slide { animation: slideIn 0.3s ease-out both; }
+  /* Week filter chips */
+  .week-chip { padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; color: #64748b; background: white; transition: all 0.15s; white-space: nowrap; }
+  .week-chip:hover { border-color: #cbd5e1; background: #f8fafc; }
+  .week-chip.active { background: #2563eb; color: white; border-color: #2563eb; }
 </style>
 </head>
 <body class="min-h-screen">
@@ -229,6 +239,10 @@ tailwind.config = { theme: { extend: { colors: {
       <p class="text-[11px] text-emerald-600 mt-0.5">Seleccionados</p>
       <div class="mt-1.5 bg-emerald-100 rounded-full overflow-hidden"><div class="pct-bar bg-emerald-500" id="barSeleccionado"></div></div>
     </div>
+  </div>
+
+  <!-- Week filter chips -->
+  <div id="dashWeekRow" class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
   </div>
 
   <!-- Row 2: Donut + Recent activity -->
@@ -888,6 +902,7 @@ async function loadData(silent = false) {
     document.getElementById('checkAll').checked = false;
     populateFilters();
     applyFilters(false);
+    buildDashWeeks();
     updateStats();
     if (!silent) toast('Datos cargados', 'success');
   } catch (e) {
@@ -908,9 +923,10 @@ async function loadData(silent = false) {
 
 // ==================== STATS + DONUT ====================
 function updateStats() {
-  const total = allRows.length;
+  const filtered = getDashFilteredRows();
+  const total = filtered.length;
   let nuevo=0,citado=0,descartado=0,seleccionado=0;
-  for (const row of allRows) {
+  for (const row of filtered) {
     const sit = (row[COL.SITUACION]||'').toLowerCase();
     if (sit.includes('citad')) citado++;
     else if (sit.includes('descart')) descartado++;
@@ -977,9 +993,10 @@ function sitBar(rows, colIdx, name, total) {
 }
 
 function updateDashboardPanels() {
+  const filtered = getDashFilteredRows();
   // Positions breakdown — merge data + localStorage
   const posMap = {};
-  for (const row of allRows) {
+  for (const row of filtered) {
     const pos = (row[COL.POSICION] || '').trim();
     if (pos) posMap[pos] = (posMap[pos] || 0) + 1;
   }
@@ -990,9 +1007,9 @@ function updateDashboardPanels() {
   if (posSorted.length === 0) {
     posEl.innerHTML = '<p class="text-gray-300 text-xs">Sin datos</p>';
   } else {
-    posEl.innerHTML = posSorted.map(([name, count]) => {
-      const bar = sitBar(allRows, COL.POSICION, name, count);
-      return `<div class="crud-item dash-clickable bg-gray-50 rounded-lg p-3 pb-4 text-center relative group card-bar" onclick="dashDrillDown('posicion','${esc(name).replace(/'/g,"\\'")}')">
+    posEl.innerHTML = posSorted.map(([name, count], i) => {
+      const bar = sitBar(filtered, COL.POSICION, name, count);
+      return `<div class="crud-item dash-clickable anim-card bg-gray-50 rounded-lg p-3 pb-4 text-center relative group card-bar" style="animation-delay:${i*40}ms" onclick="dashDrillDown('posicion','${esc(name).replace(/'/g,"\\'")}')">
         <p class="text-lg font-bold text-gray-800">${count}</p>
         <p class="text-[10px] text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
         <div class="absolute top-1 right-1 flex gap-0.5 crud-btn">
@@ -1010,7 +1027,7 @@ function updateDashboardPanels() {
 
   // Offices breakdown — merge data + localStorage
   const offMap = {};
-  for (const row of allRows) {
+  for (const row of filtered) {
     const off = (row[COL.OFICINA] || '').trim();
     if (off) offMap[off] = (offMap[off] || 0) + 1;
   }
@@ -1021,9 +1038,9 @@ function updateDashboardPanels() {
   if (offSorted.length === 0) {
     offEl.innerHTML = '<p class="text-gray-300 text-xs">Sin datos</p>';
   } else {
-    offEl.innerHTML = offSorted.map(([name, count]) => {
-      const bar = sitBar(allRows, COL.OFICINA, name, count);
-      return `<div class="crud-item dash-clickable bg-gray-50 rounded-lg p-3 pb-4 text-center relative group card-bar" onclick="dashDrillDown('oficina','${esc(name).replace(/'/g,"\\'")}')">
+    offEl.innerHTML = offSorted.map(([name, count], i) => {
+      const bar = sitBar(filtered, COL.OFICINA, name, count);
+      return `<div class="crud-item dash-clickable anim-card bg-gray-50 rounded-lg p-3 pb-4 text-center relative group card-bar" style="animation-delay:${i*40}ms" onclick="dashDrillDown('oficina','${esc(name).replace(/'/g,"\\'")}')">
         <p class="text-lg font-bold text-gray-800">${count}</p>
         <p class="text-[10px] text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
         <div class="absolute top-1 right-1 flex gap-0.5 crud-btn">
@@ -1040,8 +1057,8 @@ function updateDashboardPanels() {
   }
 
   // Recent activity (last 8 candidates)
-  const recent = allRows
-    .map((row, i) => ({ row, idx: i }))
+  const recent = filtered
+    .map((row) => ({ row, idx: allRows.indexOf(row) }))
     .filter(r => r.row[COL.NOMBRE])
     .slice(-8).reverse();
   const recEl = document.getElementById('dashRecent');
@@ -1103,6 +1120,47 @@ async function crudDelete(type, name) {
   saveCrudList(type, list);
   updateDashboardPanels();
   toast((type === 'oficina' ? 'Oficina' : 'Posición') + ' eliminada', 'success');
+}
+
+// ==================== DASHBOARD WEEK FILTER ====================
+let dashWeekFilter = '';
+
+function getDashFilteredRows() {
+  if (!dashWeekFilter) return allRows;
+  return allRows.filter(r => getWeekKey(r[COL.FECHA]||'') === dashWeekFilter);
+}
+
+function buildDashWeeks() {
+  const el = document.getElementById('dashWeekRow');
+  if (!el) return;
+  const now = new Date();
+  const weeks = [];
+  // Generate all Mondays from prev month start to next month end
+  const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+  // Find the first Monday on or before start
+  const d = new Date(start);
+  const day = d.getDay() || 7;
+  d.setDate(d.getDate() - day + 1);
+  while (d <= end) {
+    const mon = new Date(d);
+    const sun = new Date(d); sun.setDate(d.getDate() + 6);
+    const key = `${String(mon.getDate()).padStart(2,'0')}/${String(mon.getMonth()+1).padStart(2,'0')}/${mon.getFullYear()}`;
+    const label = `${mon.getDate()}/${mon.getMonth()+1} – ${sun.getDate()}/${sun.getMonth()+1}`;
+    // Check if this week is "current"
+    const today = new Date(); today.setHours(0,0,0,0);
+    const isCurrent = today >= mon && today <= sun;
+    weeks.push({ key, label, isCurrent });
+    d.setDate(d.getDate() + 7);
+  }
+  el.innerHTML = `<button class="week-chip ${!dashWeekFilter?'active':''}" onclick="setDashWeek('')">Todas</button>` +
+    weeks.map(w => `<button class="week-chip ${dashWeekFilter===w.key?'active':''} ${w.isCurrent&&!dashWeekFilter?'ring-1 ring-blue-300':''}" onclick="setDashWeek('${w.key}')" title="${w.isCurrent?'Semana actual':''}">${w.label}</button>`).join('');
+}
+
+function setDashWeek(key) {
+  dashWeekFilter = dashWeekFilter === key ? '' : key;
+  buildDashWeeks();
+  updateStats();
 }
 
 // ==================== DASHBOARD DRILL-DOWN ====================
@@ -1175,7 +1233,11 @@ function dashDrillDown(type, value) {
   renderDrillDown();
 
   document.getElementById('dashMain').classList.add('hidden');
-  document.getElementById('dashDetail').classList.remove('hidden');
+  const detailEl = document.getElementById('dashDetail');
+  detailEl.classList.remove('hidden');
+  detailEl.style.animation = 'none';
+  detailEl.offsetHeight;
+  detailEl.style.animation = 'fadeUp 0.25s ease-out';
 }
 
 function applyDrillFilters() {
