@@ -72,6 +72,10 @@ tailwind.config = { theme: { extend: { colors: {
   .crud-item:hover .crud-btn { opacity: 1; }
   .dash-clickable { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
   .dash-clickable:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .card-bar { position: relative; overflow: hidden; border-radius: 0 0 0.5rem 0.5rem; }
+  .card-bar::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: #e2e8f0; }
+  .card-bar-fill { position: absolute; bottom: 0; left: 0; height: 3px; z-index: 1; display: flex; }
+  .card-bar-fill span { display: block; height: 100%; }
 </style>
 </head>
 <body class="min-h-screen">
@@ -154,7 +158,7 @@ tailwind.config = { theme: { extend: { colors: {
     <!-- Nav tabs (desktop inline) -->
     <nav class="header-nav flex items-center gap-1">
       <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 7a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zm-10-2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1v-5z"/></svg>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
         Panel
       </button>
       <button class="nav-tab" onclick="switchTab('database')" data-tab="database">
@@ -251,7 +255,10 @@ tailwind.config = { theme: { extend: { colors: {
 
     <!-- Recent candidates -->
     <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Actividad reciente</p>
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Actividad reciente</p>
+        <button onclick="dashDrillDown('reciente','')" class="text-[10px] text-brand-600 hover:text-brand-700 font-medium hover:underline transition">Ver todo</button>
+      </div>
       <div id="dashRecent" class="space-y-2 max-h-[240px] overflow-y-auto text-sm">
         <p class="text-gray-300 text-xs">Cargando...</p>
       </div>
@@ -574,7 +581,7 @@ tailwind.config = { theme: { extend: { colors: {
 <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 pb-[env(safe-area-inset-bottom)]" style="display:none;">
   <div class="flex py-1">
     <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 7a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zm-10-2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1v-5z"/></svg>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
       Panel
     </button>
     <button class="nav-tab" onclick="switchTab('database')" data-tab="database">
@@ -944,6 +951,26 @@ function sitColorClass(s) {
   return 'bg-blue-100 text-blue-700';
 }
 
+function sitBar(rows, colIdx, name, total) {
+  if (!total) return '';
+  let n=0, c=0, d=0, s=0;
+  for (const row of rows) {
+    if ((row[colIdx]||'').trim() !== name) continue;
+    const sit = (row[COL.SITUACION]||'').toLowerCase();
+    if (sit.includes('citad')) c++;
+    else if (sit.includes('descart')) d++;
+    else if (sit.includes('seleccion')) s++;
+    else n++;
+  }
+  const pct = v => (v/total*100).toFixed(1);
+  return `<div class="card-bar-fill" style="width:100%">
+    <span style="width:${pct(n)}%;background:#3b82f6"></span>
+    <span style="width:${pct(c)}%;background:#f59e0b"></span>
+    <span style="width:${pct(d)}%;background:#ef4444"></span>
+    <span style="width:${pct(s)}%;background:#10b981"></span>
+  </div>`;
+}
+
 function updateDashboardPanels() {
   // Positions breakdown — merge data + localStorage
   const posMap = {};
@@ -959,7 +986,8 @@ function updateDashboardPanels() {
     posEl.innerHTML = '<p class="text-gray-300 text-xs">Sin datos</p>';
   } else {
     posEl.innerHTML = posSorted.map(([name, count]) => {
-      return `<div class="crud-item dash-clickable bg-gray-50 rounded-lg p-3 text-center relative group" onclick="dashDrillDown('posicion','${esc(name).replace(/'/g,"\\'")}')">
+      const bar = sitBar(allRows, COL.POSICION, name, count);
+      return `<div class="crud-item dash-clickable bg-gray-50 rounded-lg p-3 pb-4 text-center relative group card-bar" onclick="dashDrillDown('posicion','${esc(name).replace(/'/g,"\\'")}')">
         <p class="text-lg font-bold text-gray-800">${count}</p>
         <p class="text-[10px] text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
         <div class="absolute top-1 right-1 flex gap-0.5 crud-btn">
@@ -970,6 +998,7 @@ function updateDashboardPanels() {
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
+        ${bar}
       </div>`;
     }).join('');
   }
@@ -988,7 +1017,8 @@ function updateDashboardPanels() {
     offEl.innerHTML = '<p class="text-gray-300 text-xs">Sin datos</p>';
   } else {
     offEl.innerHTML = offSorted.map(([name, count]) => {
-      return `<div class="crud-item dash-clickable bg-gray-50 rounded-lg p-3 text-center relative group" onclick="dashDrillDown('oficina','${esc(name).replace(/'/g,"\\'")}')">
+      const bar = sitBar(allRows, COL.OFICINA, name, count);
+      return `<div class="crud-item dash-clickable bg-gray-50 rounded-lg p-3 pb-4 text-center relative group card-bar" onclick="dashDrillDown('oficina','${esc(name).replace(/'/g,"\\'")}')">
         <p class="text-lg font-bold text-gray-800">${count}</p>
         <p class="text-[10px] text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
         <div class="absolute top-1 right-1 flex gap-0.5 crud-btn">
@@ -999,6 +1029,7 @@ function updateDashboardPanels() {
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
+        ${bar}
       </div>`;
     }).join('');
   }
@@ -1107,15 +1138,20 @@ function matchSit(rowSit, filterVal) {
 function dashDrillDown(type, value) {
   drillType = type;
   drillValue = value;
-  const colIdx = type === 'oficina' ? COL.OFICINA : type === 'posicion' ? COL.POSICION : COL.SITUACION;
-  drillBaseRows = allRows.filter(row => {
-    const v = (row[colIdx] || '').trim();
-    if (type === 'situacion') return matchSit(v, value);
-    return v === value;
-  });
 
-  const typeLabels = { oficina: 'Oficina', posicion: 'Posición', situacion: 'Situación' };
-  document.getElementById('drillTitle').textContent = typeLabels[type] + ': ' + value;
+  if (type === 'reciente') {
+    drillBaseRows = allRows.filter(r => r[COL.NOMBRE]).slice().reverse();
+  } else {
+    const colIdx = type === 'oficina' ? COL.OFICINA : type === 'posicion' ? COL.POSICION : COL.SITUACION;
+    drillBaseRows = allRows.filter(row => {
+      const v = (row[colIdx] || '').trim();
+      if (type === 'situacion') return matchSit(v, value);
+      return v === value;
+    });
+  }
+
+  const typeLabels = { oficina: 'Oficina', posicion: 'Posición', situacion: 'Situación', reciente: 'Actividad reciente' };
+  document.getElementById('drillTitle').textContent = type === 'reciente' ? 'Actividad reciente' : typeLabels[type] + ': ' + value;
 
   // Populate week dropdown from base rows
   const weekMap = {};
