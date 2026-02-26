@@ -943,6 +943,25 @@ tailwind.config = { theme: { extend: {
     </div>
     <button onclick="saveMasterAPIKeys()" class="mt-4 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar</button>
   </div>
+  <!-- Google Drive Access -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Acceso Carpeta Google Drive</h2>
+    <p class="text-xs text-gray-500 mb-3">Permite que los archivos (PDFs, CVs) se puedan previsualizar en la app sin requerir que el usuario inicie sesión en Google.</p>
+    <div class="flex items-center gap-3">
+      <button onclick="shareDrivePublic()" id="btnShareDrive" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+        Hacer accesible con enlace
+      </button>
+      <span id="driveShareStatus" class="text-2xs text-gray-400"></span>
+    </div>
+    <div class="mt-3">
+      <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Compartir con email específico</label>
+      <div class="flex gap-2">
+        <input id="driveShareEmail" type="email" placeholder="usuario@email.com" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <button onclick="shareDriveWithEmail()" class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition">Compartir</button>
+      </div>
+    </div>
+  </div>
   <!-- Message Log -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Registro de Mensajes Enviados</h2>
@@ -3261,6 +3280,10 @@ function openAddUserModal() {
       logAction('CREATE_USER', nombre + ' (' + rol + ')');
       renderUserList();
       toast('Usuario creado', 'success');
+      // Share Drive folder with new user
+      apiCall({ action: 'share_drive', email }).catch(e =>
+        console.warn('No se pudo compartir carpeta Drive con', email, e.message)
+      );
     }
     hideConfirm();
   };
@@ -3519,6 +3542,35 @@ function testSMTP() { toast('Test SMTP: pendiente de integración con n8n', 'inf
 function saveMasterAPIKeys() {
   localStorage.setItem('lacasa_master_openai_key', document.getElementById('masterOpenAIKey').value);
   toast('API key guardada', 'success');
+}
+
+async function shareDrivePublic() {
+  const btn = document.getElementById('btnShareDrive');
+  const status = document.getElementById('driveShareStatus');
+  btn.disabled = true;
+  status.textContent = 'Compartiendo...';
+  try {
+    await apiCall({ action: 'share_drive' });
+    status.textContent = 'Carpeta accesible con enlace';
+    status.className = 'text-2xs text-emerald-600 font-medium';
+    toast('Carpeta compartida — los PDFs se previsualizarán sin login', 'success');
+  } catch (e) {
+    status.textContent = 'Error: ' + e.message;
+    status.className = 'text-2xs text-red-500';
+  }
+  btn.disabled = false;
+}
+
+async function shareDriveWithEmail() {
+  const email = document.getElementById('driveShareEmail').value.trim();
+  if (!email) { toast('Introduce un email', 'info'); return; }
+  try {
+    await apiCall({ action: 'share_drive', email });
+    document.getElementById('driveShareEmail').value = '';
+    toast('Carpeta compartida con ' + email, 'success');
+  } catch (e) {
+    toast('Error al compartir: ' + e.message, 'error');
+  }
 }
 
 function logMessage(destinatario, canal, plantilla, estado, campanaId) {
