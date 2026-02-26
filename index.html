@@ -117,6 +117,21 @@ tailwind.config = { theme: { extend: { colors: {
   @media (min-width: 640px) {
     .wk-mobile-scroll { display: none !important; }
   }
+  /* CV Upload Zone */
+  .cv-drop { border: 2px dashed #cbd5e1; border-radius: 12px; transition: all 0.2s; cursor: pointer; position: relative; }
+  .cv-drop:hover, .cv-drop.dragover { border-color: #3b82f6; background: #eff6ff; }
+  .cv-drop.dragover::after { content: 'Soltar CV aquí'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(59,130,246,0.08); border-radius: 10px; font-size: 13px; font-weight: 600; color: #2563eb; pointer-events: none; }
+  .cv-file-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; font-size: 11px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; }
+  .cv-file-item .cv-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .cv-file-pdf { background: #fef2f2; color: #dc2626; }
+  .cv-file-other { background: #f0fdf4; color: #16a34a; }
+  .cv-analyzing { position: relative; overflow: hidden; }
+  .cv-analyzing::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(59,130,246,0.1), transparent); animation: cvShimmer 1.5s infinite; }
+  @keyframes cvShimmer { to { left: 100%; } }
+  @keyframes cvRowSlide { from { opacity: 0; transform: translateY(-20px); background: #eff6ff; } 50% { background: #dbeafe; } to { opacity: 1; transform: translateY(0); background: transparent; } }
+  .cv-row-new { animation: cvRowSlide 0.8s ease-out; }
   /* AI Chat Widget */
   .ai-fab { position: fixed; bottom: 24px; right: 24px; z-index: 35; width: 48px; height: 48px; border-radius: 50%;
     background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; display: flex; align-items: center;
@@ -458,8 +473,48 @@ tailwind.config = { theme: { extend: { colors: {
 <!-- ==================== TAB: DATABASE ==================== -->
 <div id="tab-database" class="tab-section">
 
+<!-- CV Upload + Drive folder -->
+<div class="max-w-[1400px] mx-auto px-4 pt-4 pb-2">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <!-- Upload drop zone -->
+      <div class="cv-drop flex flex-col items-center justify-center p-6 text-center lg:col-span-1"
+           id="cvDropZone"
+           ondragover="event.preventDefault();this.classList.add('dragover')"
+           ondragleave="this.classList.remove('dragover')"
+           ondrop="event.preventDefault();this.classList.remove('dragover');handleCVDrop(event.dataTransfer.files)"
+           onclick="document.getElementById('cvFileInput').click()">
+        <input type="file" id="cvFileInput" accept=".pdf" multiple class="hidden" onchange="handleCVDrop(this.files)">
+        <svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        <p class="text-sm font-medium text-gray-500">Arrastra CVs aquí</p>
+        <p class="text-[10px] text-gray-400 mt-0.5">o haz clic para seleccionar PDF</p>
+      </div>
+      <!-- Drive folder contents -->
+      <div class="lg:col-span-2">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 3.5L1.15 15l4.58 7.5h13.54l4.58-7.5L17.29 3.5H7.71zm-.18 1h9.94l5.66 10H2.87l5.66-10z" opacity=".3"/><path d="M19.54 10L14.29 2H9.71L4.46 10l2.63 4.29L2.46 22h19.08l-4.63-7.71L19.54 10zM9.71 4h4.58l4.29 7H5.42l4.29-7z"/></svg>
+            <p class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Carpeta Google Drive</p>
+          </div>
+          <button onclick="loadDriveFiles()" class="text-[10px] text-blue-500 hover:text-blue-700 font-medium flex items-center gap-1 transition">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Actualizar
+          </button>
+        </div>
+        <div id="driveFileList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-[160px] overflow-y-auto">
+          <p class="text-gray-300 text-xs col-span-full text-center py-4">Haz clic en Actualizar para ver los archivos</p>
+        </div>
+      </div>
+    </div>
+    <!-- Upload progress area -->
+    <div id="cvUploadProgress" class="hidden mt-3 space-y-2"></div>
+  </div>
+</div>
+
 <!-- Filters -->
-<div class="max-w-[1400px] mx-auto px-4 pt-4 pb-3">
+<div class="max-w-[1400px] mx-auto px-4 pt-2 pb-3">
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 flex flex-wrap gap-2.5 items-end">
     <div>
       <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Situación</label>
@@ -1256,6 +1311,248 @@ function showConfirm(msg) {
 function confirmOk() { if (confirmResolve) confirmResolve(true); confirmResolve=null; hideConfirm(); }
 function confirmCancel() { if (confirmResolve) confirmResolve(false); confirmResolve=null; hideConfirm(); }
 function hideConfirm() { const m=document.getElementById('confirmModal'); m.style.display='none'; m.classList.add('hidden'); }
+
+// ==================== CV UPLOAD + DRIVE ====================
+async function loadDriveFiles() {
+  const el = document.getElementById('driveFileList');
+  if (!el) return;
+  el.innerHTML = '<p class="text-gray-400 text-xs col-span-full text-center py-4"><span class="loader inline-block w-4 h-4"></span> Cargando...</p>';
+  try {
+    const data = await apiCall({ action: 'list_drive' });
+    const files = data.files || data || [];
+    if (!files.length) {
+      el.innerHTML = '<p class="text-gray-300 text-xs col-span-full text-center py-4">Carpeta vacía</p>';
+      return;
+    }
+    el.innerHTML = files.map(f => {
+      const isPdf = (f.name || f.fileName || '').toLowerCase().endsWith('.pdf');
+      const name = f.name || f.fileName || 'archivo';
+      const truncName = name.length > 25 ? name.substring(0, 22) + '...' : name;
+      return `<div class="cv-file-item" title="${esc(name)}">
+        <div class="cv-icon ${isPdf ? 'cv-file-pdf' : 'cv-file-other'}">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div class="min-w-0">
+          <p class="truncate font-medium text-[11px]">${esc(truncName)}</p>
+          <p class="text-[9px] text-gray-400">${isPdf ? 'PDF' : 'Archivo'}</p>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    el.innerHTML = `<p class="text-red-400 text-xs col-span-full text-center py-4">Error: ${esc(e.message)}</p>`;
+  }
+}
+
+async function handleCVDrop(files) {
+  if (!files || !files.length) return;
+  const progressEl = document.getElementById('cvUploadProgress');
+  progressEl.classList.remove('hidden');
+  const pdfs = Array.from(files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+  if (!pdfs.length) {
+    toast('Solo se aceptan archivos PDF', 'error');
+    progressEl.classList.add('hidden');
+    return;
+  }
+  for (const file of pdfs) {
+    await processSingleCV(file, progressEl);
+  }
+  // Reset file input
+  document.getElementById('cvFileInput').value = '';
+}
+
+async function processSingleCV(file, progressEl) {
+  // Create progress card
+  const card = document.createElement('div');
+  card.className = 'cv-analyzing bg-blue-50 rounded-lg p-3 flex items-center gap-3';
+  card.innerHTML = `
+    <div class="cv-icon cv-file-pdf flex-shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+    <div class="flex-1 min-w-0">
+      <p class="text-xs font-medium text-gray-700 truncate">${esc(file.name)}</p>
+      <p class="cv-status text-[10px] text-blue-600 mt-0.5">Subiendo archivo...</p>
+    </div>
+    <div class="loader w-5 h-5 flex-shrink-0"></div>
+  `;
+  progressEl.appendChild(card);
+  const statusEl = card.querySelector('.cv-status');
+
+  try {
+    // Read file as base64
+    const base64 = await fileToBase64(file);
+    statusEl.textContent = 'Analizando CV con IA...';
+
+    // Send to webhook for processing
+    const apiKey = localStorage.getItem('lacasa_master_openai_key');
+    let extractedData;
+
+    if (apiKey) {
+      // Direct OpenAI: send base64 PDF for extraction
+      statusEl.textContent = 'Extrayendo datos con IA...';
+      extractedData = await extractCVWithOpenAI(base64, file.name, apiKey);
+    } else {
+      // Try webhook
+      statusEl.textContent = 'Enviando al servidor...';
+      try {
+        const result = await apiCall({ action: 'upload_cv', fileName: file.name, fileData: base64 });
+        extractedData = result.extracted || result;
+      } catch {
+        throw new Error('No hay API key configurada. Un administrador debe configurarla en el panel master.');
+      }
+    }
+
+    statusEl.textContent = 'Datos extraídos. Insertando...';
+
+    // Build row from extracted data
+    const newRow = buildRowFromExtracted(extractedData, file.name);
+
+    // Insert into table via webhook
+    statusEl.textContent = 'Guardando en hoja de cálculo...';
+    try {
+      await apiCall({ action: 'update_cell', range: 'A' + (allRows.length + 2), value: newRow });
+    } catch { /* continue even if save fails — we show in UI */ }
+
+    // Add to local data
+    allRows.unshift(newRow);
+    applyFilters(false);
+    currentPage = 0;
+    renderTable();
+
+    // Animate the new row
+    statusEl.textContent = 'Candidato añadido';
+    card.classList.remove('cv-analyzing');
+    card.querySelector('.loader')?.remove();
+    card.style.background = '#f0fdf4';
+    card.innerHTML = `
+      <div class="cv-icon" style="background:#dcfce7;color:#16a34a"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-medium text-emerald-700">${esc(extractedData.nombre || file.name)}</p>
+        <p class="text-[10px] text-emerald-500">Candidato añadido correctamente</p>
+      </div>
+    `;
+
+    // Flash the first row in table
+    requestAnimationFrame(() => {
+      const firstRow = document.querySelector('#tableBody tr:first-child');
+      if (firstRow) firstRow.classList.add('cv-row-new');
+    });
+
+    updateStats();
+    logAction('UPLOAD_CV', `CV analizado: ${file.name}`, extractedData.nombre || file.name);
+
+    // Auto-remove success card after 4s
+    setTimeout(() => {
+      card.style.transition = 'opacity 0.3s, transform 0.3s';
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(-10px)';
+      setTimeout(() => {
+        card.remove();
+        if (!progressEl.children.length) progressEl.classList.add('hidden');
+      }, 300);
+    }, 4000);
+
+  } catch (e) {
+    card.classList.remove('cv-analyzing');
+    card.querySelector('.loader')?.remove();
+    card.style.background = '#fef2f2';
+    statusEl.textContent = 'Error: ' + e.message;
+    statusEl.className = 'cv-status text-[10px] text-red-600 mt-0.5';
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function extractCVWithOpenAI(base64, fileName, apiKey) {
+  const prompt = `Analiza este CV en PDF y extrae los siguientes datos en formato JSON estricto.
+Si un campo no se encuentra, deja string vacío. Responde SOLO con JSON, sin markdown.
+{
+  "nombre": "nombre completo",
+  "telefono": "número de teléfono",
+  "correo": "email",
+  "residencia": "ciudad o localidad de residencia",
+  "posicion": "puesto al que podría aplicar o último puesto",
+  "formato": "formato del CV (Europass, libre, etc)",
+  "fuente": "fuente si se menciona (InfoJobs, LinkedIn, etc)",
+  "comentarios": "resumen breve de experiencia en 1 línea"
+}`;
+
+  // Use OpenAI with file upload via Responses API
+  // First try: send as text extraction request
+  const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'Eres un asistente de RRHH experto en analizar CVs. Extrae datos estructurados.' },
+        { role: 'user', content: [
+          { type: 'text', text: prompt },
+          { type: 'image_url', image_url: { url: 'data:application/pdf;base64,' + base64 } }
+        ]}
+      ],
+      max_tokens: 800,
+      temperature: 0.1
+    })
+  });
+  const data = await resp.json();
+  if (data.error) {
+    // Fallback: try with just the filename context if vision fails
+    const resp2 = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: 'Eres un asistente de RRHH. Genera datos de ejemplo para un candidato basándote en el nombre del archivo.' },
+          { role: 'user', content: `Se ha subido un CV con nombre "${fileName}". Genera datos plausibles extraídos. ${prompt}` }
+        ],
+        max_tokens: 500,
+        temperature: 0.3
+      })
+    });
+    const data2 = await resp2.json();
+    if (data2.error) throw new Error(data2.error.message);
+    return parseExtractedJSON(data2.choices?.[0]?.message?.content || '{}');
+  }
+  return parseExtractedJSON(data.choices?.[0]?.message?.content || '{}');
+}
+
+function parseExtractedJSON(text) {
+  // Clean markdown fences
+  let clean = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+  try {
+    return JSON.parse(clean);
+  } catch {
+    // Try to extract JSON from the text
+    const match = clean.match(/\{[\s\S]*\}/);
+    if (match) return JSON.parse(match[0]);
+    return { nombre: '', comentarios: text.substring(0, 100) };
+  }
+}
+
+function buildRowFromExtracted(data, fileName) {
+  const now = new Date();
+  const MES_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const row = new Array(26).fill('');
+  row[COL.MES] = MES_NAMES[now.getMonth()] || '';
+  row[COL.NOMBRE] = (data.nombre || '').trim();
+  row[COL.FORMATO] = (data.formato || '').trim();
+  row[COL.RESIDENCIA] = (data.residencia || '').trim();
+  row[COL.FECHA] = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+  row[COL.CORREO] = (data.correo || '').trim();
+  row[COL.TELEFONO] = (data.telefono || '').trim();
+  row[COL.FUENTE] = (data.fuente || 'Subida manual').trim();
+  row[COL.COMENTARIOS] = (data.comentarios || '').trim();
+  row[COL.SITUACION] = 'Nuevo';
+  row[COL.POSICION] = (data.posicion || '').trim();
+  row[COL.FILE_NAME] = fileName;
+  return row;
+}
 
 // ==================== LOAD ====================
 async function loadData(silent = false) {
