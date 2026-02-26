@@ -83,10 +83,8 @@ tailwind.config = { theme: { extend: { colors: {
   .anim-card { animation: fadeUp 0.3s ease-out both; }
   .anim-slide { animation: slideIn 0.3s ease-out both; }
   /* Week calendar grid */
-  .wk-quarter { border-radius: 10px; overflow: hidden; border: 1px solid; max-height: 240px; overflow-y: auto; }
-  .wk-quarter::-webkit-scrollbar { width: 3px; }
-  .wk-quarter::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
-  .wk-quarter-head { padding: 5px 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid; position: sticky; top: 0; z-index: 1; }
+  .wk-quarter { border-radius: 10px; overflow: hidden; border: 1px solid; }
+  .wk-quarter-head { padding: 5px 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid; }
   .wk-month { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 5px 8px 2px; cursor: pointer; border-radius: 4px; margin: 2px 4px 0; display: flex; align-items: center; justify-content: space-between; transition: background 0.12s; }
   .wk-month:hover { filter: brightness(0.95); }
   .wk-month.month-active { color: white !important; }
@@ -104,6 +102,21 @@ tailwind.config = { theme: { extend: { colors: {
   .wk-filter-chip { font-size: 10.5px; font-weight: 600; padding: 3px 10px; border-radius: 99px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: white; transition: all 0.15s; }
   .wk-filter-chip:hover { border-color: #94a3b8; }
   .wk-filter-chip.active { background: #1d4ed8; color: white; border-color: #1d4ed8; }
+  /* Mobile quarter tabs + swipe */
+  .wk-qtabs { display: none; }
+  .wk-qtab { flex: 1; text-align: center; padding: 6px 0; font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.15s; color: #94a3b8; }
+  .wk-qtab.active { color: white; }
+  .wk-scroll { scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .wk-scroll::-webkit-scrollbar { display: none; }
+  .wk-scroll-item { scroll-snap-align: start; }
+  @media (max-width: 639px) {
+    .wk-qtabs { display: flex; gap: 4px; margin-bottom: 8px; }
+    .wk-desktop-grid { display: none !important; }
+    .wk-mobile-scroll { display: flex !important; }
+  }
+  @media (min-width: 640px) {
+    .wk-mobile-scroll { display: none !important; }
+  }
   /* AI Chat Widget */
   .ai-fab { position: fixed; bottom: 24px; right: 24px; z-index: 35; width: 48px; height: 48px; border-radius: 50%;
     background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; display: flex; align-items: center;
@@ -289,7 +302,11 @@ tailwind.config = { theme: { extend: { colors: {
   <!-- Week calendar grid -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3">
     <div class="wk-filter-bar mb-2.5" id="weekFilterBar"></div>
-    <div id="dashWeekRow" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5"></div>
+    <!-- Mobile: quarter tabs + horizontal scroll -->
+    <div class="wk-qtabs" id="wkQtabs"></div>
+    <div class="wk-mobile-scroll wk-scroll overflow-x-auto" id="wkMobileScroll" style="display:none"></div>
+    <!-- Desktop: 4-col grid -->
+    <div class="wk-desktop-grid grid sm:grid-cols-2 lg:grid-cols-4 gap-2.5" id="dashWeekRow"></div>
   </div>
 
   <!-- Row 2: Donut + Recent activity -->
@@ -1470,19 +1487,62 @@ function getDashFilteredRows() {
 }
 
 let dashMonthFilter = -1; // -1 = no month filter
+let mobileQuarter = Math.floor(new Date().getMonth() / 3);
+
+const WK_MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const WK_MESFULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const WK_QNAMES = ['T1','T2','T3','T4'];
+const WK_QFULL = ['Trimestre 1','Trimestre 2','Trimestre 3','Trimestre 4'];
+const WK_QCOLORS = [
+  { bg: '#f0fdf4', border: '#bbf7d0', head: '#166534', headBg: '#dcfce7', numBg: 'rgba(22,101,52,0.08)', monthActive: '#16a34a', tabBg: '#166534' },
+  { bg: '#eff6ff', border: '#bfdbfe', head: '#1e40af', headBg: '#dbeafe', numBg: 'rgba(30,64,175,0.08)', monthActive: '#2563eb', tabBg: '#1e40af' },
+  { bg: '#fffbeb', border: '#fde68a', head: '#92400e', headBg: '#fef3c7', numBg: 'rgba(146,64,14,0.08)', monthActive: '#d97706', tabBg: '#92400e' },
+  { bg: '#fdf2f8', border: '#fbcfe8', head: '#9d174d', headBg: '#fce7f3', numBg: 'rgba(157,23,77,0.08)', monthActive: '#db2777', tabBg: '#9d174d' }
+];
+
+function switchMobileQuarter(qi) {
+  mobileQuarter = qi;
+  buildDashWeeks();
+}
+
+function buildQuarterHTML(qWeeks, qi, idSuffix) {
+  const c = WK_QCOLORS[qi];
+  const now = new Date();
+  const year = now.getFullYear();
+  const today = new Date(); today.setHours(0,0,0,0);
+  let html = `<div class="wk-quarter" id="wk-q${qi}${idSuffix}" style="border-color:${c.border};background:${c.bg}">`;
+  html += `<div class="wk-quarter-head" style="color:${c.head};background:${c.headBg};border-color:${c.border}">${WK_QNAMES[qi]} &middot; ${WK_MESFULL[qi*3].substring(0,3)}-${WK_MESFULL[qi*3+2].substring(0,3)}</div>`;
+  let lastMonth = -1;
+  qWeeks.forEach(w => {
+    if (w.month !== lastMonth) {
+      const mActive = dashMonthFilter === w.month;
+      html += `<div class="wk-month${mActive?' month-active':''}" style="color:${mActive?'white':c.head};background:${mActive?c.monthActive:'transparent'};border-radius:5px" onclick="setDashMonth(${w.month})">`;
+      html += `<span>${w.monthLabel}</span>`;
+      html += `<svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor" style="opacity:0.5"><path d="M7 3l7 7-7 7"/></svg>`;
+      html += `</div>`;
+      lastMonth = w.month;
+    }
+    const cls = ['wk-row'];
+    if (dashWeekFilter === w.key) cls.push('active');
+    if (w.isCurrent) cls.push('current');
+    if (w.isFuture) cls.push('future');
+    if (dashMonthFilter >= 0 && w.month === dashMonthFilter && dashWeekFilter !== w.key) cls.push('month-highlight');
+    const onclick = w.isFuture ? '' : `onclick="setDashWeek('${w.key}')"`;
+    html += `<div class="${cls.join(' ')}" ${onclick} title="${w.isCurrent?'Semana actual':''}">`;
+    html += `<span class="wk-num" style="background:${c.numBg}">${String(w.weekNum).padStart(2,'0')}</span>`;
+    html += `<span class="wk-range">${w.range}</span>`;
+    html += `</div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
 function buildDashWeeks() {
   const el = document.getElementById('dashWeekRow');
+  const mScroll = document.getElementById('wkMobileScroll');
+  const tabs = document.getElementById('wkQtabs');
   const bar = document.getElementById('weekFilterBar');
   if (!el) return;
-  const MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const MESFULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const QNAMES = ['T1','T2','T3','T4'];
-  const QCOLORS = [
-    { bg: '#f0fdf4', border: '#bbf7d0', head: '#166534', headBg: '#dcfce7', numBg: 'rgba(22,101,52,0.08)', monthActive: '#16a34a' },
-    { bg: '#eff6ff', border: '#bfdbfe', head: '#1e40af', headBg: '#dbeafe', numBg: 'rgba(30,64,175,0.08)', monthActive: '#2563eb' },
-    { bg: '#fffbeb', border: '#fde68a', head: '#92400e', headBg: '#fef3c7', numBg: 'rgba(146,64,14,0.08)', monthActive: '#d97706' },
-    { bg: '#fdf2f8', border: '#fbcfe8', head: '#9d174d', headBg: '#fce7f3', numBg: 'rgba(157,23,77,0.08)', monthActive: '#db2777' }
-  ];
   const now = new Date();
   const year = now.getFullYear();
   const today = new Date(); today.setHours(0,0,0,0);
@@ -1497,19 +1557,19 @@ function buildDashWeeks() {
     const mon = new Date(d);
     const sun = new Date(d); sun.setDate(d.getDate() + 6);
     const key = `${String(mon.getDate()).padStart(2,'0')}/${String(mon.getMonth()+1).padStart(2,'0')}/${mon.getFullYear()}`;
-    const range = `${mon.getDate()} ${MES[mon.getMonth()]} – ${sun.getDate()} ${MES[sun.getMonth()]}`;
+    const range = `${mon.getDate()} ${WK_MES[mon.getMonth()]} – ${sun.getDate()} ${WK_MES[sun.getMonth()]}`;
     const isCurrent = today >= mon && today <= sun;
     const isFuture = mon > today;
     const quarter = Math.floor(mon.getMonth() / 3);
-    weeks.push({ key, range, isCurrent, isFuture, quarter, month: mon.getMonth(), weekNum, monthLabel: MES[mon.getMonth()] });
+    weeks.push({ key, range, isCurrent, isFuture, quarter, month: mon.getMonth(), weekNum, monthLabel: WK_MES[mon.getMonth()] });
     weekNum++;
     d.setDate(d.getDate() + 7);
   }
-  // Filter bar: All + active filter chips
+  // Filter bar
   if (bar) {
     let bHtml = `<button class="wk-filter-chip ${!dashWeekFilter && dashMonthFilter<0?'active':''}" onclick="clearWeekFilters()">Todo ${year}</button>`;
     if (dashMonthFilter >= 0) {
-      bHtml += `<span class="wk-filter-chip active" onclick="setDashMonth(-1)" style="cursor:pointer">${MESFULL[dashMonthFilter]} <span style="margin-left:3px;opacity:0.7">&times;</span></span>`;
+      bHtml += `<span class="wk-filter-chip active" onclick="setDashMonth(-1)" style="cursor:pointer">${WK_MESFULL[dashMonthFilter]} <span style="margin-left:3px;opacity:0.7">&times;</span></span>`;
     }
     if (dashWeekFilter) {
       const aw = weeks.find(w => w.key === dashWeekFilter);
@@ -1517,49 +1577,26 @@ function buildDashWeeks() {
     }
     bar.innerHTML = bHtml;
   }
-  // Build quarter cards
+  // Group by quarter
   const quarters = [[], [], [], []];
   weeks.forEach(w => quarters[w.quarter].push(w));
-  let html = '';
-  quarters.forEach((qWeeks, qi) => {
-    const c = QCOLORS[qi];
-    html += `<div class="wk-quarter" id="wk-q${qi}" style="border-color:${c.border};background:${c.bg}">`;
-    html += `<div class="wk-quarter-head" style="color:${c.head};background:${c.headBg};border-color:${c.border}">${QNAMES[qi]} &middot; ${MESFULL[qi*3].substring(0,3)}-${MESFULL[qi*3+2].substring(0,3)}</div>`;
-    let lastMonth = -1;
-    qWeeks.forEach(w => {
-      if (w.month !== lastMonth) {
-        const mActive = dashMonthFilter === w.month;
-        const mFuture = new Date(year, w.month + 1, 0) < today ? '' : (new Date(year, w.month, 1) > today ? ' opacity-40' : '');
-        html += `<div class="wk-month${mActive?' month-active':''}" style="color:${mActive?'white':c.head};background:${mActive?c.monthActive:'transparent'};border-radius:5px" onclick="setDashMonth(${w.month})">`;
-        html += `<span>${w.monthLabel}</span>`;
-        html += `<svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor" style="opacity:0.5"><path d="M7 3l7 7-7 7"/></svg>`;
-        html += `</div>`;
-        lastMonth = w.month;
-      }
-      const cls = ['wk-row'];
-      if (dashWeekFilter === w.key) cls.push('active');
-      if (w.isCurrent) cls.push('current');
-      if (w.isFuture) cls.push('future');
-      if (dashMonthFilter >= 0 && w.month === dashMonthFilter && dashWeekFilter !== w.key) cls.push('month-highlight');
-      const onclick = w.isFuture ? '' : `onclick="setDashWeek('${w.key}')"`;
-      html += `<div class="${cls.join(' ')}" ${onclick} title="${w.isCurrent?'Semana actual':''}">`;
-      html += `<span class="wk-num" style="background:${c.numBg}">${String(w.weekNum).padStart(2,'0')}</span>`;
-      html += `<span class="wk-range">${w.range}</span>`;
-      html += `</div>`;
+  // Desktop: 4-col grid
+  let dHtml = '';
+  quarters.forEach((qw, qi) => { dHtml += buildQuarterHTML(qw, qi, ''); });
+  el.innerHTML = dHtml;
+  // Mobile: tabs + single quarter
+  if (tabs) {
+    let tHtml = '';
+    WK_QNAMES.forEach((name, qi) => {
+      const c = WK_QCOLORS[qi];
+      const isActive = mobileQuarter === qi;
+      tHtml += `<div class="wk-qtab ${isActive?'active':''}" style="background:${isActive?c.tabBg:'#f1f5f9'};${isActive?'':'color:#94a3b8'}" onclick="switchMobileQuarter(${qi})">${name}</div>`;
     });
-    html += `</div>`;
-  });
-  el.innerHTML = html;
-  // Scroll current quarter into view on first render
-  requestAnimationFrame(() => {
-    const qIdx = Math.floor(now.getMonth() / 3);
-    const qEl = document.getElementById('wk-q' + qIdx);
-    if (qEl) {
-      // Scroll the quarter card so current week is visible
-      const currentRow = qEl.querySelector('.wk-row.current');
-      if (currentRow) currentRow.scrollIntoView({ block: 'nearest' });
-    }
-  });
+    tabs.innerHTML = tHtml;
+  }
+  if (mScroll) {
+    mScroll.innerHTML = buildQuarterHTML(quarters[mobileQuarter], mobileQuarter, '-m');
+  }
 }
 
 function setDashWeek(key) {
@@ -1580,6 +1617,23 @@ function clearWeekFilters() {
   buildDashWeeks();
   updateStats();
 }
+// Mobile swipe between quarters
+(function() {
+  let sx = 0;
+  document.addEventListener('touchstart', e => {
+    const ms = document.getElementById('wkMobileScroll');
+    if (ms && ms.contains(e.target)) sx = e.touches[0].clientX;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const ms = document.getElementById('wkMobileScroll');
+    if (!ms || !ms.contains(e.target)) return;
+    const dx = e.changedTouches[0].clientX - sx;
+    if (Math.abs(dx) > 50) {
+      const next = dx < 0 ? Math.min(3, mobileQuarter + 1) : Math.max(0, mobileQuarter - 1);
+      if (next !== mobileQuarter) switchMobileQuarter(next);
+    }
+  }, { passive: true });
+})();
 
 // ==================== DASHBOARD DRILL-DOWN ====================
 let drillType = '', drillValue = '', drillBaseRows = [];
