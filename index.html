@@ -1495,6 +1495,7 @@ function startSessionTimer() {
       el.textContent = `${m}:${String(s).padStart(2,'0')}`;
       el.classList.add('text-red-400');
       el.classList.remove('text-gray-400');
+      if (remaining > 59000 && remaining < 62000) toast('Sesion expira en 1 minuto', 'info');
     } else if (h > 0) {
       el.textContent = `${h}h ${String(m).padStart(2,'0')}m`;
       el.classList.remove('text-red-400');
@@ -2765,9 +2766,12 @@ function renderTable() {
   const totalPages=Math.ceil(filteredRows.length/PAGE_SIZE)||1;
 
   if (!page.length) {
+    const hasFilters = document.getElementById('filterSit')?.value || document.getElementById('filterPos')?.value || searchTerm;
+    const msg = allRows.length === 0 ? 'Carga los datos desde la pestaña Base de Datos' : hasFilters ? 'Ningun candidato coincide con los filtros actuales' : 'Sin resultados';
+    const hint = hasFilters ? '<button onclick="clearFilters()" class="mt-2 text-brand-500 hover:text-brand-700 text-xs font-medium">Limpiar filtros</button>' : '';
     tbody.innerHTML=`<tr><td colspan="10" class="text-center py-16 text-gray-400">
       <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
-      <p class="text-sm">Sin resultados</p></td></tr>`;
+      <p class="text-sm">${msg}</p>${hint}</td></tr>`;
   } else {
     tbody.innerHTML = page.map(row => {
       const gi=allRows.indexOf(row), sr=gi+2;
@@ -3196,7 +3200,9 @@ function validateWAPassword() {
 
 function checkWASendReady() {
   const ready = waSelectedTemplate && waPasswordOk;
-  document.getElementById('waSendBtn').disabled = !ready;
+  const btn = document.getElementById('waSendBtn');
+  btn.disabled = !ready;
+  btn.title = !waSelectedTemplate ? 'Selecciona una plantilla primero' : !waPasswordOk ? 'Introduce la clave de envio' : 'Enviar WhatsApp';
 }
 
 async function sendWhatsAppBatch() {
@@ -3544,14 +3550,16 @@ function renderAuditLog() {
   try {
     const logs = JSON.parse(localStorage.getItem('lacasa_logs') || '[]');
     if (logs.length === 0) { el.innerHTML = '<p class="text-gray-300 text-center py-4">Sin actividad registrada</p>'; return; }
-    el.innerHTML = logs.slice().reverse().slice(0, 200).map(l =>
+    const MAX_LOG = 200;
+    const shown = logs.slice().reverse().slice(0, MAX_LOG);
+    el.innerHTML = shown.map(l =>
       `<div class="flex gap-2 py-1 border-b border-gray-50">
         <span class="text-gray-400 tabular-nums shrink-0">${l.timestamp.replace('T',' ').substring(0,16)}</span>
         <span class="font-medium text-gray-700 shrink-0">${esc(l.usuario)}</span>
         <span class="px-1.5 py-0.5 rounded text-2xs font-medium bg-gray-100 text-gray-600 shrink-0">${esc(l.accion)}</span>
         <span class="text-gray-500 truncate">${esc(l.detalle)}</span>
       </div>`
-    ).join('');
+    ).join('') + (logs.length > MAX_LOG ? `<p class="text-gray-300 text-center py-2 text-2xs">Mostrando ${MAX_LOG} de ${logs.length} registros</p>` : '');
   } catch { el.innerHTML = '<p class="text-gray-300">Error leyendo logs</p>'; }
 }
 
@@ -3600,11 +3608,12 @@ function incrementCreditsUsed(count) {
 
 function saveSMTPConfig() {
   const cfg = {
-    host: document.getElementById('smtpHost').value,
-    port: document.getElementById('smtpPort').value,
-    user: document.getElementById('smtpUser').value,
-    pass: document.getElementById('smtpPass').value
+    host: (document.getElementById('smtpHost').value || '').trim(),
+    port: (document.getElementById('smtpPort').value || '').trim(),
+    user: (document.getElementById('smtpUser').value || '').trim(),
+    pass: (document.getElementById('smtpPass').value || '').trim()
   };
+  if (!cfg.host || !cfg.user) { toast('Servidor y email son obligatorios', 'info'); return; }
   localStorage.setItem('lacasa_master_smtp', JSON.stringify(cfg));
   toast('SMTP guardado', 'success');
 }
@@ -4179,8 +4188,6 @@ async function executeCampaign(id) {
   const campaigns = getCampaigns();
   const camp = campaigns.find(c => c.id === id);
   if (!camp) return;
-  const ok = await showConfirm('Enviar campaña "' + camp.nombre + '" ahora?');
-  if (!ok) return;
 
   const sit = (camp.filtroSit || '').toLowerCase();
   const pos = camp.filtroPos || '';
@@ -4192,6 +4199,9 @@ async function executeCampaign(id) {
     return false;
   });
   if (recipients.length === 0) { toast('No hay destinatarios', 'info'); return; }
+
+  const ok = await showConfirm(`Enviar "${camp.nombre}" a ${recipients.length} destinatario(s) via ${camp.canal}?`);
+  if (!ok) return;
 
   camp.estado = 'sending'; saveCampaigns(campaigns); renderCampaignList();
   let sent = 0, failed = 0;
