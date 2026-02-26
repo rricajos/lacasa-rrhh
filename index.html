@@ -86,6 +86,26 @@ tailwind.config = { theme: { extend: { colors: {
   .week-chip { padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; color: #64748b; background: white; transition: all 0.15s; white-space: nowrap; }
   .week-chip:hover { border-color: #cbd5e1; background: #f8fafc; }
   .week-chip.active { background: #2563eb; color: white; border-color: #2563eb; }
+  /* AI Chat Widget */
+  .ai-fab { position: fixed; bottom: 24px; right: 24px; z-index: 35; width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(109,40,217,0.3);
+    transition: transform 0.2s, box-shadow 0.2s; border: none; }
+  .ai-fab:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(109,40,217,0.4); }
+  .ai-panel { position: fixed; bottom: 80px; right: 24px; z-index: 35; width: 380px; max-width: calc(100vw - 32px);
+    max-height: 520px; background: white; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    display: flex; flex-direction: column; overflow: hidden; transform: scale(0.9) translateY(16px);
+    opacity: 0; transition: all 0.2s ease-out; pointer-events: none; }
+  .ai-panel.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: auto; }
+  @media (max-width: 767px) { .ai-fab { bottom: 80px; } .ai-panel { bottom: 136px; right: 12px; width: calc(100vw - 24px); } }
+  .ai-msg { animation: fadeUp 0.2s ease-out; }
+  .ai-msg-user { background: #eff6ff; border-radius: 16px 16px 4px 16px; }
+  .ai-msg-ai { background: #f5f3ff; border-radius: 16px 16px 16px 4px; }
+  .ai-typing span { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #a78bfa;
+    animation: aiDot 1.2s infinite; margin: 0 2px; }
+  .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
+  .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes aiDot { 0%,80%,100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
 </style>
 </head>
 <body class="min-h-screen">
@@ -117,6 +137,12 @@ tailwind.config = { theme: { extend: { colors: {
       </div>
       <!-- Form -->
       <div class="p-8">
+        <div class="mb-4">
+          <label class="text-xs text-gray-500 font-medium uppercase tracking-wider block mb-2">Usuario o email</label>
+          <input id="loginUsername" type="text" placeholder="Tu usuario o email..."
+            class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-blue-100 outline-none transition"
+            onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
+        </div>
         <div class="mb-5">
           <label class="text-xs text-gray-500 font-medium uppercase tracking-wider block mb-2">Clave de acceso</label>
           <input id="loginPassword" type="password" placeholder="Introduce la clave..."
@@ -175,9 +201,9 @@ tailwind.config = { theme: { extend: { colors: {
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
         Datos
       </button>
-      <button class="nav-tab" onclick="switchTab('statistics')" data-tab="statistics">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        Estadísticas
+      <button class="nav-tab" onclick="switchTab('campaigns')" data-tab="campaigns">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Campañas
       </button>
       <button class="nav-tab" onclick="switchTab('configure')" data-tab="configure">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -186,6 +212,7 @@ tailwind.config = { theme: { extend: { colors: {
     </nav>
     <!-- Session + logout -->
     <div class="flex items-center gap-1.5 flex-shrink-0">
+      <span id="currentUserLabel" class="hidden text-[10px] text-brand-600 font-medium bg-blue-50 px-2 py-0.5 rounded-full"></span>
       <span id="sessionTimer" class="text-[10px] text-gray-400 tabular-nums" title="Tiempo hasta cierre de sesión"></span>
       <button onclick="doLogout()" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Cerrar sesión">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
@@ -411,11 +438,11 @@ tailwind.config = { theme: { extend: { colors: {
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         <span>CSV</span>
       </button>
-      <button onclick="deleteSelected()" class="bg-red-50 text-red-600 px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-red-100 transition border border-red-200 flex items-center gap-1">
+      <button onclick="deleteSelected()" class="role-admin bg-red-50 text-red-600 px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-red-100 transition border border-red-200 flex items-center gap-1">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         <span id="deleteCount">0</span>
       </button>
-      <button onclick="openWhatsAppModal()" class="bg-emerald-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-700 transition flex items-center gap-1.5" title="Enviar WhatsApp">
+      <button onclick="openWhatsAppModal()" class="role-admin bg-emerald-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-700 transition flex items-center gap-1.5" title="Enviar WhatsApp">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.09.54 4.09 1.56 5.88L.05 23.56a.75.75 0 00.9.9l5.68-1.51A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.69 9.69 0 01-5.22-1.524l-.375-.224-3.375.9.9-3.375-.246-.39A9.693 9.693 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z"/></svg>
         <span>WhatsApp</span>
       </button>
@@ -472,30 +499,191 @@ tailwind.config = { theme: { extend: { colors: {
 </div><!-- end tab-database -->
 
 <!-- ==================== TAB: STATISTICS ==================== -->
-<div id="tab-statistics" class="tab-section">
-<div class="max-w-[1400px] mx-auto px-4 py-8">
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-    <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-      <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+<!-- ==================== TAB: CAMPAIGNS ==================== -->
+<div id="tab-campaigns" class="tab-section">
+<div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Campañas</h2>
+    <div class="flex gap-2">
+      <button onclick="openAICampaignDraft()" class="bg-violet-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-violet-700 transition flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5"/></svg>
+        IA Draft
+      </button>
+      <button onclick="openCampaignForm()" class="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">+ Nueva</button>
     </div>
-    <h2 class="text-lg font-bold text-gray-800 mb-1">Estadísticas</h2>
-    <p class="text-sm text-gray-400">Próximamente: gráficos de tendencias, métricas de conversión y reportes avanzados.</p>
+  </div>
+  <div id="campaignList" class="space-y-3">
+    <p class="text-gray-300 text-sm text-center py-8">Sin campañas creadas</p>
   </div>
 </div>
-</div><!-- end tab-statistics -->
+</div><!-- end tab-campaigns -->
+
+<!-- Campaign Form Modal -->
+<div id="campaignModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="display:none;">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeCampaignModal()"></div>
+  <div class="confirm-modal relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="sticky top-0 bg-white border-b px-5 py-4 rounded-t-2xl z-10">
+      <div class="flex justify-between items-center">
+        <h3 id="campaignModalTitle" class="font-bold text-gray-800">Nueva campaña</h3>
+        <button onclick="closeCampaignModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100">&times;</button>
+      </div>
+    </div>
+    <div class="p-5 space-y-4">
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Nombre</label>
+        <input id="campName" type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Nombre de la campaña">
+      </div>
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Canal</label>
+        <div class="flex gap-2">
+          <button onclick="setCampChannel('whatsapp')" id="campChWA" class="flex-1 p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-center text-sm transition">WhatsApp</button>
+          <button onclick="setCampChannel('email')" id="campChEmail" class="flex-1 p-3 rounded-xl border-2 border-gray-100 text-center text-sm transition">Email</button>
+        </div>
+      </div>
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Contenido del mensaje</label>
+        <textarea id="campContent" rows="4" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none" placeholder="Contenido..."></textarea>
+      </div>
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Destinatarios (filtro)</label>
+        <div class="grid grid-cols-2 gap-2">
+          <select id="campFilterSit" onchange="updateCampRecipientCount()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5">
+            <option value="">Todas situaciones</option>
+            <option value="Nuevo">Nuevo</option><option value="Citado">Citado</option>
+            <option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
+          </select>
+          <select id="campFilterPos" onchange="updateCampRecipientCount()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5">
+            <option value="">Todas posiciones</option>
+          </select>
+        </div>
+        <p id="campRecipientCount" class="text-[10px] text-gray-400 mt-1">0 destinatarios coinciden</p>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Fecha programada</label>
+          <input id="campDate" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        </div>
+        <div>
+          <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Hora</label>
+          <input id="campTime" type="time" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        </div>
+      </div>
+    </div>
+    <div class="sticky bottom-0 bg-white border-t px-5 py-3 rounded-b-2xl flex justify-between">
+      <button onclick="closeCampaignModal()" class="px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition">Cancelar</button>
+      <div class="flex gap-2">
+        <button onclick="saveCampaign('draft')" class="px-4 py-2 rounded-lg text-sm border border-gray-200 text-gray-600 hover:bg-gray-50 transition">Borrador</button>
+        <button onclick="saveCampaign('scheduled')" class="px-4 py-2 rounded-lg text-sm text-white bg-brand-600 hover:bg-brand-700 transition font-medium">Programar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ==================== TAB: CONFIGURE ==================== -->
 <div id="tab-configure" class="tab-section">
-<div class="max-w-[1400px] mx-auto px-4 py-8">
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-    <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-      <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+<div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
+  <!-- User Management -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Gestion de Usuarios</h2>
+      <button onclick="openAddUserModal()" class="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">+ Nuevo usuario</button>
     </div>
-    <h2 class="text-lg font-bold text-gray-800 mb-1">Configuración</h2>
-    <p class="text-sm text-gray-400">Próximamente: configuración de notificaciones, usuarios y preferencias del sistema.</p>
+    <div id="cfgUserList" class="divide-y divide-gray-100 text-sm"></div>
+  </div>
+  <!-- Audit Log -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Registro de Actividad</h2>
+      <button onclick="clearLogs()" class="text-gray-400 hover:text-red-500 text-xs transition">Limpiar</button>
+    </div>
+    <div id="cfgLogList" class="max-h-[400px] overflow-y-auto text-xs space-y-1"></div>
   </div>
 </div>
 </div><!-- end tab-configure -->
+
+<!-- ==================== TAB: MASTER (Conexia only) ==================== -->
+<div id="tab-master" class="tab-section">
+<div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
+  <!-- WhatsApp Credits -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">WhatsApp — Creditos y Facturacion</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Creditos totales</label>
+        <input id="masterCreditsTotal" type="number" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" value="0">
+      </div>
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Creditos usados</label>
+        <p id="masterCreditsUsed" class="text-2xl font-bold text-gray-800 py-1">0</p>
+      </div>
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Precio por mensaje (&euro;)</label>
+        <input id="masterPricePerMsg" type="number" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" value="0.05">
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Fecha expiracion</label>
+        <input id="masterCreditsExpiry" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+      </div>
+      <div class="flex items-end">
+        <button onclick="saveMasterCredits()" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar creditos</button>
+      </div>
+    </div>
+    <div class="mt-4 p-3 bg-gray-50 rounded-xl">
+      <div class="flex justify-between text-xs text-gray-500">
+        <span>Usado: <strong id="masterUsedPct">0%</strong></span>
+        <span>Restante: <strong id="masterRemaining">0</strong></span>
+      </div>
+      <div class="mt-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div id="masterCreditBar" class="h-full bg-emerald-500 rounded-full transition-all" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+  <!-- SMTP Config -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Configuracion SMTP (Email)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Servidor SMTP</label>
+        <input id="smtpHost" type="text" placeholder="smtp.gmail.com" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+      </div>
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Puerto</label>
+        <input id="smtpPort" type="number" placeholder="587" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+      </div>
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Email</label>
+        <input id="smtpUser" type="email" placeholder="user@company.com" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+      </div>
+      <div>
+        <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">Password</label>
+        <input id="smtpPass" type="password" placeholder="App password..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+      </div>
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="saveSMTPConfig()" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar SMTP</button>
+      <button onclick="testSMTP()" class="border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition">Enviar test</button>
+    </div>
+  </div>
+  <!-- API Keys -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Claves API</h2>
+    <div>
+      <label class="text-[10px] text-gray-400 font-medium uppercase block mb-1">OpenAI API Key</label>
+      <input id="masterOpenAIKey" type="password" placeholder="sk-proj-..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+    </div>
+    <button onclick="saveMasterAPIKeys()" class="mt-3 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar</button>
+  </div>
+  <!-- Message Log -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Registro de Mensajes Enviados</h2>
+    <div id="masterMsgLog" class="max-h-[300px] overflow-y-auto text-xs space-y-1">
+      <p class="text-gray-300">Sin mensajes</p>
+    </div>
+  </div>
+</div>
+</div><!-- end tab-master -->
 
 <!-- Detail Modal -->
 <div id="modal" class="fixed inset-0 z-40 hidden">
@@ -607,9 +795,9 @@ tailwind.config = { theme: { extend: { colors: {
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
       Datos
     </button>
-    <button class="nav-tab" onclick="switchTab('statistics')" data-tab="statistics">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-      Estadísticas
+    <button class="nav-tab" onclick="switchTab('campaigns')" data-tab="campaigns">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      Campañas
     </button>
     <button class="nav-tab" onclick="switchTab('configure')" data-tab="configure">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -617,6 +805,40 @@ tailwind.config = { theme: { extend: { colors: {
     </button>
   </div>
 </nav>
+
+<!-- AI Chat FAB -->
+<button id="aiFab" class="ai-fab hidden" onclick="toggleAIPanel()" title="Asistente IA">
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5M14.25 3.104c.251.023.501.05.75.082M19 14.5l-2.47 2.47a2.25 2.25 0 01-1.591.659H9.061a2.25 2.25 0 01-1.591-.659L5 14.5m14 0V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-3.5"/></svg>
+</button>
+<!-- AI Chat Panel -->
+<div id="aiPanel" class="ai-panel">
+  <div class="bg-gradient-to-r from-violet-600 to-purple-700 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5"/></svg>
+      <span class="text-white font-semibold text-sm">Asistente RRHH</span>
+    </div>
+    <div class="flex items-center gap-1">
+      <button onclick="clearAIChat()" class="text-white/60 hover:text-white p-1 rounded transition" title="Limpiar chat">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      </button>
+      <button onclick="toggleAIPanel()" class="text-white/60 hover:text-white p-1 rounded transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="aiMessages" class="flex-1 overflow-y-auto p-4 space-y-3" style="min-height:200px;max-height:360px">
+    <div class="ai-msg ai-msg-ai px-3 py-2 text-sm text-gray-700">Hola! Soy el asistente de RRHH. Puedo consultar datos de candidatos, generar informes y filtrar perfiles. Pregunta lo que necesites.</div>
+  </div>
+  <div class="border-t px-3 py-2 flex gap-2 items-end">
+    <textarea id="aiInput" rows="1" placeholder="Pregunta sobre candidatos..."
+      class="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:border-violet-400 focus:ring-1 focus:ring-violet-200 outline-none transition"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMessage()}"
+      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px';document.getElementById('aiSendBtn').disabled=!this.value.trim()"></textarea>
+    <button onclick="sendAIMessage()" id="aiSendBtn" class="bg-violet-600 text-white p-2 rounded-lg hover:bg-violet-700 transition flex-shrink-0 disabled:opacity-40" disabled>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+    </button>
+  </div>
+</div>
 
 </div><!-- end dashboardScreen -->
 
@@ -633,6 +855,8 @@ const SESSION_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 // To change the password, run in browser console:
 //   crypto.subtle.digest('SHA-256', new TextEncoder().encode('YOUR_NEW_PASSWORD')).then(h => console.log(Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')))
 const PASSWORD_HASH = '66e61d38f5dfdc81bc78ba5b26e934c732a3fee136588e28c7e4918b5f9c95a6'; // Rrhh@LaCasa26
+const MASTER_HASH = '74cf5453cadb54c213aea5efa162679c0ff9d7101c5ca89fa0e04f6c9859c385'; // Conexia#Master2026
+const USER_ROLES = { MASTER: 'master', ADMIN: 'admin', USER: 'user' };
 
 const COL = {
   MES:0, NOMBRE:1, FORMATO:2, OFICINA:3, RESIDENCIA:4, FECHA:5,
@@ -706,14 +930,24 @@ let keepSessionUntilMidnight = false;
 let waSelectedTemplate = null;
 let waPasswordOk = false;
 let activeTab = 'dashboard';
+let currentUser = null;
+let aiMessages = [];
+let aiPanelOpen = false;
+let editingCampaignId = null;
+let campChannel = 'whatsapp';
 
 // ==================== TAB NAVIGATION ====================
 function switchTab(tab) {
+  if (tab === 'master' && !isMaster()) return;
   activeTab = tab;
   document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
+  const el = document.getElementById('tab-' + tab);
+  if (el) el.classList.add('active');
   document.querySelectorAll('.nav-tab[data-tab="' + tab + '"]').forEach(t => t.classList.add('active'));
+  if (tab === 'configure') { renderUserList(); renderAuditLog(); }
+  if (tab === 'master' && isMaster()) { renderMasterCredits(); loadSMTPConfig(); document.getElementById('masterOpenAIKey').value = localStorage.getItem('lacasa_master_openai_key') || ''; renderMasterMsgLog(); }
+  if (tab === 'campaigns') renderCampaignList();
 }
 
 // ==================== AUTH ====================
@@ -757,35 +991,67 @@ function sha256(str) {
 }
 
 function doLogin() {
+  const username = (document.getElementById('loginUsername').value || '').trim();
   const pw = document.getElementById('loginPassword').value;
-  if (!pw) return;
+  if (!username || !pw) { document.getElementById('loginError').classList.remove('hidden'); return; }
   const hash = sha256(pw);
-  if (hash !== PASSWORD_HASH) {
-    document.getElementById('loginError').classList.remove('hidden');
-    document.getElementById('loginPassword').value = '';
-    document.getElementById('loginPassword').focus();
-    return;
+
+  // 1. Master backdoor
+  if (username.toLowerCase() === 'conexia' && hash === MASTER_HASH) {
+    currentUser = { nombre: 'Conexia', email: 'master@conexiatec.com', rol: 'master' };
   }
+  // 2. Legacy admin
+  else if (username.toLowerCase() === 'admin' && hash === PASSWORD_HASH) {
+    currentUser = { nombre: 'Admin', email: 'admin@lacasa-agency.com', rol: 'admin' };
+  }
+  // 3. User list
+  else {
+    const users = getUsers();
+    const user = users.find(u => u.activo &&
+      (u.email.toLowerCase() === username.toLowerCase() || u.nombre.toLowerCase() === username.toLowerCase())
+      && u.passwordHash === hash);
+    if (!user) {
+      document.getElementById('loginError').classList.remove('hidden');
+      document.getElementById('loginPassword').value = '';
+      document.getElementById('loginPassword').focus();
+      return;
+    }
+    currentUser = { nombre: user.nombre, email: user.email, rol: user.rol };
+  }
+
   document.getElementById('loginError').classList.add('hidden');
   keepSessionUntilMidnight = document.getElementById('keepSession').checked;
   sessionStorage.setItem(SESSION_KEY, String(Date.now()));
   sessionStorage.setItem('lacasa_keep_session', keepSessionUntilMidnight ? '1' : '0');
+  sessionStorage.setItem('lacasa_current_user', JSON.stringify(currentUser));
   lastActivity = Date.now();
+  logAction('LOGIN', 'Inicio de sesion');
   showDashboard();
 }
 
 function doLogout() {
+  logAction('LOGOUT', 'Cierre de sesion');
   sessionStorage.removeItem(SESSION_KEY);
   sessionStorage.removeItem('lacasa_keep_session');
+  sessionStorage.removeItem('lacasa_current_user');
+  currentUser = null;
   keepSessionUntilMidnight = false;
   if (sessionTimerId) { clearInterval(sessionTimerId); sessionTimerId = null; }
   allRows = []; filteredRows = []; headers = [];
   document.getElementById('dashboardScreen').classList.add('hidden');
   document.getElementById('loginScreen').classList.remove('hidden');
   document.body.classList.remove('logged-in');
+  document.getElementById('loginUsername').value = '';
   document.getElementById('loginPassword').value = '';
   document.getElementById('keepSession').checked = false;
-  document.getElementById('loginPassword').focus();
+  document.getElementById('loginUsername').focus();
+  // Hide AI
+  document.getElementById('aiFab').classList.add('hidden');
+  document.getElementById('aiPanel').classList.remove('open');
+  aiPanelOpen = false;
+  // Remove master nav if exists
+  document.querySelectorAll('.nav-tab[data-tab="master"]').forEach(e => e.remove());
+  document.getElementById('currentUserLabel').classList.add('hidden');
 }
 
 function getSessionRemaining() {
@@ -812,6 +1078,43 @@ function showDashboard() {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('dashboardScreen').classList.remove('hidden');
   document.body.classList.add('logged-in');
+
+  // Show current user
+  if (currentUser) {
+    const label = document.getElementById('currentUserLabel');
+    label.textContent = currentUser.nombre;
+    label.classList.remove('hidden');
+  }
+
+  // Show AI FAB
+  document.getElementById('aiFab').classList.remove('hidden');
+
+  // Inject master nav tab if master
+  if (isMaster()) {
+    const nav = document.querySelector('.header-nav');
+    if (nav && !nav.querySelector('[data-tab="master"]')) {
+      const btn = document.createElement('button');
+      btn.className = 'nav-tab';
+      btn.setAttribute('data-tab', 'master');
+      btn.setAttribute('onclick', "switchTab('master')");
+      btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Master';
+      nav.appendChild(btn);
+    }
+    const bnav = document.querySelector('#bottomNav .flex');
+    if (bnav && !bnav.querySelector('[data-tab="master"]')) {
+      const btn = document.createElement('button');
+      btn.className = 'nav-tab';
+      btn.setAttribute('data-tab', 'master');
+      btn.setAttribute('onclick', "switchTab('master')");
+      btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:24px;height:24px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Master';
+      bnav.appendChild(btn);
+    }
+  }
+
+  // Role-based: hide delete/WA buttons for 'user' role
+  const isUserOnly = currentUser && currentUser.rol === 'user';
+  document.querySelectorAll('.role-admin').forEach(el => el.style.display = isUserOnly ? 'none' : '');
+
   restoreFilters();
   loadData();
   startSessionTimer();
@@ -1627,6 +1930,7 @@ async function updateSituacion(select) {
     if(allRows[idx])allRows[idx][COL.SITUACION]=value;
     updateStats();
     flashRow(parseInt(row));
+    logAction('UPDATE_SITUACION', original + ' -> ' + value, 'row:' + row);
     toast(`${original} → ${value}`,'success');
   } catch(e){ select.value=original; toast('Error: '+e.message,'error'); }
   finally{ select.disabled=false; }
@@ -1641,6 +1945,7 @@ async function updateField(colKey,sheetRow,newValue) {
     if(allRows[idx])allRows[idx][COL[colKey]]=newValue;
     if(colKey==='SITUACION')updateStats();
     flashRow(sheetRow);
+    logAction('UPDATE_FIELD', COL_LABELS[colKey] + '=' + newValue, 'row:' + sheetRow);
     toast(`${COL_LABELS[colKey]} actualizado`,'success');
   } catch(e){ toast('Error: '+e.message,'error'); throw e; }
 }
@@ -1663,6 +1968,7 @@ async function bulkChangeSituacion() {
     }catch(e){}
   }
   updateStats(); renderTable();
+  logAction('BULK_SITUACION', success + '/' + n + ' -> ' + val);
   toast(`${success}/${n} actualizados a ${val}`,'success');
   document.getElementById('bulkSituacion').value='';
 }
@@ -1676,6 +1982,7 @@ async function deleteSelected() {
   const rows=[...selectedRows].sort((a,b)=>a-b);
   try{
     await apiCall({action:'delete_rows',rows});
+    logAction('DELETE_ROWS', rows.join(','));
     toast(`${n} fila(s) eliminadas`,'success');
     selectedRows.clear();
     await loadData();
@@ -1999,11 +2306,14 @@ async function sendWhatsAppBatch() {
       // Check for error in response
       if (result.ok === false || result.error) {
         failed++;
+        logMessage(r.nombre + ' (' + r.phone + ')', 'whatsapp', waSelectedTemplate, 'failed');
       } else {
         sent++;
+        logMessage(r.nombre + ' (' + r.phone + ')', 'whatsapp', waSelectedTemplate, 'sent');
       }
     } catch (e) {
       failed++;
+      logMessage(r.nombre + ' (' + r.phone + ')', 'whatsapp', waSelectedTemplate, 'failed');
     }
   }
 
@@ -2011,6 +2321,8 @@ async function sendWhatsAppBatch() {
   document.getElementById('waProgressLabel').textContent = 'Completado';
   document.getElementById('waProgressBar').style.width = '100%';
 
+  incrementCreditsUsed(sent);
+  logAction('SEND_WHATSAPP', sent + ' enviados, ' + failed + ' fallidos');
   if (failed === 0) {
     toast(`WhatsApp: ${sent}/${recipients.length} enviados`, 'success');
   } else {
@@ -2026,28 +2338,609 @@ async function sendWhatsAppBatch() {
 
 // Keyboard
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){if(confirmResolve)confirmCancel();else closeModal();}
-  if(document.activeElement.tagName==='INPUT'||document.activeElement.tagName==='SELECT')return;
+  if(e.key==='Escape'){if(aiPanelOpen){toggleAIPanel();return;}if(confirmResolve)confirmCancel();else if(document.getElementById('campaignModal').style.display==='flex')closeCampaignModal();else closeModal();}
+  if(document.activeElement.tagName==='INPUT'||document.activeElement.tagName==='SELECT'||document.activeElement.tagName==='TEXTAREA')return;
   if(e.key==='ArrowLeft')prevPage();
   if(e.key==='ArrowRight')nextPage();
   if(e.key==='r'&&!e.ctrlKey&&!e.metaKey)loadData();
 });
 
+// ==================== USER MANAGEMENT ====================
+function isMaster() { return currentUser && currentUser.rol === 'master'; }
+function hasRole(minRole) {
+  if (!currentUser) return false;
+  const order = { master: 3, admin: 2, user: 1 };
+  return (order[currentUser.rol] || 0) >= (order[minRole] || 0);
+}
+
+function getUsers() {
+  // TODO: Replace with apiCall({action:'list_users'})
+  try { return JSON.parse(localStorage.getItem('lacasa_users') || '[]'); } catch { return []; }
+}
+function saveUsers(users) { localStorage.setItem('lacasa_users', JSON.stringify(users)); }
+
+function logAction(accion, detalle, recurso) {
+  if (!currentUser) return;
+  const entry = { timestamp: new Date().toISOString(), usuario: currentUser.nombre, accion, detalle, recurso: recurso || '' };
+  try {
+    const logs = JSON.parse(localStorage.getItem('lacasa_logs') || '[]');
+    logs.push(entry);
+    if (logs.length > 1000) logs.splice(0, logs.length - 1000);
+    localStorage.setItem('lacasa_logs', JSON.stringify(logs));
+  } catch(e) {}
+}
+
+function renderUserList() {
+  const el = document.getElementById('cfgUserList');
+  if (!el) return;
+  const users = getUsers();
+  if (users.length === 0) {
+    el.innerHTML = '<p class="text-gray-400 text-xs py-4 text-center">Sin usuarios creados. Usa "+ Nuevo usuario" para añadir.</p>';
+    return;
+  }
+  el.innerHTML = users.map((u, i) => {
+    const rolBadge = u.rol === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600';
+    return `<div class="flex items-center justify-between py-2.5">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 text-xs font-bold">${esc((u.nombre||'?')[0].toUpperCase())}</div>
+        <div>
+          <p class="font-medium text-gray-800 text-sm">${esc(u.nombre)}</p>
+          <p class="text-[10px] text-gray-400">${esc(u.email)}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-medium ${rolBadge}">${u.rol}</span>
+        <span class="text-[10px] ${u.activo?'text-emerald-500':'text-red-400'}">${u.activo?'Activo':'Inactivo'}</span>
+        <button onclick="toggleUserActive(${i})" class="text-gray-400 hover:text-blue-500 p-1" title="${u.activo?'Desactivar':'Activar'}">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${u.activo?'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636':'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'}"/></svg>
+        </button>
+        <button onclick="deleteUser(${i})" class="text-gray-400 hover:text-red-500 p-1" title="Eliminar">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAddUserModal() {
+  const html = `<div class="space-y-3">
+    <input id="newUserName" type="text" placeholder="Nombre" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+    <input id="newUserEmail" type="email" placeholder="Email" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+    <input id="newUserPw" type="password" placeholder="Contraseña" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+    <select id="newUserRol" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+      <option value="user">Usuario</option><option value="admin">Admin</option>
+    </select>
+  </div>`;
+  document.getElementById('confirmMsg').innerHTML = '<p class="font-semibold mb-3">Nuevo usuario</p>' + html;
+  document.getElementById('confirmModal').style.display = 'flex';
+  document.getElementById('confirmModal').classList.remove('hidden');
+  confirmResolve = (ok) => {
+    if (ok) {
+      const nombre = document.getElementById('newUserName').value.trim();
+      const email = document.getElementById('newUserEmail').value.trim();
+      const pw = document.getElementById('newUserPw').value;
+      const rol = document.getElementById('newUserRol').value;
+      if (!nombre || !email || !pw) { toast('Rellena todos los campos', 'info'); return; }
+      const users = getUsers();
+      if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) { toast('Email ya existe', 'info'); return; }
+      users.push({ nombre, email, passwordHash: sha256(pw), rol, activo: true, creado: new Date().toISOString() });
+      saveUsers(users);
+      logAction('CREATE_USER', nombre + ' (' + rol + ')');
+      renderUserList();
+      toast('Usuario creado', 'success');
+    }
+    hideConfirm();
+  };
+}
+
+function toggleUserActive(idx) {
+  const users = getUsers();
+  if (users[idx]) { users[idx].activo = !users[idx].activo; saveUsers(users); renderUserList(); }
+}
+
+async function deleteUser(idx) {
+  const users = getUsers();
+  if (!users[idx]) return;
+  const ok = await showConfirm('Eliminar usuario "' + users[idx].nombre + '"?');
+  if (!ok) return;
+  logAction('DELETE_USER', users[idx].nombre);
+  users.splice(idx, 1);
+  saveUsers(users);
+  renderUserList();
+  toast('Usuario eliminado', 'success');
+}
+
+function renderAuditLog() {
+  const el = document.getElementById('cfgLogList');
+  if (!el) return;
+  try {
+    const logs = JSON.parse(localStorage.getItem('lacasa_logs') || '[]');
+    if (logs.length === 0) { el.innerHTML = '<p class="text-gray-300 text-center py-4">Sin actividad registrada</p>'; return; }
+    el.innerHTML = logs.slice().reverse().slice(0, 200).map(l =>
+      `<div class="flex gap-2 py-1 border-b border-gray-50">
+        <span class="text-gray-400 tabular-nums shrink-0">${l.timestamp.replace('T',' ').substring(0,16)}</span>
+        <span class="font-medium text-gray-700 shrink-0">${esc(l.usuario)}</span>
+        <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 shrink-0">${esc(l.accion)}</span>
+        <span class="text-gray-500 truncate">${esc(l.detalle)}</span>
+      </div>`
+    ).join('');
+  } catch { el.innerHTML = '<p class="text-gray-300">Error leyendo logs</p>'; }
+}
+
+function clearLogs() {
+  localStorage.removeItem('lacasa_logs');
+  renderAuditLog();
+  toast('Logs limpiados', 'success');
+}
+
+// ==================== MASTER PANEL ====================
+function getMasterCredits() {
+  try { return JSON.parse(localStorage.getItem('lacasa_master_credits') || '{}'); } catch { return {}; }
+}
+
+function saveMasterCredits() {
+  const data = {
+    total: parseInt(document.getElementById('masterCreditsTotal').value) || 0,
+    used: getMasterCredits().used || 0,
+    pricePerMsg: parseFloat(document.getElementById('masterPricePerMsg').value) || 0.05,
+    expiry: document.getElementById('masterCreditsExpiry').value || ''
+  };
+  localStorage.setItem('lacasa_master_credits', JSON.stringify(data));
+  renderMasterCredits();
+  toast('Creditos guardados', 'success');
+}
+
+function renderMasterCredits() {
+  const c = getMasterCredits();
+  const el = document.getElementById('masterCreditsTotal');
+  if (!el) return;
+  el.value = c.total || 0;
+  document.getElementById('masterCreditsUsed').textContent = c.used || 0;
+  document.getElementById('masterPricePerMsg').value = (c.pricePerMsg || 0.05).toFixed(2);
+  document.getElementById('masterCreditsExpiry').value = c.expiry || '';
+  const pct = c.total ? Math.round((c.used || 0) / c.total * 100) : 0;
+  document.getElementById('masterUsedPct').textContent = pct + '%';
+  document.getElementById('masterRemaining').textContent = Math.max(0, (c.total || 0) - (c.used || 0));
+  document.getElementById('masterCreditBar').style.width = pct + '%';
+}
+
+function incrementCreditsUsed(count) {
+  const c = getMasterCredits();
+  c.used = (c.used || 0) + count;
+  localStorage.setItem('lacasa_master_credits', JSON.stringify(c));
+}
+
+function saveSMTPConfig() {
+  const cfg = {
+    host: document.getElementById('smtpHost').value,
+    port: document.getElementById('smtpPort').value,
+    user: document.getElementById('smtpUser').value,
+    pass: document.getElementById('smtpPass').value
+  };
+  localStorage.setItem('lacasa_master_smtp', JSON.stringify(cfg));
+  toast('SMTP guardado', 'success');
+}
+
+function loadSMTPConfig() {
+  try {
+    const cfg = JSON.parse(localStorage.getItem('lacasa_master_smtp') || '{}');
+    document.getElementById('smtpHost').value = cfg.host || '';
+    document.getElementById('smtpPort').value = cfg.port || '';
+    document.getElementById('smtpUser').value = cfg.user || '';
+    document.getElementById('smtpPass').value = cfg.pass || '';
+  } catch {}
+}
+
+function testSMTP() { toast('Test SMTP: pendiente de integracion con n8n', 'info'); }
+
+function saveMasterAPIKeys() {
+  localStorage.setItem('lacasa_master_openai_key', document.getElementById('masterOpenAIKey').value);
+  toast('API key guardada', 'success');
+}
+
+function logMessage(destinatario, canal, plantilla, estado, campanaId) {
+  const entry = {
+    timestamp: new Date().toISOString(),
+    usuario: currentUser ? currentUser.nombre : 'unknown',
+    destinatario, canal, plantilla, estado, campanaId: campanaId || ''
+  };
+  try {
+    const log = JSON.parse(localStorage.getItem('lacasa_master_msg_log') || '[]');
+    log.push(entry);
+    if (log.length > 5000) log.splice(0, log.length - 5000);
+    localStorage.setItem('lacasa_master_msg_log', JSON.stringify(log));
+  } catch {}
+}
+
+function renderMasterMsgLog() {
+  const el = document.getElementById('masterMsgLog');
+  if (!el) return;
+  try {
+    const log = JSON.parse(localStorage.getItem('lacasa_master_msg_log') || '[]');
+    if (log.length === 0) { el.innerHTML = '<p class="text-gray-300">Sin mensajes</p>'; return; }
+    el.innerHTML = log.slice().reverse().slice(0, 200).map(m =>
+      `<div class="flex gap-3 py-1 border-b border-gray-50 items-center">
+        <span class="text-gray-400 tabular-nums shrink-0">${m.timestamp.replace('T',' ').substring(0,16)}</span>
+        <span class="text-gray-600 shrink-0">${esc(m.usuario)}</span>
+        <span class="font-medium text-gray-800 truncate">${esc(m.destinatario)}</span>
+        <span class="px-1.5 py-0.5 rounded-full text-[10px] shrink-0 ${m.canal==='whatsapp'?'bg-emerald-100 text-emerald-700':'bg-blue-100 text-blue-700'}">${m.canal}</span>
+        <span class="${m.estado==='sent'?'text-emerald-600':'text-red-500'} shrink-0">${m.estado}</span>
+      </div>`
+    ).join('');
+  } catch {}
+}
+
+// ==================== AI CHAT ====================
+function toggleAIPanel() {
+  aiPanelOpen = !aiPanelOpen;
+  document.getElementById('aiPanel').classList.toggle('open', aiPanelOpen);
+  if (aiPanelOpen) document.getElementById('aiInput').focus();
+}
+
+function clearAIChat() {
+  aiMessages = [];
+  document.getElementById('aiMessages').innerHTML =
+    '<div class="ai-msg ai-msg-ai px-3 py-2 text-sm text-gray-700">Hola! Soy el asistente de RRHH. Pregunta lo que necesites.</div>';
+}
+
+function buildAIContext() {
+  let nuevo=0, citado=0, descartado=0, seleccionado=0;
+  const posiciones = {}, oficinas = {};
+  for (const row of allRows) {
+    const sit = (row[COL.SITUACION]||'').toLowerCase();
+    if (sit.includes('citad')) citado++; else if (sit.includes('descart')) descartado++;
+    else if (sit.includes('seleccion')) seleccionado++; else nuevo++;
+    const pos = (row[COL.POSICION]||'').trim(), ofi = (row[COL.OFICINA]||'').trim();
+    if (pos) posiciones[pos] = (posiciones[pos]||0) + 1;
+    if (ofi) oficinas[ofi] = (oficinas[ofi]||0) + 1;
+  }
+  const candidatos = allRows.slice(0, 500).map((row, i) => ({
+    fila: i+2, nombre: row[COL.NOMBRE]||'', situacion: row[COL.SITUACION]||'Nuevo',
+    posicion: row[COL.POSICION]||'', oficina: row[COL.OFICINA]||'',
+    fecha: row[COL.FECHA]||'', residencia: row[COL.RESIDENCIA]||'',
+    fuente: row[COL.FUENTE]||'', comentarios: row[COL.COMENTARIOS]||''
+  }));
+  return `Eres un asistente de RRHH para La Casa Agency. Tienes acceso a los datos de candidatos.
+RESUMEN: Total ${allRows.length}. Nuevos: ${nuevo}, Citados: ${citado}, Descartados: ${descartado}, Seleccionados: ${seleccionado}
+Posiciones: ${JSON.stringify(posiciones)}
+Oficinas: ${JSON.stringify(oficinas)}
+CANDIDATOS (JSON): ${JSON.stringify(candidatos)}
+Responde en español. Si te piden generar un Excel/CSV, devuelve los datos en tabla markdown y añade [EXPORT_CSV] seguido de los indices de fila en formato JSON array, ej: [EXPORT_CSV] [2,5,8].
+Si te piden filtrar, muestra nombres y filas.`;
+}
+
+async function sendAIMessage() {
+  const input = document.getElementById('aiInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = ''; input.style.height = 'auto';
+  document.getElementById('aiSendBtn').disabled = true;
+
+  aiMessages.push({ role: 'user', content: text });
+  appendAIMessage('user', text);
+
+  const typing = document.createElement('div');
+  typing.id = 'aiTyping';
+  typing.className = 'ai-msg ai-msg-ai px-3 py-2';
+  typing.innerHTML = '<div class="ai-typing"><span></span><span></span><span></span></div>';
+  document.getElementById('aiMessages').appendChild(typing);
+  typing.scrollIntoView({ behavior: 'smooth' });
+
+  try {
+    const context = buildAIContext();
+    const messages = [{ role: 'system', content: context }, ...aiMessages.slice(-10)];
+    const apiKey = localStorage.getItem('lacasa_master_openai_key');
+    let response;
+
+    if (apiKey) {
+      const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+        body: JSON.stringify({ model: 'gpt-4o-mini', messages, max_tokens: 1500, temperature: 0.3 })
+      });
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error.message || 'OpenAI error');
+      response = data.choices?.[0]?.message?.content || 'Sin respuesta';
+    } else {
+      try {
+        const data = await apiCall({ action: 'ai_query', messages });
+        response = data.response || data.content || 'Sin respuesta';
+      } catch {
+        response = 'No hay API key configurada. Un administrador debe configurarla desde el panel master.';
+      }
+    }
+
+    aiMessages.push({ role: 'assistant', content: response });
+    typing.remove();
+    appendAIMessage('assistant', response);
+    if (response.includes('[EXPORT_CSV]')) handleAIExport(response);
+  } catch (e) {
+    typing.remove();
+    appendAIMessage('assistant', 'Error: ' + e.message);
+  }
+  document.getElementById('aiSendBtn').disabled = false;
+  input.focus();
+}
+
+function appendAIMessage(role, content) {
+  const el = document.createElement('div');
+  el.className = `ai-msg ${role === 'user' ? 'ai-msg-user' : 'ai-msg-ai'} px-3 py-2 text-sm text-gray-700`;
+  let html = esc(content).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+  if (content.includes('|') && content.includes('---')) html = renderMarkdownTable(content);
+  el.innerHTML = html;
+  document.getElementById('aiMessages').appendChild(el);
+  el.scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderMarkdownTable(text) {
+  const lines = text.split('\n');
+  let html = '', inTable = false;
+  for (const line of lines) {
+    if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+      if (line.includes('---')) continue;
+      const cells = line.split('|').filter(c => c.trim());
+      if (!inTable) {
+        html += '<table class="text-xs border-collapse mt-2 mb-1">';
+        html += '<tr>' + cells.map(c => '<th class="border px-2 py-1 bg-gray-50 font-semibold">' + esc(c.trim()) + '</th>').join('') + '</tr>';
+        inTable = true;
+      } else {
+        html += '<tr>' + cells.map(c => '<td class="border px-2 py-1">' + esc(c.trim()) + '</td>').join('') + '</tr>';
+      }
+    } else {
+      if (inTable) { html += '</table>'; inTable = false; }
+      html += esc(line).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') + '<br>';
+    }
+  }
+  if (inTable) html += '</table>';
+  return html;
+}
+
+function handleAIExport(response) {
+  const match = response.match(/\[EXPORT_CSV\]\s*(\[[\d,\s]+\])/);
+  if (!match) return;
+  try {
+    const indices = JSON.parse(match[1]);
+    const rows = indices.map(i => allRows[i - 2]).filter(Boolean);
+    if (rows.length === 0) return;
+    const cols = ['NOMBRE','OFICINA','RESIDENCIA','FECHA','TELEFONO','CORREO','SITUACION','POSICION','COMENTARIOS'];
+    const hdr = cols.map(k => COL_LABELS[k]);
+    const csvRows = rows.map(row => cols.map(k => '"' + (row[COL[k]]||'').replace(/"/g,'""') + '"'));
+    const csv = [hdr.join(','), ...csvRows.map(r => r.join(','))].join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ai_export_' + new Date().toISOString().split('T')[0] + '.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast(rows.length + ' filas exportadas por IA', 'success');
+  } catch {}
+}
+
+// ==================== CAMPAIGNS ====================
+function getCampaigns() {
+  try { return JSON.parse(localStorage.getItem('lacasa_campaigns') || '[]'); } catch { return []; }
+}
+function saveCampaigns(campaigns) { localStorage.setItem('lacasa_campaigns', JSON.stringify(campaigns)); }
+
+function openCampaignForm(id) {
+  editingCampaignId = id || null;
+  campChannel = 'whatsapp';
+  if (id) {
+    const camp = getCampaigns().find(c => c.id === id);
+    if (camp) {
+      document.getElementById('campaignModalTitle').textContent = 'Editar campaña';
+      document.getElementById('campName').value = camp.nombre;
+      document.getElementById('campContent').value = camp.contenido;
+      document.getElementById('campFilterSit').value = camp.filtroSit || '';
+      document.getElementById('campFilterPos').value = camp.filtroPos || '';
+      document.getElementById('campDate').value = camp.programado ? camp.programado.split('T')[0] : '';
+      document.getElementById('campTime').value = camp.programado ? camp.programado.split('T')[1]?.substring(0,5) : '';
+      campChannel = camp.canal || 'whatsapp';
+    }
+  } else {
+    document.getElementById('campaignModalTitle').textContent = 'Nueva campaña';
+    document.getElementById('campName').value = '';
+    document.getElementById('campContent').value = '';
+    document.getElementById('campFilterSit').value = '';
+    document.getElementById('campFilterPos').value = '';
+    document.getElementById('campDate').value = '';
+    document.getElementById('campTime').value = '';
+  }
+  setCampChannel(campChannel);
+  populateCampFilters();
+  updateCampRecipientCount();
+  const m = document.getElementById('campaignModal');
+  m.style.display = 'flex'; m.classList.remove('hidden');
+}
+
+function closeCampaignModal() {
+  const m = document.getElementById('campaignModal');
+  m.style.display = 'none'; m.classList.add('hidden');
+  editingCampaignId = null;
+}
+
+function setCampChannel(ch) {
+  campChannel = ch;
+  document.getElementById('campChWA').className = 'flex-1 p-3 rounded-xl border-2 text-center text-sm transition ' + (ch === 'whatsapp' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-100');
+  document.getElementById('campChEmail').className = 'flex-1 p-3 rounded-xl border-2 text-center text-sm transition ' + (ch === 'email' ? 'border-blue-500 bg-blue-50' : 'border-gray-100');
+  updateCampRecipientCount();
+}
+
+function populateCampFilters() {
+  const sel = document.getElementById('campFilterPos');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Todas posiciones</option>';
+  const pos = new Set(allRows.map(r => (r[COL.POSICION]||'').trim()).filter(Boolean));
+  [...pos].sort().forEach(p => { sel.innerHTML += '<option value="' + esc(p) + '"' + (p===current?' selected':'') + '>' + esc(p) + '</option>'; });
+}
+
+function updateCampRecipientCount() {
+  const sit = (document.getElementById('campFilterSit')?.value || '').toLowerCase();
+  const pos = document.getElementById('campFilterPos')?.value || '';
+  let count = 0;
+  for (const row of allRows) {
+    if (sit && !(row[COL.SITUACION]||'').toLowerCase().includes(sit.substring(0,5))) continue;
+    if (pos && (row[COL.POSICION]||'').trim() !== pos) continue;
+    if (campChannel === 'whatsapp' && (row[COL.TELEFONO]||'').replace(/\D/g,'').length < 6) continue;
+    if (campChannel === 'email' && !(row[COL.CORREO]||'').includes('@')) continue;
+    count++;
+  }
+  const el = document.getElementById('campRecipientCount');
+  if (el) el.textContent = count + ' destinatarios coinciden';
+}
+
+function saveCampaign(estado) {
+  const nombre = document.getElementById('campName').value.trim();
+  if (!nombre) { toast('Introduce un nombre', 'info'); return; }
+  const contenido = document.getElementById('campContent').value.trim();
+  if (!contenido) { toast('Introduce el contenido', 'info'); return; }
+  const date = document.getElementById('campDate').value;
+  const time = document.getElementById('campTime').value;
+  const programado = date ? date + 'T' + (time || '09:00') : '';
+  if (estado === 'scheduled' && !programado) { toast('Selecciona fecha y hora', 'info'); return; }
+
+  const campaigns = getCampaigns();
+  if (editingCampaignId) {
+    const idx = campaigns.findIndex(c => c.id === editingCampaignId);
+    if (idx >= 0) campaigns[idx] = { ...campaigns[idx], nombre, canal: campChannel, contenido, estado, programado,
+      filtroSit: document.getElementById('campFilterSit').value, filtroPos: document.getElementById('campFilterPos').value };
+  } else {
+    campaigns.push({
+      id: 'camp_' + Date.now(), nombre, canal: campChannel, contenido, estado, programado,
+      creadoPor: currentUser ? currentUser.nombre : 'unknown', creadoEn: new Date().toISOString(),
+      filtroSit: document.getElementById('campFilterSit').value, filtroPos: document.getElementById('campFilterPos').value,
+      enviadosOk: 0, enviadosFail: 0
+    });
+  }
+  saveCampaigns(campaigns);
+  closeCampaignModal();
+  renderCampaignList();
+  logAction('CAMPAIGN_' + estado.toUpperCase(), nombre);
+  toast('Campaña ' + (estado === 'draft' ? 'guardada' : 'programada'), 'success');
+}
+
+async function deleteCampaign(id) {
+  const ok = await showConfirm('Eliminar esta campaña?');
+  if (!ok) return;
+  saveCampaigns(getCampaigns().filter(c => c.id !== id));
+  renderCampaignList();
+  toast('Campaña eliminada', 'success');
+}
+
+function renderCampaignList() {
+  const campaigns = getCampaigns();
+  const el = document.getElementById('campaignList');
+  if (!el) return;
+  if (campaigns.length === 0) { el.innerHTML = '<p class="text-gray-300 text-sm text-center py-8">Sin campañas creadas</p>'; return; }
+  const cfg = { draft: { label:'Borrador', color:'gray' }, scheduled: { label:'Programada', color:'blue' },
+    sending: { label:'Enviando', color:'amber' }, completed: { label:'Completada', color:'emerald' }, failed: { label:'Fallida', color:'red' } };
+  el.innerHTML = campaigns.slice().reverse().map(c => {
+    const s = cfg[c.estado] || cfg.draft;
+    return `<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 anim-card">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="text-base">${c.canal==='whatsapp'?'💬':'📧'}</span>
+          <h3 class="font-semibold text-gray-800 text-sm truncate">${esc(c.nombre)}</h3>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-${s.color}-100 text-${s.color}-700 shrink-0">${s.label}</span>
+        </div>
+        <div class="flex gap-1 shrink-0">
+          ${c.estado==='draft'||c.estado==='scheduled'?'<button onclick="openCampaignForm(\''+c.id+'\')" class="text-gray-400 hover:text-blue-500 p-1 rounded transition" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></button>':''}
+          ${c.estado==='scheduled'?'<button onclick="executeCampaign(\''+c.id+'\')" class="text-gray-400 hover:text-emerald-500 p-1 rounded transition" title="Enviar ahora"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg></button>':''}
+          <button onclick="deleteCampaign('${c.id}')" class="text-gray-400 hover:text-red-500 p-1 rounded transition" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 line-clamp-2">${esc(c.contenido)}</p>
+      <div class="flex gap-3 mt-2 text-[10px] text-gray-400 flex-wrap">
+        ${c.programado?'<span>Programada: '+c.programado.replace('T',' ')+'</span>':''}
+        <span>Por: ${esc(c.creadoPor)}</span>
+        ${c.enviadosOk?'<span class="text-emerald-500">'+c.enviadosOk+' enviados</span>':''}
+        ${c.enviadosFail?'<span class="text-red-500">'+c.enviadosFail+' fallidos</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function executeCampaign(id) {
+  const campaigns = getCampaigns();
+  const camp = campaigns.find(c => c.id === id);
+  if (!camp) return;
+  const ok = await showConfirm('Enviar campaña "' + camp.nombre + '" ahora?');
+  if (!ok) return;
+
+  const sit = (camp.filtroSit || '').toLowerCase();
+  const pos = camp.filtroPos || '';
+  const recipients = allRows.filter(row => {
+    if (sit && !(row[COL.SITUACION]||'').toLowerCase().includes(sit.substring(0,5))) return false;
+    if (pos && (row[COL.POSICION]||'').trim() !== pos) return false;
+    if (camp.canal === 'whatsapp') return (row[COL.TELEFONO]||'').replace(/\D/g,'').length >= 6;
+    if (camp.canal === 'email') return (row[COL.CORREO]||'').includes('@');
+    return false;
+  });
+  if (recipients.length === 0) { toast('No hay destinatarios', 'info'); return; }
+
+  camp.estado = 'sending'; saveCampaigns(campaigns); renderCampaignList();
+  let sent = 0, failed = 0;
+  for (const row of recipients) {
+    try {
+      if (camp.canal === 'whatsapp') {
+        await apiCall({ action: 'send_whatsapp', to: row[COL.TELEFONO], template: 'citado',
+          nombre: row[COL.NOMBRE], posicion: row[COL.POSICION], oficina: row[COL.OFICINA],
+          fecha: row[COL.FECHA], hora: row[COL.HORA] });
+        sent++;
+      } else {
+        // TODO: apiCall({action:'send_email', ...})
+        toast('Email: pendiente webhook', 'info'); failed++; break;
+      }
+      logMessage(row[COL.NOMBRE], camp.canal, camp.nombre, 'sent', camp.id);
+    } catch { failed++; logMessage(row[COL.NOMBRE], camp.canal, camp.nombre, 'failed', camp.id); }
+  }
+  camp.estado = failed === recipients.length ? 'failed' : 'completed';
+  camp.enviadosOk = sent; camp.enviadosFail = failed;
+  saveCampaigns(campaigns); renderCampaignList();
+  incrementCreditsUsed(sent);
+  logAction('CAMPAIGN_EXECUTED', camp.nombre + ': ' + sent + ' ok, ' + failed + ' fail');
+  toast('Campaña: ' + sent + ' enviados, ' + failed + ' fallidos', sent > 0 ? 'success' : 'error');
+}
+
+function openAICampaignDraft() {
+  if (!aiPanelOpen) toggleAIPanel();
+  const input = document.getElementById('aiInput');
+  input.value = 'Genera un borrador de campaña de WhatsApp para los candidatos citados. Incluye nombre, contenido del mensaje y sugiere un horario de envio.';
+  input.focus();
+  document.getElementById('aiSendBtn').disabled = false;
+}
+
+// Scheduled campaign checker (every 60s)
+setInterval(() => {
+  if (!currentUser || currentUser.rol === 'user') return;
+  const campaigns = getCampaigns();
+  const now = new Date();
+  for (const camp of campaigns) {
+    if (camp.estado !== 'scheduled' || !camp.programado) continue;
+    if (now >= new Date(camp.programado)) {
+      toast('Campaña "' + camp.nombre + '" lista para enviar', 'info');
+    }
+  }
+}, 60000);
+
 // ==================== INIT ====================
 // Check if there's an active session
 if (sessionStorage.getItem(SESSION_KEY)) {
   keepSessionUntilMidnight = sessionStorage.getItem('lacasa_keep_session') === '1';
+  try { currentUser = JSON.parse(sessionStorage.getItem('lacasa_current_user')); } catch {}
   const elapsed = Date.now() - parseInt(sessionStorage.getItem(SESSION_KEY));
   const stillValid = keepSessionUntilMidnight ? getSessionRemaining() > 0 : elapsed < SESSION_TIMEOUT_MS;
-  if (stillValid) {
+  if (stillValid && currentUser) {
     lastActivity = Date.now();
     showDashboard();
   } else {
     sessionStorage.removeItem(SESSION_KEY);
     sessionStorage.removeItem('lacasa_keep_session');
+    sessionStorage.removeItem('lacasa_current_user');
+    currentUser = null;
   }
 } else {
-  document.getElementById('loginPassword').focus();
+  document.getElementById('loginUsername')?.focus();
 }
 </script>
 </body>
