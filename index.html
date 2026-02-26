@@ -1201,21 +1201,28 @@ function renderDrillDown() {
     return true;
   });
 
-  // Mini stats
+  // Mini stats — always count from base rows (only week filter, not sit)
+  const weekOnly = weekFilter
+    ? drillBaseRows.filter(r => getWeekKey(r[COL.FECHA]||'') === weekFilter)
+    : drillBaseRows;
   let nuevo=0, citado=0, descartado=0, seleccionado=0;
-  for (const row of rows) {
+  for (const row of weekOnly) {
     const sit = (row[COL.SITUACION]||'').toLowerCase();
     if (sit.includes('citad')) citado++;
     else if (sit.includes('descart')) descartado++;
     else if (sit.includes('seleccion')) seleccionado++;
     else nuevo++;
   }
+  const totalBase = weekOnly.length;
+  const sf = sitFilter.toLowerCase();
+  const act = v => sf === v ? 'ring-2' : '';
+  const toggle = v => `document.getElementById('drillFilterSit').value=document.getElementById('drillFilterSit').value==='${v}'?'':'${v}';applyDrillFilters()`;
   document.getElementById('drillStats').innerHTML = `
-    <div class="bg-gray-50 rounded-xl p-3 text-center"><p class="text-xl font-bold text-gray-800">${rows.length}</p><p class="text-[10px] text-gray-500">Total</p></div>
-    <div class="bg-blue-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-blue-200" onclick="document.getElementById('drillFilterSit').value='Nuevo';applyDrillFilters()"><p class="text-xl font-bold text-blue-700">${nuevo}</p><p class="text-[10px] text-blue-600">Nuevos</p></div>
-    <div class="bg-amber-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-amber-200" onclick="document.getElementById('drillFilterSit').value='Citado';applyDrillFilters()"><p class="text-xl font-bold text-amber-700">${citado}</p><p class="text-[10px] text-amber-600">Citados</p></div>
-    <div class="bg-red-50 rounded-xl p-3 text-center hidden sm:block cursor-pointer hover:ring-2 hover:ring-red-200" onclick="document.getElementById('drillFilterSit').value='Descartado';applyDrillFilters()"><p class="text-xl font-bold text-red-700">${descartado}</p><p class="text-[10px] text-red-600">Descart.</p></div>
-    <div class="bg-emerald-50 rounded-xl p-3 text-center hidden sm:block cursor-pointer hover:ring-2 hover:ring-emerald-200" onclick="document.getElementById('drillFilterSit').value='Seleccionado';applyDrillFilters()"><p class="text-xl font-bold text-emerald-700">${seleccionado}</p><p class="text-[10px] text-emerald-600">Selecc.</p></div>
+    <div class="bg-gray-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-gray-300 ${!sitFilter?'ring-2 ring-gray-300':''}" onclick="document.getElementById('drillFilterSit').value='';applyDrillFilters()"><p class="text-xl font-bold text-gray-800">${totalBase}</p><p class="text-[10px] text-gray-500">Total</p></div>
+    <div class="bg-blue-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-blue-300 ${act('nuevo')?'ring-2 ring-blue-400':''}" onclick="${toggle('Nuevo')}"><p class="text-xl font-bold text-blue-700">${nuevo}</p><p class="text-[10px] text-blue-600">Nuevos</p></div>
+    <div class="bg-amber-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-amber-300 ${act('citado')?'ring-2 ring-amber-400':''}" onclick="${toggle('Citado')}"><p class="text-xl font-bold text-amber-700">${citado}</p><p class="text-[10px] text-amber-600">Citados</p></div>
+    <div class="bg-red-50 rounded-xl p-3 text-center hidden sm:block cursor-pointer hover:ring-2 hover:ring-red-300 ${act('descartado')?'ring-2 ring-red-400':''}" onclick="${toggle('Descartado')}"><p class="text-xl font-bold text-red-700">${descartado}</p><p class="text-[10px] text-red-600">Descart.</p></div>
+    <div class="bg-emerald-50 rounded-xl p-3 text-center hidden sm:block cursor-pointer hover:ring-2 hover:ring-emerald-300 ${act('seleccionado')?'ring-2 ring-emerald-400':''}" onclick="${toggle('Seleccionado')}"><p class="text-xl font-bold text-emerald-700">${seleccionado}</p><p class="text-[10px] text-emerald-600">Selecc.</p></div>
   `;
 
   // Table
