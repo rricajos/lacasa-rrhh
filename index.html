@@ -34,8 +34,6 @@ tailwind.config = { theme: { extend: { colors: {
   .sit-citado { background-color: #fef3c7; color: #92400e; }
   .sit-descartado { background-color: #fee2e2; color: #991b1b; }
   .sit-seleccionado { background-color: #d1fae5; color: #065f46; }
-  .toast { animation: slideIn 0.3s ease-out; }
-  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   .field-edit { transition: all 0.15s; }
   .field-edit:hover { background: #f1f5f9; border-radius: 6px; }
   .field-edit input, .field-edit select { border: 1px solid #d1d5db; border-radius: 6px; padding: 4px 8px; font-size: 0.875rem; width: 100%; }
@@ -117,7 +115,7 @@ tailwind.config = { theme: { extend: { colors: {
         </div>
         <label class="flex items-center gap-2 mb-5 cursor-pointer select-none">
           <input type="checkbox" id="keepSession" class="rounded border-gray-300 text-brand-600 focus:ring-blue-200 w-4 h-4">
-          <span class="text-xs text-gray-500">Mantener sesion activa hasta las 23:59h</span>
+          <span class="text-xs text-gray-500">Mantener sesión activa hasta las 23:59h</span>
         </label>
         <button onclick="doLogin()" class="w-full bg-brand-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-brand-700 transition flex items-center justify-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
@@ -129,9 +127,9 @@ tailwind.config = { theme: { extend: { colors: {
         <div class="flex items-start gap-2">
           <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           <p class="text-[10px] text-gray-400 leading-relaxed">
-            <strong class="text-gray-500">Acceso restringido.</strong> Este sistema contiene datos de caracter personal protegidos por el
-            Reglamento General de Proteccion de Datos (RGPD - UE 2016/679) y la Ley Organica 3/2018 de Proteccion de Datos Personales
-            y garantia de los derechos digitales (LOPD-GDD). El acceso no autorizado queda prohibido y sera perseguido conforme a la legislacion vigente.
+            <strong class="text-gray-500">Acceso restringido.</strong> Este sistema contiene datos de carácter personal protegidos por el
+            Reglamento General de Protección de Datos (RGPD - UE 2016/679) y la Ley Orgánica 3/2018 de Protección de Datos Personales
+            y garantía de los derechos digitales (LOPD-GDD). El acceso no autorizado queda prohibido y será perseguido conforme a la legislación vigente.
           </p>
         </div>
       </div>
@@ -157,25 +155,25 @@ tailwind.config = { theme: { extend: { colors: {
     <nav class="header-nav flex items-center gap-1">
       <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 7a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zm-10-2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1v-5z"/></svg>
-        Dashboard
+        Panel
       </button>
       <button class="nav-tab" onclick="switchTab('database')" data-tab="database">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
-        Database
+        Datos
       </button>
       <button class="nav-tab" onclick="switchTab('statistics')" data-tab="statistics">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        Statistics
+        Estadísticas
       </button>
       <button class="nav-tab" onclick="switchTab('configure')" data-tab="configure">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        Configure
+        Configurar
       </button>
     </nav>
     <!-- Session + logout -->
     <div class="flex items-center gap-1.5 flex-shrink-0">
-      <span id="sessionTimer" class="text-[10px] text-gray-400 tabular-nums" title="Tiempo hasta cierre de sesion"></span>
-      <button onclick="doLogout()" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Cerrar sesion">
+      <span id="sessionTimer" class="text-[10px] text-gray-400 tabular-nums" title="Tiempo hasta cierre de sesión"></span>
+      <button onclick="doLogout()" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Cerrar sesión">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
       </button>
     </div>
@@ -233,7 +231,7 @@ tailwind.config = { theme: { extend: { colors: {
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <!-- Donut chart (bigger) -->
     <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center">
-      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Distribucion</p>
+      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Distribución</p>
       <svg viewBox="0 0 36 36" class="w-32 h-32">
         <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.5"/>
         <circle id="donutNuevo" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
@@ -254,8 +252,8 @@ tailwind.config = { theme: { extend: { colors: {
     <!-- Positions breakdown -->
     <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
       <div class="flex items-center justify-between mb-3">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Por posicion</p>
-        <button onclick="crudAdd('posicion')" class="text-gray-300 hover:text-brand-600 hover:bg-blue-50 p-1 rounded-md transition" title="Anadir posicion">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Por posición</p>
+        <button onclick="crudAdd('posicion')" class="text-gray-300 hover:text-brand-600 hover:bg-blue-50 p-1 rounded-md transition" title="Añadir posición">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         </button>
       </div>
@@ -277,7 +275,7 @@ tailwind.config = { theme: { extend: { colors: {
   <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
     <div class="flex items-center justify-between mb-3">
       <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Por oficina</p>
-      <button onclick="crudAdd('oficina')" class="text-gray-300 hover:text-brand-600 hover:bg-blue-50 p-1 rounded-md transition" title="Anadir oficina">
+      <button onclick="crudAdd('oficina')" class="text-gray-300 hover:text-brand-600 hover:bg-blue-50 p-1 rounded-md transition" title="Añadir oficina">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       </button>
     </div>
@@ -310,9 +308,9 @@ tailwind.config = { theme: { extend: { colors: {
         <thead class="bg-gray-50/80 text-gray-500 text-[11px] uppercase tracking-wider">
           <tr>
             <th class="px-3 py-2.5 text-left">Nombre</th>
-            <th class="px-3 py-2.5 text-left hidden sm:table-cell">Telefono</th>
-            <th class="px-3 py-2.5 text-left">Situacion</th>
-            <th class="px-3 py-2.5 text-left hidden md:table-cell">Posicion</th>
+            <th class="px-3 py-2.5 text-left hidden sm:table-cell">Teléfono</th>
+            <th class="px-3 py-2.5 text-left">Situación</th>
+            <th class="px-3 py-2.5 text-left hidden md:table-cell">Posición</th>
             <th class="px-3 py-2.5 text-left hidden md:table-cell">Oficina</th>
             <th class="px-3 py-2.5 w-10"></th>
           </tr>
@@ -336,7 +334,7 @@ tailwind.config = { theme: { extend: { colors: {
 <div class="max-w-[1400px] mx-auto px-4 pb-3">
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 flex flex-wrap gap-2.5 items-end">
     <div>
-      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Situacion</label>
+      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Situación</label>
       <select id="filterSituacion" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
         <option value="">Todas</option><option value="Nuevo">Nuevo</option><option value="Citado">Citado</option><option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
       </select>
@@ -348,7 +346,7 @@ tailwind.config = { theme: { extend: { colors: {
       </select>
     </div>
     <div>
-      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Posicion</label>
+      <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Posición</label>
       <select id="filterPosicion" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
         <option value="">Todas</option>
       </select>
@@ -357,7 +355,7 @@ tailwind.config = { theme: { extend: { colors: {
       <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Buscar</label>
       <div class="relative">
         <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input id="filterSearch" type="text" placeholder="Nombre, telefono, email..." oninput="applyFilters(true)" class="w-full text-sm border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+        <input id="filterSearch" type="text" placeholder="Nombre, teléfono, email..." oninput="applyFilters(true)" class="w-full text-sm border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
       </div>
     </div>
     <button onclick="clearFilters()" id="btnClear" class="text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg text-xs hover:bg-gray-100 transition hidden" title="Limpiar filtros">
@@ -397,10 +395,10 @@ tailwind.config = { theme: { extend: { colors: {
             <th class="px-3 py-2.5 text-left sortable" data-col="NOMBRE" onclick="sortBy(this)">Nombre <span class="sort-icon">&#9650;</span></th>
             <th class="px-3 py-2.5 text-left sortable hidden md:table-cell" data-col="MES" onclick="sortBy(this)">Mes <span class="sort-icon">&#9650;</span></th>
             <th class="px-3 py-2.5 text-left sortable hidden lg:table-cell" data-col="OFICINA" onclick="sortBy(this)">Oficina <span class="sort-icon">&#9650;</span></th>
-            <th class="px-3 py-2.5 text-left hidden sm:table-cell">Telefono</th>
+            <th class="px-3 py-2.5 text-left hidden sm:table-cell">Teléfono</th>
             <th class="px-3 py-2.5 text-left hidden sm:table-cell">Email</th>
-            <th class="px-3 py-2.5 text-left sortable" data-col="SITUACION" onclick="sortBy(this)">Situacion <span class="sort-icon">&#9650;</span></th>
-            <th class="px-3 py-2.5 text-left sortable hidden lg:table-cell" data-col="POSICION" onclick="sortBy(this)">Posicion <span class="sort-icon">&#9650;</span></th>
+            <th class="px-3 py-2.5 text-left sortable" data-col="SITUACION" onclick="sortBy(this)">Situación <span class="sort-icon">&#9650;</span></th>
+            <th class="px-3 py-2.5 text-left sortable hidden lg:table-cell" data-col="POSICION" onclick="sortBy(this)">Posición <span class="sort-icon">&#9650;</span></th>
             <th class="px-3 py-2.5 text-center w-12"></th>
           </tr>
         </thead>
@@ -440,8 +438,8 @@ tailwind.config = { theme: { extend: { colors: {
     <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
       <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
     </div>
-    <h2 class="text-lg font-bold text-gray-800 mb-1">Statistics</h2>
-    <p class="text-sm text-gray-400">Proximamente: graficos de tendencias, metricas de conversion y reportes avanzados.</p>
+    <h2 class="text-lg font-bold text-gray-800 mb-1">Estadísticas</h2>
+    <p class="text-sm text-gray-400">Próximamente: gráficos de tendencias, métricas de conversión y reportes avanzados.</p>
   </div>
 </div>
 </div><!-- end tab-statistics -->
@@ -453,8 +451,8 @@ tailwind.config = { theme: { extend: { colors: {
     <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
       <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
     </div>
-    <h2 class="text-lg font-bold text-gray-800 mb-1">Configure</h2>
-    <p class="text-sm text-gray-400">Proximamente: configuracion de notificaciones, usuarios y preferencias del sistema.</p>
+    <h2 class="text-lg font-bold text-gray-800 mb-1">Configuración</h2>
+    <p class="text-sm text-gray-400">Próximamente: configuración de notificaciones, usuarios y preferencias del sistema.</p>
   </div>
 </div>
 </div><!-- end tab-configure -->
@@ -526,7 +524,7 @@ tailwind.config = { theme: { extend: { colors: {
 
       <!-- Second password -->
       <div>
-        <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1.5">Clave de autorizacion</label>
+        <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1.5">Clave de autorización</label>
         <div class="flex gap-2">
           <input type="password" id="waPassword" placeholder="Introduce la clave para enviar..." oninput="validateWAPassword()"
             class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 outline-none transition">
@@ -563,19 +561,19 @@ tailwind.config = { theme: { extend: { colors: {
   <div class="flex py-1">
     <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 7a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zm-10-2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1v-5z"/></svg>
-      Dashboard
+      Panel
     </button>
     <button class="nav-tab" onclick="switchTab('database')" data-tab="database">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
-      Database
+      Datos
     </button>
     <button class="nav-tab" onclick="switchTab('statistics')" data-tab="statistics">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-      Statistics
+      Estadísticas
     </button>
     <button class="nav-tab" onclick="switchTab('configure')" data-tab="configure">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-      Configure
+      Configurar
     </button>
   </div>
 </nav>
@@ -615,10 +613,10 @@ const COL_LETTER = {
 const COL_LABELS = {
   MES:'Mes', NOMBRE:'Nombre', FORMATO:'Formato', OFICINA:'Oficina',
   RESIDENCIA:'Residencia', FECHA:'Fecha', HORA:'Hora', CORREO:'Correo',
-  TELEFONO:'Telefono', FUENTE:'Fuente', CONFIRMACION:'Confirmacion',
+  TELEFONO:'Teléfono', FUENTE:'Fuente', CONFIRMACION:'Confirmación',
   CITADO_POR:'Citado por', ASISTENCIA:'Asistencia', ENTREVISTADO_POR:'Entrevistado por',
   MOTIVO_DESCARTE:'Motivo descarte', MAIL_DESCARTE:'Mail descarte',
-  COMENTARIOS:'Comentarios', SITUACION:'Situacion', POSICION:'Posicion',
+  COMENTARIOS:'Comentarios', SITUACION:'Situación', POSICION:'Posición',
   INICIO:'Inicio', FIN:'Fin', CAUSA:'Causa', ACCION:'_accion',
   FILE_ID:'_fileId', FILE_NAME:'_fileName', ULTIMO_SYNC:'_ultimo_sync'
 };
@@ -637,7 +635,7 @@ const WA_TEMPLATES = {
     desc: 'Convoca al candidato a una entrevista',
     color: 'amber',
     params: ['nombre','posicion','fecha','hora','oficina'],
-    preview: 'Hola {nombre}, te informamos de que has sido citado/a para el puesto de {posicion}. La entrevista sera el {fecha} a las {hora} en {oficina}.'
+    preview: 'Hola {nombre}, te informamos de que has sido citado/a para el puesto de {posicion}. La entrevista será el {fecha} a las {hora} en {oficina}.'
   },
   seleccionado: {
     label: 'Seleccionado',
@@ -660,7 +658,6 @@ let allRows = [], filteredRows = [], headers = [];
 let currentPage = 0, selectedRows = new Set();
 let sortCol = null, sortAsc = true;
 let modalRowIdx = -1, modalFilteredIdx = -1;
-let autoRefreshId = null, autoRefreshCountdown = 0;
 let confirmResolve = null;
 let searchTerm = '';
 let lastActivity = Date.now();
@@ -741,7 +738,6 @@ function doLogout() {
   sessionStorage.removeItem(SESSION_KEY);
   sessionStorage.removeItem('lacasa_keep_session');
   keepSessionUntilMidnight = false;
-  if (autoRefreshId) { clearInterval(autoRefreshId); autoRefreshId = null; }
   if (sessionTimerId) { clearInterval(sessionTimerId); sessionTimerId = null; }
   allRows = []; filteredRows = []; headers = [];
   document.getElementById('dashboardScreen').classList.add('hidden');
@@ -766,7 +762,7 @@ function checkSession() {
   if (!ts) return false;
   if (getSessionRemaining() <= 0) {
     doLogout();
-    toast('Sesion expirada', 'info');
+    toast('Sesión expirada', 'info');
     return false;
   }
   return true;
@@ -856,23 +852,6 @@ function showConfirm(msg) {
 function confirmOk() { if (confirmResolve) confirmResolve(true); confirmResolve=null; hideConfirm(); }
 function confirmCancel() { if (confirmResolve) confirmResolve(false); confirmResolve=null; hideConfirm(); }
 function hideConfirm() { const m=document.getElementById('confirmModal'); m.style.display='none'; m.classList.add('hidden'); }
-
-// ==================== AUTO REFRESH ====================
-function toggleAutoRefresh() {
-  if (autoRefreshId) {
-    clearInterval(autoRefreshId);
-    autoRefreshId = null;
-    return;
-  }
-  autoRefreshCountdown = 30;
-  autoRefreshId = setInterval(() => {
-    autoRefreshCountdown--;
-    if (autoRefreshCountdown <= 0) {
-      loadData(true);
-      autoRefreshCountdown = 30;
-    }
-  }, 1000);
-}
 
 // ==================== LOAD ====================
 async function loadData(silent = false) {
@@ -1050,12 +1029,12 @@ async function promptAdminAuth() {
 
 async function crudAdd(type) {
   if (!await promptAdminAuth()) { toast('Clave incorrecta', 'error'); return; }
-  const name = prompt(type === 'oficina' ? 'Nombre de la nueva oficina:' : 'Nombre de la nueva posicion:');
+  const name = prompt(type === 'oficina' ? 'Nombre de la nueva oficina:' : 'Nombre de la nueva posición:');
   if (!name || !name.trim()) return;
   const list = getCrudList(type);
   if (!list.includes(name.trim())) { list.push(name.trim()); saveCrudList(type, list); }
   updateDashboardPanels();
-  toast((type === 'oficina' ? 'Oficina' : 'Posicion') + ' anadida', 'success');
+  toast((type === 'oficina' ? 'Oficina' : 'Posición') + ' añadida', 'success');
 }
 
 async function crudRename(type, oldName) {
@@ -1075,7 +1054,7 @@ async function crudDelete(type, name) {
   const list = getCrudList(type).filter(n => n !== name);
   saveCrudList(type, list);
   updateDashboardPanels();
-  toast((type === 'oficina' ? 'Oficina' : 'Posicion') + ' eliminada', 'success');
+  toast((type === 'oficina' ? 'Oficina' : 'Posición') + ' eliminada', 'success');
 }
 
 // ==================== DASHBOARD DRILL-DOWN ====================
@@ -1092,7 +1071,7 @@ function dashDrillDown(type, value) {
   });
 
   // Labels
-  const typeLabels = { oficina: 'Oficina', posicion: 'Posicion', situacion: 'Situacion' };
+  const typeLabels = { oficina: 'Oficina', posicion: 'Posición', situacion: 'Situación' };
   document.getElementById('drillTitle').textContent = typeLabels[type] + ': ' + value;
 
   // Mini stats
@@ -1381,7 +1360,7 @@ async function updateField(colKey,sheetRow,newValue) {
 // ==================== BULK CHANGE ====================
 async function bulkChangeSituacion() {
   const val=document.getElementById('bulkSituacion').value;
-  if(!val){toast('Selecciona una situacion','info');return;}
+  if(!val){toast('Selecciona una situación','info');return;}
   if(selectedRows.size===0)return;
   const n=selectedRows.size;
   const ok=await showConfirm(`Cambiar ${n} candidato(s) a "${val}"?`);
@@ -1438,14 +1417,14 @@ function renderModal() {
   if(!row)return;
   const sheetRow=modalRowIdx+2;
   document.getElementById('modalTitle').textContent=row[COL.NOMBRE]||`Fila ${sheetRow}`;
-  document.getElementById('modalSubtitle').textContent=`Fila ${sheetRow} · ${row[COL.SITUACION]||'Nuevo'} · ${row[COL.POSICION]||'Sin posicion'}`;
+  document.getElementById('modalSubtitle').textContent=`Fila ${sheetRow} · ${row[COL.SITUACION]||'Nuevo'} · ${row[COL.POSICION]||'Sin posición'}`;
   document.getElementById('modalPrev').disabled=modalFilteredIdx<=0;
   document.getElementById('modalNext').disabled=modalFilteredIdx>=filteredRows.length-1;
 
   const sections=[
     {title:'Datos personales',fields:['NOMBRE','RESIDENCIA','CORREO','TELEFONO']},
     {title:'Proceso',fields:['SITUACION','POSICION','OFICINA','FECHA','HORA','FUENTE']},
-    {title:'Evaluacion',fields:['CONFIRMACION','CITADO_POR','ASISTENCIA','ENTREVISTADO_POR']},
+    {title:'Evaluación',fields:['CONFIRMACION','CITADO_POR','ASISTENCIA','ENTREVISTADO_POR']},
     {title:'Resultado',fields:['MOTIVO_DESCARTE','MAIL_DESCARTE','COMENTARIOS']},
     {title:'Contrato',fields:['INICIO','FIN','CAUSA']},
     {title:'Sistema',fields:['ACCION','FILE_NAME','ULTIMO_SYNC'],readonly:true}
@@ -1508,7 +1487,7 @@ async function modalUpdateField(key,row,val) {
     await updateField(key,row,val);
     renderTable();
     const r=allRows[row-2];
-    if(r)document.getElementById('modalSubtitle').textContent=`Fila ${row} · ${r[COL.SITUACION]||'Nuevo'} · ${r[COL.POSICION]||'Sin posicion'}`;
+    if(r)document.getElementById('modalSubtitle').textContent=`Fila ${row} · ${r[COL.SITUACION]||'Nuevo'} · ${r[COL.POSICION]||'Sin posición'}`;
   }catch(e){}
 }
 
