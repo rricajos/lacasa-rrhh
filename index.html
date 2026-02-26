@@ -47,22 +47,25 @@ tailwind.config = { theme: { extend: { colors: {
   .donut-ring { transition: stroke-dashoffset 0.6s ease; }
   .login-card { animation: fadeIn 0.3s ease-out; }
   .masked { letter-spacing: 0.5px; }
-  /* Nav tabs */
-  .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 16px; border-radius: 10px; font-size: 11px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: all 0.15s; position: relative; }
+  /* Nav tabs — header inline (desktop) */
+  .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 14px; border-radius: 8px; font-size: 10px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .nav-tab:hover { color: #64748b; background: #f1f5f9; }
-  .nav-tab.active { color: #2563eb; }
-  .nav-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 20px; height: 2px; background: #2563eb; border-radius: 1px; }
-  .nav-tab svg { width: 20px; height: 20px; }
+  .nav-tab.active { color: #2563eb; background: #eff6ff; }
+  .nav-tab svg { width: 18px; height: 18px; }
   .tab-section { display: none; }
   .tab-section.active { display: block; }
-  /* Bottom nav on mobile */
+  .header-logo { cursor: pointer; transition: opacity 0.15s; }
+  .header-logo:hover { opacity: 0.7; }
+  /* Hide inline nav on mobile, show bottom nav */
   @media (max-width: 767px) {
-    #topNav { display: none !important; }
-    #bottomNav { display: flex !important; }
-    body.logged-in { padding-bottom: 64px; }
-    .nav-tab::after { display: none !important; }
-    .nav-tab.active { color: #2563eb; background: #eff6ff; }
+    .header-nav { display: none !important; }
+    #bottomNav { display: block !important; }
+    body.logged-in { padding-bottom: 72px; }
   }
+  /* Bottom nav mobile styles */
+  #bottomNav .nav-tab { padding: 6px 0; gap: 2px; font-size: 11px; border-radius: 0; flex: 1; }
+  #bottomNav .nav-tab svg { width: 24px; height: 24px; }
+  #bottomNav .nav-tab.active { background: none; color: #2563eb; }
   @media (min-width: 768px) {
     #bottomNav { display: none !important; }
   }
@@ -133,62 +136,53 @@ tailwind.config = { theme: { extend: { colors: {
 
 <!-- Header -->
 <header class="bg-white border-b border-gray-200">
-  <div class="max-w-[1400px] mx-auto px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
+  <div class="max-w-[1400px] mx-auto px-4 py-2 flex items-center justify-between gap-3">
+    <!-- Logo — click to reload -->
+    <div class="header-logo flex items-center gap-2.5 flex-shrink-0" onclick="loadData()" title="Actualizar datos">
       <div class="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">LC</div>
-      <div>
-        <h1 class="text-lg font-bold text-gray-800 leading-tight">La Casa Agency</h1>
-        <p class="text-xs text-gray-400">Panel RRHH</p>
+      <div class="hidden sm:block">
+        <h1 class="text-base font-bold text-gray-800 leading-tight">La Casa Agency</h1>
+        <p class="text-[10px] text-gray-400">Panel RRHH</p>
       </div>
     </div>
-    <div class="flex items-center gap-2">
-      <!-- Auto-refresh toggle -->
-      <div class="flex items-center gap-1.5 mr-1">
+    <!-- Nav tabs (desktop inline) -->
+    <nav class="header-nav flex items-center gap-1">
+      <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 7a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zm-10-2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1v-5z"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-tab" onclick="switchTab('database')" data-tab="database">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+        Database
+      </button>
+      <button class="nav-tab" onclick="switchTab('statistics')" data-tab="statistics">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Statistics
+      </button>
+      <button class="nav-tab" onclick="switchTab('configure')" data-tab="configure">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Configure
+      </button>
+    </nav>
+    <!-- Action buttons -->
+    <div class="flex items-center gap-1.5 flex-shrink-0">
+      <div class="flex items-center gap-1 mr-0.5">
         <button onclick="toggleAutoRefresh()" id="btnAutoRefresh" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition" title="Auto-refresh cada 30s">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </button>
-        <span id="autoRefreshLabel" class="text-[10px] text-gray-400 hidden sm:inline w-8"></span>
+        <span id="autoRefreshLabel" class="text-[10px] text-gray-400 hidden lg:inline w-8"></span>
       </div>
-      <!-- Session timeout -->
-      <span id="sessionTimer" class="text-[10px] text-gray-400 hidden sm:inline" title="Tiempo hasta cierre de sesion"></span>
-      <span id="lastUpdate" class="text-xs text-gray-400 hidden sm:inline"></span>
-      <button onclick="exportCSV()" class="text-gray-500 hover:text-gray-700 px-2.5 py-2 rounded-lg text-xs font-medium hover:bg-gray-100 transition flex items-center gap-1.5" title="Exportar CSV">
+      <span id="sessionTimer" class="text-[10px] text-gray-400 hidden lg:inline" title="Tiempo hasta cierre de sesion"></span>
+      <span id="lastUpdate" class="text-xs text-gray-400 hidden lg:inline"></span>
+      <button onclick="exportCSV()" class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition" title="Exportar CSV">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        <span class="hidden sm:inline">CSV</span>
       </button>
-      <button onclick="loadData()" id="btnRefresh" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition flex items-center gap-2">
-        <svg id="refreshIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        <span id="refreshText">Actualizar</span>
-      </button>
-      <!-- Logout -->
       <button onclick="doLogout()" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Cerrar sesion">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
       </button>
     </div>
   </div>
 </header>
-
-<!-- Top Nav (desktop) -->
-<nav id="topNav" class="bg-white border-b border-gray-100">
-  <div class="flex justify-center gap-1 py-1.5">
-    <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 7a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zm-10-2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1v-5z"/></svg>
-      Dashboard
-    </button>
-    <button class="nav-tab" onclick="switchTab('database')" data-tab="database">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
-      Database
-    </button>
-    <button class="nav-tab" onclick="switchTab('statistics')" data-tab="statistics">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-      Statistics
-    </button>
-    <button class="nav-tab" onclick="switchTab('configure')" data-tab="configure">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-      Configure
-    </button>
-  </div>
-</nav>
 
 <!-- ==================== TAB: DASHBOARD ==================== -->
 <div id="tab-dashboard" class="tab-section active">
@@ -480,8 +474,8 @@ tailwind.config = { theme: { extend: { colors: {
 </div>
 
 <!-- Bottom Nav (mobile) -->
-<nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 px-2 pb-[env(safe-area-inset-bottom)]" style="display:none;">
-  <div class="flex justify-around py-1.5">
+<nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 pb-[env(safe-area-inset-bottom)]" style="display:none;">
+  <div class="flex py-1">
     <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 7a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zm-10-2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1v-5z"/></svg>
       Dashboard
@@ -785,12 +779,8 @@ function toggleAutoRefresh() {
 // ==================== LOAD ====================
 async function loadData(silent = false) {
   if (!checkSession()) return;
-  const btn = document.getElementById('btnRefresh');
-  const icon = document.getElementById('refreshIcon');
-  const text = document.getElementById('refreshText');
-  btn.disabled = true;
-  icon.classList.add('animate-spin');
-  if (!silent) text.textContent = 'Cargando...';
+  const logo = document.querySelector('.header-logo');
+  if (logo) logo.style.opacity = '0.5';
   try {
     const data = await apiCall({ action: 'read_sheet' });
     const values = data.values || [];
@@ -814,9 +804,8 @@ async function loadData(silent = false) {
       </td></tr>`;
     }
   } finally {
-    btn.disabled = false;
-    icon.classList.remove('animate-spin');
-    text.textContent = 'Actualizar';
+    const logo = document.querySelector('.header-logo');
+    if (logo) logo.style.opacity = '1';
   }
 }
 
