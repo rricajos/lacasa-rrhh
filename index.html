@@ -31,7 +31,7 @@ tailwind.config = { theme: { extend: { colors: {
   .modal-panel.open { transform: translateX(0); }
   .sit-select { appearance: none; padding: 3px 22px 3px 8px; border-radius: 9999px; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; text-transform: uppercase; background-repeat: no-repeat; background-position: right 6px center; background-size: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); }
   .sit-nuevo { background-color: #dbeafe; color: #1e40af; }
-  .sit-citado { background-color: #fef3c7; color: #92400e; }
+  .sit-citado { background-color: #ffedd5; color: #9a3412; }
   .sit-descartado { background-color: #fee2e2; color: #991b1b; }
   .sit-seleccionado { background-color: #d1fae5; color: #065f46; }
   .field-edit { transition: all 0.15s; }
@@ -205,13 +205,13 @@ tailwind.config = { theme: { extend: { colors: {
       <p class="text-[11px] text-blue-600 mt-0.5">Nuevos</p>
       <div class="mt-1.5 bg-blue-100 rounded-full overflow-hidden"><div class="pct-bar bg-blue-500" id="barNuevo"></div></div>
     </div>
-    <div class="stat-card bg-amber-50/70 rounded-xl p-3.5 shadow-sm border border-amber-100/60" onclick="filterByStat('Citado')">
+    <div class="stat-card bg-orange-50/70 rounded-xl p-3.5 shadow-sm border border-orange-100/60" onclick="filterByStat('Citado')">
       <div class="flex items-baseline justify-between">
-        <p class="text-2xl font-bold text-amber-700" id="statCitado">-</p>
-        <span class="text-[10px] text-amber-400 font-medium" id="pctCitado"></span>
+        <p class="text-2xl font-bold text-orange-700" id="statCitado">-</p>
+        <span class="text-[10px] text-orange-400 font-medium" id="pctCitado"></span>
       </div>
-      <p class="text-[11px] text-amber-600 mt-0.5">Citados</p>
-      <div class="mt-1.5 bg-amber-100 rounded-full overflow-hidden"><div class="pct-bar bg-amber-500" id="barCitado"></div></div>
+      <p class="text-[11px] text-orange-600 mt-0.5">Citados</p>
+      <div class="mt-1.5 bg-orange-100 rounded-full overflow-hidden"><div class="pct-bar bg-orange-500" id="barCitado"></div></div>
     </div>
     <div class="stat-card bg-red-50/70 rounded-xl p-3.5 shadow-sm border border-red-100/60" onclick="filterByStat('Descartado')">
       <div class="flex items-baseline justify-between">
@@ -239,7 +239,7 @@ tailwind.config = { theme: { extend: { colors: {
       <svg viewBox="0 0 36 36" class="w-32 h-32">
         <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.5"/>
         <circle id="donutNuevo" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-        <circle id="donutCitado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+        <circle id="donutCitado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#f97316" stroke-width="2.5" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
         <circle id="donutDescartado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
         <circle id="donutSeleccionado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="2.5" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
         <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700" id="donutCenter">-</text>
@@ -247,7 +247,7 @@ tailwind.config = { theme: { extend: { colors: {
       <!-- Legend -->
       <div class="grid grid-cols-2 gap-x-4 gap-y-1 mt-3 text-[11px]">
         <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span><span class="text-gray-600">Nuevos</span></div>
-        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span class="text-gray-600">Citados</span></div>
+        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span><span class="text-gray-600">Citados</span></div>
         <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span><span class="text-gray-600">Descartados</span></div>
         <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span class="text-gray-600">Seleccionados</span></div>
       </div>
@@ -352,7 +352,7 @@ tailwind.config = { theme: { extend: { colors: {
 <div id="tab-database" class="tab-section">
 
 <!-- Filters -->
-<div class="max-w-[1400px] mx-auto px-4 pb-3">
+<div class="max-w-[1400px] mx-auto px-4 pt-4 pb-3">
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 flex flex-wrap gap-2.5 items-end">
     <div>
       <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Situación</label>
@@ -654,7 +654,7 @@ const WA_TEMPLATES = {
   citado: {
     label: 'Citado a entrevista',
     desc: 'Convoca al candidato a una entrevista',
-    color: 'amber',
+    color: 'orange',
     params: ['nombre','posicion','fecha','hora','oficina'],
     preview: 'Hola {nombre}, te informamos de que has sido citado/a para el puesto de {posicion}. La entrevista será el {fecha} a las {hora} en {oficina}.'
   },
@@ -945,7 +945,7 @@ function updateStats() {
 
 function sitColorClass(s) {
   const sl = (s||'').toLowerCase();
-  if (sl.includes('citad')) return 'bg-amber-100 text-amber-700';
+  if (sl.includes('citad')) return 'bg-orange-100 text-orange-700';
   if (sl.includes('descart')) return 'bg-red-100 text-red-700';
   if (sl.includes('seleccion')) return 'bg-emerald-100 text-emerald-700';
   return 'bg-blue-100 text-blue-700';
@@ -965,7 +965,7 @@ function sitBar(rows, colIdx, name, total) {
   const pct = v => (v/total*100).toFixed(1);
   return `<div class="card-bar-fill" style="width:100%">
     <span style="width:${pct(n)}%;background:#3b82f6"></span>
-    <span style="width:${pct(c)}%;background:#f59e0b"></span>
+    <span style="width:${pct(c)}%;background:#f97316"></span>
     <span style="width:${pct(d)}%;background:#ef4444"></span>
     <span style="width:${pct(s)}%;background:#10b981"></span>
   </div>`;
@@ -1217,7 +1217,7 @@ function renderDrillDown() {
   document.getElementById('drillStats').innerHTML = `
     <div class="bg-gray-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-gray-300 ${!sitFilter?'ring-2 ring-gray-300':''}" onclick="document.getElementById('drillFilterSit').value='';applyDrillFilters()"><p class="text-xl font-bold text-gray-800">${totalBase}</p><p class="text-[10px] text-gray-500">Total</p></div>
     <div class="bg-blue-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-blue-300 ${act('nuevo')?'ring-2 ring-blue-400':''}" onclick="${toggle('Nuevo')}"><p class="text-xl font-bold text-blue-700">${nuevo}</p><p class="text-[10px] text-blue-600">Nuevos</p></div>
-    <div class="bg-amber-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-amber-300 ${act('citado')?'ring-2 ring-amber-400':''}" onclick="${toggle('Citado')}"><p class="text-xl font-bold text-amber-700">${citado}</p><p class="text-[10px] text-amber-600">Citados</p></div>
+    <div class="bg-orange-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-orange-300 ${act('citado')?'ring-2 ring-orange-400':''}" onclick="${toggle('Citado')}"><p class="text-xl font-bold text-orange-700">${citado}</p><p class="text-[10px] text-orange-600">Citados</p></div>
     <div class="bg-red-50 rounded-xl p-3 text-center hidden sm:block cursor-pointer hover:ring-2 hover:ring-red-300 ${act('descartado')?'ring-2 ring-red-400':''}" onclick="${toggle('Descartado')}"><p class="text-xl font-bold text-red-700">${descartado}</p><p class="text-[10px] text-red-600">Descart.</p></div>
     <div class="bg-emerald-50 rounded-xl p-3 text-center hidden sm:block cursor-pointer hover:ring-2 hover:ring-emerald-300 ${act('seleccionado')?'ring-2 ring-emerald-400':''}" onclick="${toggle('Seleccionado')}"><p class="text-xl font-bold text-emerald-700">${seleccionado}</p><p class="text-[10px] text-emerald-600">Selecc.</p></div>
   `;
