@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Casa Agency - Panel RRHH</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = { theme: { extend: {
@@ -65,7 +68,6 @@ tailwind.config = { theme: { extend: {
        Modals:  shadow-2xl
        Hover:   hover:shadow-md
   ================================================================ */
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
   body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; overflow-y: scroll; }
   .loader { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -270,8 +272,8 @@ tailwind.config = { theme: { extend: {
             onkeydown="if(event.key==='Enter')doLogin()">
         </div>
         <div id="loginError" class="hidden text-red-600 text-xs mb-3 flex items-center gap-1.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
-          <span>Clave incorrecta</span>
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+          <span id="loginErrorText">Clave incorrecta</span>
         </div>
         <label class="flex items-center gap-2 mb-5 cursor-pointer select-none">
           <input type="checkbox" id="keepSession" class="rounded border-gray-300 text-brand-600 focus:ring-brand-200 w-4 h-4">
@@ -411,7 +413,7 @@ tailwind.config = { theme: { extend: {
         <button onclick="dashDrillDown('reciente','')" class="text-2xs text-brand-600 hover:text-brand-700 font-medium hover:underline transition">Ver todo</button>
       </div>
       <div id="dashRecent" class="space-y-2 max-h-[200px] overflow-y-auto text-sm">
-        <p class="text-gray-300 text-xs">Cargando...</p>
+        <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader" style="width:14px;height:14px;border-width:2px"></div>Cargando...</div>
       </div>
     </div>
   </div>
@@ -468,7 +470,7 @@ tailwind.config = { theme: { extend: {
       </button>
     </div>
     <div id="dashPositions" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
-      <p class="text-gray-300 text-xs">Cargando...</p>
+      <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader" style="width:14px;height:14px;border-width:2px"></div>Cargando...</div>
     </div>
   </div>
 
@@ -481,7 +483,7 @@ tailwind.config = { theme: { extend: {
       </button>
     </div>
     <div id="dashOffices" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
-      <p class="text-gray-300 text-xs">Cargando...</p>
+      <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader" style="width:14px;height:14px;border-width:2px"></div>Cargando...</div>
     </div>
   </div>
 
@@ -691,7 +693,6 @@ tailwind.config = { theme: { extend: {
 
 </div><!-- end tab-database -->
 
-<!-- ==================== TAB: STATISTICS ==================== -->
 <!-- ==================== TAB: CAMPAIGNS ==================== -->
 <div id="tab-campaigns" class="tab-section">
 <div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
@@ -699,7 +700,7 @@ tailwind.config = { theme: { extend: {
     <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Campañas</h2>
     <div class="flex gap-2">
       <button onclick="openAICampaignDraft()" class="bg-violet-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-violet-700 transition flex items-center gap-1.5">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5"/></svg>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5M14.25 3.104c.251.023.501.05.75.082M19 14.5l-2.47 2.47a2.25 2.25 0 01-1.591.659H9.061a2.25 2.25 0 01-1.591-.659L5 14.5m14 0V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-3.5"/></svg>
         IA Draft
       </button>
       <button onclick="openCampaignForm()" class="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">+ Nueva</button>
@@ -718,7 +719,7 @@ tailwind.config = { theme: { extend: {
     <div class="sticky top-0 bg-white border-b px-5 py-4 rounded-t-2xl z-10">
       <div class="flex justify-between items-center">
         <h3 id="campaignModalTitle" class="font-bold text-gray-800">Nueva campaña</h3>
-        <button onclick="closeCampaignModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100">&times;</button>
+        <button onclick="closeCampaignModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Cerrar">&times;</button>
       </div>
     </div>
     <div class="p-5 space-y-4">
@@ -735,7 +736,7 @@ tailwind.config = { theme: { extend: {
       </div>
       <div>
         <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Contenido del mensaje</label>
-        <textarea id="campContent" rows="4" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none" placeholder="Contenido..."></textarea>
+        <textarea id="campContent" rows="4" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-y" placeholder="Contenido..."></textarea>
       </div>
       <div>
         <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Destinatarios (filtro)</label>
@@ -816,7 +817,7 @@ tailwind.config = { theme: { extend: {
           <div class="theme-swatch" style="background:#4f46e5" onclick="setTheme('indigo')" title="Indigo"></div>
           <div class="theme-swatch" style="background:#059669" onclick="setTheme('emerald')" title="Esmeralda"></div>
           <div class="theme-swatch" style="background:#e11d48" onclick="setTheme('rose')" title="Rosa"></div>
-          <div class="theme-swatch" style="background:#d97706" onclick="setTheme('amber')" title="Ambar"></div>
+          <div class="theme-swatch" style="background:#d97706" onclick="setTheme('amber')" title="Ámbar"></div>
           <div class="theme-swatch" style="background:#7c3aed" onclick="setTheme('violet')" title="Violeta"></div>
         </div>
       </div>
@@ -825,7 +826,7 @@ tailwind.config = { theme: { extend: {
   <!-- User Management -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Gestion de Usuarios</h2>
+      <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Gestión de Usuarios</h2>
       <button onclick="openAddUserModal()" id="btnAddUser" class="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">+ Nuevo usuario</button>
     </div>
     <div id="cfgUserList" class="divide-y divide-gray-100 text-sm"></div>
@@ -846,14 +847,14 @@ tailwind.config = { theme: { extend: {
 <div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
   <!-- WhatsApp Credits -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">WhatsApp — Creditos y Facturacion</h2>
+    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">WhatsApp — Créditos y Facturación</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Creditos totales</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Créditos totales</label>
         <input id="masterCreditsTotal" type="number" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" value="0">
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Creditos usados</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Créditos usados</label>
         <p id="masterCreditsUsed" class="text-2xl font-bold text-gray-800 py-1">0</p>
       </div>
       <div>
@@ -863,11 +864,11 @@ tailwind.config = { theme: { extend: {
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Fecha expiracion</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Fecha expiración</label>
         <input id="masterCreditsExpiry" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
       </div>
       <div class="flex items-end">
-        <button onclick="saveMasterCredits()" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar creditos</button>
+        <button onclick="saveMasterCredits()" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar créditos</button>
       </div>
     </div>
     <div class="mt-4 p-3 bg-gray-50 rounded-xl">
@@ -882,7 +883,7 @@ tailwind.config = { theme: { extend: {
   </div>
   <!-- SMTP Config -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Configuracion SMTP (Email)</h2>
+    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Configuración SMTP (Email)</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Servidor SMTP</label>
@@ -913,7 +914,7 @@ tailwind.config = { theme: { extend: {
       <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">OpenAI API Key</label>
       <input id="masterOpenAIKey" type="password" placeholder="sk-proj-..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
     </div>
-    <button onclick="saveMasterAPIKeys()" class="mt-3 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar</button>
+    <button onclick="saveMasterAPIKeys()" class="mt-4 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar</button>
   </div>
   <!-- Message Log -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -938,7 +939,7 @@ tailwind.config = { theme: { extend: {
         <div class="flex items-center gap-1 ml-3">
           <button onclick="modalNav(-1)" id="modalPrev" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition" title="Anterior">&#8249;</button>
           <button onclick="modalNav(1)" id="modalNext" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition" title="Siguiente">&#8250;</button>
-          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition ml-1">&times;</button>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition ml-1" aria-label="Cerrar">&times;</button>
         </div>
       </div>
     </div>
@@ -959,7 +960,7 @@ tailwind.config = { theme: { extend: {
           </div>
           <h3 class="font-bold text-gray-800">Enviar WhatsApp</h3>
         </div>
-        <button onclick="closeWAModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100">&times;</button>
+        <button onclick="closeWAModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Cerrar">&times;</button>
       </div>
     </div>
 
@@ -1054,7 +1055,7 @@ tailwind.config = { theme: { extend: {
 <div id="aiPanel" class="ai-panel">
   <div class="bg-gradient-to-r from-violet-600 to-purple-700 px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-2">
-      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5"/></svg>
+      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5M14.25 3.104c.251.023.501.05.75.082M19 14.5l-2.47 2.47a2.25 2.25 0 01-1.591.659H9.061a2.25 2.25 0 01-1.591-.659L5 14.5m14 0V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-3.5"/></svg>
       <span class="text-white font-semibold text-sm">Asistente RRHH</span>
     </div>
     <div class="flex items-center gap-1">
@@ -1143,7 +1144,7 @@ const WA_TEMPLATES = {
   },
   seleccionado: {
     label: 'Seleccionado',
-    desc: 'Informa al candidato de su seleccion',
+    desc: 'Informa al candidato de su selección',
     color: 'emerald',
     params: ['nombre','posicion','oficina'],
     preview: 'Hola {nombre}, nos complace comunicarte que has sido seleccionado/a para el puesto de {posicion} en {oficina}.'
@@ -1234,7 +1235,11 @@ function sha256(str) {
 function doLogin() {
   const username = (document.getElementById('loginUsername').value || '').trim();
   const pw = document.getElementById('loginPassword').value;
-  if (!username || !pw) { document.getElementById('loginError').classList.remove('hidden'); return; }
+  if (!username || !pw) {
+    document.getElementById('loginErrorText').textContent = 'Introduce tu usuario y contraseña';
+    document.getElementById('loginError').classList.remove('hidden');
+    return;
+  }
   const hash = sha256(pw);
   const uname = username.toLowerCase();
 
@@ -1260,6 +1265,7 @@ function doLogin() {
   }
   // 5. Not found
   else {
+    document.getElementById('loginErrorText').textContent = 'Usuario o contraseña incorrectos';
     document.getElementById('loginError').classList.remove('hidden');
     document.getElementById('loginPassword').value = '';
     document.getElementById('loginPassword').focus();
@@ -1272,12 +1278,12 @@ function doLogin() {
   sessionStorage.setItem('lacasa_keep_session', keepSessionUntilMidnight ? '1' : '0');
   sessionStorage.setItem('lacasa_current_user', JSON.stringify(currentUser));
   lastActivity = Date.now();
-  logAction('LOGIN', 'Inicio de sesion');
+  logAction('LOGIN', 'Inicio de sesión');
   showDashboard();
 }
 
 function doLogout() {
-  logAction('LOGOUT', 'Cierre de sesion');
+  logAction('LOGOUT', 'Cierre de sesión');
   sessionStorage.removeItem(SESSION_KEY);
   sessionStorage.removeItem('lacasa_keep_session');
   sessionStorage.removeItem('lacasa_current_user');
@@ -1420,7 +1426,7 @@ function maskEmail(email) {
 
 // ==================== API ====================
 async function apiCall(body) {
-  if (!checkSession()) throw new Error('Sesion expirada');
+  if (!checkSession()) throw new Error('Sesión expirada');
   body.token = API_TOKEN;
   const resp = await fetch(WEBHOOK_URL, {
     method: 'POST',
@@ -1429,7 +1435,7 @@ async function apiCall(body) {
   });
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
   const data = await resp.json();
-  if (data.error === 'Unauthorized') throw new Error('Token no valido');
+  if (data.error === 'Unauthorized') throw new Error('Token no válido');
   return data;
 }
 
@@ -2852,13 +2858,13 @@ function openWhatsAppModal() {
     return `<div class="flex items-center gap-2 px-3 py-2 text-sm" id="waR_${i}">
       <span class="w-5 h-5 rounded-full flex items-center justify-center text-2xs font-bold ${hasPhone ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}">${hasPhone ? '&#10003;' : '!'}</span>
       <span class="flex-1 font-medium text-gray-800 truncate">${esc(r.nombre)}</span>
-      <span class="text-gray-400 text-xs">${hasPhone ? esc(maskPhone(r.phone)) : 'Sin telefono'}</span>
+      <span class="text-gray-400 text-xs">${hasPhone ? esc(maskPhone(r.phone)) : 'Sin teléfono'}</span>
       <button onclick="removeWARecipient(${r.sheetRow})" class="text-gray-300 hover:text-red-500 transition">&times;</button>
     </div>`;
   }).join('');
 
   const validCount = recipients.filter(r => r.phone && r.phone.replace(/\D/g, '').length >= 6).length;
-  document.getElementById('waRecipientCount').textContent = `${validCount} validos de ${recipients.length}`;
+  document.getElementById('waRecipientCount').textContent = `${validCount} válidos de ${recipients.length}`;
 
   // Update cost
   document.getElementById('waCostCount').textContent = validCount;
@@ -2961,7 +2967,7 @@ function checkWASendReady() {
 async function sendWhatsAppBatch() {
   if (!waSelectedTemplate || !waPasswordOk) return;
   const recipients = getWARecipients().filter(r => r.phone && r.phone.replace(/\D/g, '').length >= 6);
-  if (recipients.length === 0) { toast('No hay destinatarios validos', 'info'); return; }
+  if (recipients.length === 0) { toast('No hay destinatarios válidos', 'info'); return; }
 
   // Disable UI
   document.getElementById('waSendBtn').disabled = true;
@@ -3259,7 +3265,7 @@ function changePassword() {
   const newPw = document.getElementById('pwNew').value;
   const confirm = document.getElementById('pwConfirm').value;
   if (!oldPw || !newPw || !confirm) { toast('Rellena todos los campos', 'info'); return; }
-  if (newPw.length < 6) { toast('Minimo 6 caracteres', 'info'); return; }
+  if (newPw.length < 6) { toast('Mínimo 6 caracteres', 'info'); return; }
   if (newPw !== confirm) { toast('Las contraseñas no coinciden', 'info'); return; }
   const oldHash = sha256(oldPw);
   // Verify current password
@@ -3330,7 +3336,7 @@ function saveMasterCredits() {
   };
   localStorage.setItem('lacasa_master_credits', JSON.stringify(data));
   renderMasterCredits();
-  toast('Creditos guardados', 'success');
+  toast('Créditos guardados', 'success');
 }
 
 function renderMasterCredits() {
@@ -3374,7 +3380,7 @@ function loadSMTPConfig() {
   } catch {}
 }
 
-function testSMTP() { toast('Test SMTP: pendiente de integracion con n8n', 'info'); }
+function testSMTP() { toast('Test SMTP: pendiente de integración con n8n', 'info'); }
 
 function saveMasterAPIKeys() {
   localStorage.setItem('lacasa_master_openai_key', document.getElementById('masterOpenAIKey').value);
@@ -3423,7 +3429,7 @@ function toggleAIPanel() {
 function clearAIChat() {
   aiMessages = [];
   document.getElementById('aiMessages').innerHTML =
-    '<div class="ai-msg ai-msg-ai px-3 py-2 text-sm text-gray-700">Hola! Soy el asistente de RRHH. Pregunta lo que necesites.</div>';
+    '<div class="ai-msg ai-msg-ai px-3 py-2 text-sm text-gray-700">Hola! Soy el asistente de RRHH. Puedo consultar datos de candidatos, generar informes y filtrar perfiles. Pregunta lo que necesites.</div>';
 }
 
 function buildAIContext() {
@@ -3748,7 +3754,7 @@ async function executeCampaign(id) {
 function openAICampaignDraft() {
   if (!aiPanelOpen) toggleAIPanel();
   const input = document.getElementById('aiInput');
-  input.value = 'Genera un borrador de campaña de WhatsApp para los candidatos citados. Incluye nombre, contenido del mensaje y sugiere un horario de envio.';
+  input.value = 'Genera un borrador de campaña de WhatsApp para los candidatos citados. Incluye nombre, contenido del mensaje y sugiere un horario de envío.';
   input.focus();
   document.getElementById('aiSendBtn').disabled = false;
 }
