@@ -2093,8 +2093,11 @@ function buildDashWeeks() {
     const range = `${mon.getDate()} ${WK_MES[mon.getMonth()]} – ${sun.getDate()} ${WK_MES[sun.getMonth()]}`;
     const isCurrent = today >= mon && today <= sun;
     const isFuture = mon > today;
-    const quarter = Math.floor(mon.getMonth() / 3);
-    weeks.push({ key, range, isCurrent, isFuture, quarter, month: mon.getMonth(), weekNum, monthLabel: WK_MES[mon.getMonth()] });
+    // Use Thursday to determine quarter/month (ISO 8601: Thursday defines the week's year/month)
+    const thu = new Date(d); thu.setDate(d.getDate() + 3);
+    const isoMonth = thu.getMonth();
+    const quarter = Math.floor(isoMonth / 3);
+    weeks.push({ key, range, isCurrent, isFuture, quarter, month: isoMonth, weekNum, monthLabel: WK_MES[isoMonth] });
     weekNum++;
     d.setDate(d.getDate() + 7);
   }
