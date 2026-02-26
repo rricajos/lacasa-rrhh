@@ -293,6 +293,9 @@ tailwind.config = { theme: { extend: {
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
           Acceder
         </button>
+        <button onclick="showForgotPassword()" class="w-full text-brand-600 text-xs mt-3 hover:underline cursor-pointer bg-transparent border-none">
+          ¿Olvidaste tu contraseña?
+        </button>
       </div>
       <!-- Legal -->
       <div class="border-t border-gray-100 px-8 py-4 bg-gray-50/50">
@@ -305,6 +308,57 @@ tailwind.config = { theme: { extend: {
           </p>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PASSWORD RECOVERY MODAL ==================== -->
+<div id="forgotPasswordModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+  <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-sm mx-4 overflow-hidden">
+    <div class="bg-brand-600 px-6 py-5 text-center">
+      <svg class="w-10 h-10 text-white/80 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <h2 class="text-lg font-bold text-white">Recuperar contraseña</h2>
+      <p class="text-brand-200 text-xs mt-1">Te enviaremos un codigo de verificacion</p>
+    </div>
+    <div class="p-6">
+      <div id="forgotStep1">
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Email de tu cuenta</label>
+        <input id="forgotEmail" type="email" placeholder="Tu email registrado..."
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
+          onkeydown="if(event.key==='Enter')sendResetCode()">
+        <div id="forgotError" class="hidden text-red-600 text-xs mt-2 flex items-center gap-1.5">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span id="forgotErrorText"></span>
+        </div>
+        <button onclick="sendResetCode()" id="btnSendCode" class="w-full bg-brand-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-brand-700 transition mt-4">
+          Enviar codigo
+        </button>
+      </div>
+      <div id="forgotStep2" class="hidden">
+        <p class="text-xs text-gray-500 mb-3">Codigo enviado a <strong id="forgotEmailDisplay"></strong></p>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Codigo de 6 digitos</label>
+        <input id="resetCode" type="text" maxlength="6" placeholder="000000"
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm text-center tracking-[0.5em] font-mono focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
+          onkeydown="if(event.key==='Enter')document.getElementById('resetNewPw').focus()">
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1 mt-3">Nueva contraseña</label>
+        <input id="resetNewPw" type="password" placeholder="Minimo 6 caracteres"
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
+          onkeydown="if(event.key==='Enter')document.getElementById('resetConfirmPw').focus()">
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1 mt-3">Confirmar contraseña</label>
+        <input id="resetConfirmPw" type="password" placeholder="Repite la contraseña"
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
+          onkeydown="if(event.key==='Enter')verifyAndResetPassword()">
+        <div id="resetError" class="hidden text-red-600 text-xs mt-2 flex items-center gap-1.5">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span id="resetErrorText"></span>
+        </div>
+        <button onclick="verifyAndResetPassword()" id="btnResetPw" class="w-full bg-brand-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-brand-700 transition mt-4">
+          Restablecer contraseña
+        </button>
+      </div>
+      <button onclick="closeForgotPassword()" class="w-full text-gray-400 text-xs mt-3 hover:text-gray-600 cursor-pointer bg-transparent border-none">
+        Volver al inicio de sesion
+      </button>
     </div>
   </div>
 </div>
@@ -3542,7 +3596,170 @@ function loadSMTPConfig() {
   } catch {}
 }
 
-function testSMTP() { toast('Test SMTP: pendiente de integración con n8n', 'info'); }
+async function testSMTP() {
+  const cfg = JSON.parse(localStorage.getItem('lacasa_master_smtp') || '{}');
+  if (!cfg.user) { toast('Configura SMTP primero', 'info'); return; }
+  try {
+    toast('Enviando test...', 'info');
+    await apiCall({
+      action: 'send_email',
+      to: cfg.user,
+      subject: 'Test SMTP - La Casa RRHH',
+      html: '<h2>SMTP configurado correctamente</h2><p>Este es un email de prueba del panel de RRHH de La Casa Agency.</p><p>Fecha: ' + new Date().toLocaleString('es-ES') + '</p>'
+    });
+    toast('Email de test enviado a ' + cfg.user, 'success');
+  } catch (e) {
+    toast('Error SMTP: ' + e.message, 'error');
+  }
+}
+
+// ===== Password Recovery =====
+let pendingResetCode = null;
+
+function showForgotPassword() {
+  document.getElementById('forgotPasswordModal').classList.remove('hidden');
+  document.getElementById('forgotPasswordModal').style.display = 'flex';
+  document.getElementById('forgotStep1').classList.remove('hidden');
+  document.getElementById('forgotStep2').classList.add('hidden');
+  document.getElementById('forgotError').classList.add('hidden');
+  document.getElementById('forgotEmail').value = '';
+  document.getElementById('forgotEmail').focus();
+  pendingResetCode = null;
+}
+
+function closeForgotPassword() {
+  document.getElementById('forgotPasswordModal').classList.add('hidden');
+  document.getElementById('forgotPasswordModal').style.display = '';
+  pendingResetCode = null;
+}
+
+function findUserByEmail(email) {
+  const lower = email.toLowerCase();
+  // Check hardcoded users
+  if (lower === 'master@conexiatec.com') return { nombre: 'Conexia', email: 'master@conexiatec.com', rol: 'master' };
+  if (lower === 'admin@lacasa-agency.com') return { nombre: 'Admin', email: 'admin@lacasa-agency.com', rol: 'admin' };
+  if (lower === 'demo@lacasa-agency.com') return { nombre: 'Demo', email: 'demo@lacasa-agency.com', rol: 'user' };
+  // Check custom users
+  const users = getUsers();
+  return users.find(u => u.activo && u.email.toLowerCase() === lower) || null;
+}
+
+async function sendResetCode() {
+  const email = (document.getElementById('forgotEmail').value || '').trim().toLowerCase();
+  if (!email) {
+    document.getElementById('forgotErrorText').textContent = 'Introduce tu email';
+    document.getElementById('forgotError').classList.remove('hidden');
+    return;
+  }
+  const user = findUserByEmail(email);
+  if (!user) {
+    document.getElementById('forgotErrorText').textContent = 'Email no registrado en el sistema';
+    document.getElementById('forgotError').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('forgotError').classList.add('hidden');
+  const btn = document.getElementById('btnSendCode');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  // Generate 6-digit code
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  try {
+    await apiCall({
+      action: 'send_email',
+      to: email,
+      subject: 'Codigo de recuperacion - La Casa RRHH',
+      html: '<div style="font-family:Arial,sans-serif;max-width:400px;margin:0 auto;padding:20px">' +
+        '<h2 style="color:#4f46e5;margin-bottom:16px">Recuperar contraseña</h2>' +
+        '<p>Hola <strong>' + (user.nombre || '') + '</strong>,</p>' +
+        '<p>Tu codigo de verificacion es:</p>' +
+        '<div style="background:#f3f4f6;border-radius:12px;padding:20px;text-align:center;margin:16px 0">' +
+        '<span style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#1f2937">' + code + '</span>' +
+        '</div>' +
+        '<p style="color:#6b7280;font-size:13px">Este codigo expira en 10 minutos.</p>' +
+        '<hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0">' +
+        '<p style="color:#9ca3af;font-size:11px">Si no solicitaste este cambio, ignora este email.</p>' +
+        '</div>'
+    });
+    // Store code with 10-minute expiry
+    pendingResetCode = { code, email, expires: Date.now() + 10 * 60 * 1000 };
+    // Show step 2
+    document.getElementById('forgotEmailDisplay').textContent = email;
+    document.getElementById('forgotStep1').classList.add('hidden');
+    document.getElementById('forgotStep2').classList.remove('hidden');
+    document.getElementById('resetError').classList.add('hidden');
+    document.getElementById('resetCode').value = '';
+    document.getElementById('resetNewPw').value = '';
+    document.getElementById('resetConfirmPw').value = '';
+    document.getElementById('resetCode').focus();
+    toast('Codigo enviado a ' + email, 'success');
+  } catch (e) {
+    document.getElementById('forgotErrorText').textContent = 'Error al enviar: ' + e.message;
+    document.getElementById('forgotError').classList.remove('hidden');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Enviar codigo';
+}
+
+function verifyAndResetPassword() {
+  const code = (document.getElementById('resetCode').value || '').trim();
+  const newPw = document.getElementById('resetNewPw').value;
+  const confirmPw = document.getElementById('resetConfirmPw').value;
+  const errEl = document.getElementById('resetError');
+  const errText = document.getElementById('resetErrorText');
+
+  if (!code || !newPw || !confirmPw) {
+    errText.textContent = 'Rellena todos los campos';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  if (!pendingResetCode) {
+    errText.textContent = 'No hay codigo pendiente. Solicita uno nuevo';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  if (Date.now() > pendingResetCode.expires) {
+    errText.textContent = 'Codigo expirado. Solicita uno nuevo';
+    errEl.classList.remove('hidden');
+    pendingResetCode = null;
+    return;
+  }
+  if (code !== pendingResetCode.code) {
+    errText.textContent = 'Codigo incorrecto';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  if (newPw.length < 6) {
+    errText.textContent = 'Minimo 6 caracteres';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  if (newPw !== confirmPw) {
+    errText.textContent = 'Las contraseñas no coinciden';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  // Reset the password
+  const email = pendingResetCode.email;
+  const newHash = sha256(newPw);
+  const users = getUsers();
+  const existing = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  if (existing) {
+    existing.passwordHash = newHash;
+  } else {
+    // Hardcoded user → create entry in custom users
+    const user = findUserByEmail(email);
+    users.push({ nombre: user.nombre, email: user.email, passwordHash: newHash, rol: user.rol, activo: true, creado: new Date().toISOString() });
+  }
+  saveUsers(users);
+  pendingResetCode = null;
+  closeForgotPassword();
+  toast('Contraseña restablecida. Ya puedes iniciar sesion', 'success');
+  document.getElementById('loginUsername').value = email;
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginPassword').focus();
+}
 
 function saveMasterAPIKeys() {
   localStorage.setItem('lacasa_master_openai_key', document.getElementById('masterOpenAIKey').value);
