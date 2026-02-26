@@ -7,11 +7,9 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
-tailwind.config = {
-  theme: { extend: { colors: {
-    brand: { 50:'#eff6ff', 100:'#dbeafe', 600:'#2563eb', 700:'#1d4ed8', 800:'#1e40af' }
-  }}}
-}
+tailwind.config = { theme: { extend: { colors: {
+  brand: { 50:'#eff6ff', 100:'#dbeafe', 600:'#2563eb', 700:'#1d4ed8', 800:'#1e40af' }
+}}}}
 </script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -25,8 +23,9 @@ tailwind.config = {
   th.sorted-asc .sort-icon, th.sorted-desc .sort-icon { opacity: 1; color: #2563eb; }
   .stat-card { transition: all 0.15s; cursor: pointer; }
   .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-  .stat-card.active { ring: 2px; box-shadow: 0 0 0 2px #3b82f6; }
   .row-hover:hover { background: #f1f5f9; }
+  .row-flash { animation: flashGreen 0.8s ease-out; }
+  @keyframes flashGreen { 0% { background: #d1fae5; } 100% { background: transparent; } }
   .modal-backdrop { background: rgba(15,23,42,0.5); backdrop-filter: blur(2px); }
   .modal-panel { transform: translateX(100%); transition: transform 0.25s ease-out; }
   .modal-panel.open { transform: translateX(0); }
@@ -42,11 +41,27 @@ tailwind.config = {
   .field-edit input, .field-edit select { border: 1px solid #d1d5db; border-radius: 6px; padding: 4px 8px; font-size: 0.875rem; width: 100%; }
   .field-edit input:focus, .field-edit select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
   .pct-bar { height: 4px; border-radius: 2px; transition: width 0.4s ease; }
+  mark { background: #fef08a; color: inherit; padding: 0 1px; border-radius: 2px; }
+  .confirm-modal { animation: fadeIn 0.15s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  .donut-ring { transition: stroke-dashoffset 0.6s ease; }
 </style>
 </head>
 <body class="min-h-screen">
 
 <div id="toasts" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+<!-- Confirm Modal -->
+<div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="display:none;">
+  <div class="absolute inset-0 bg-black/40" onclick="confirmCancel()"></div>
+  <div class="confirm-modal relative bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
+    <p id="confirmMsg" class="text-gray-800 font-medium text-sm mb-4"></p>
+    <div class="flex gap-2 justify-end">
+      <button onclick="confirmCancel()" class="px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition">Cancelar</button>
+      <button onclick="confirmOk()" id="confirmBtn" class="px-4 py-2 rounded-lg text-sm text-white bg-red-600 hover:bg-red-700 transition">Confirmar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Header -->
 <header class="bg-white border-b border-gray-200">
@@ -58,11 +73,18 @@ tailwind.config = {
         <p class="text-xs text-gray-400">Panel RRHH</p>
       </div>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2">
+      <!-- Auto-refresh toggle -->
+      <div class="flex items-center gap-1.5 mr-1">
+        <button onclick="toggleAutoRefresh()" id="btnAutoRefresh" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition" title="Auto-refresh cada 30s">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </button>
+        <span id="autoRefreshLabel" class="text-[10px] text-gray-400 hidden sm:inline w-8"></span>
+      </div>
       <span id="lastUpdate" class="text-xs text-gray-400 hidden sm:inline"></span>
-      <button onclick="exportCSV()" class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg text-xs font-medium hover:bg-gray-100 transition flex items-center gap-1.5" title="Exportar CSV">
+      <button onclick="exportCSV()" class="text-gray-500 hover:text-gray-700 px-2.5 py-2 rounded-lg text-xs font-medium hover:bg-gray-100 transition flex items-center gap-1.5" title="Exportar CSV">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        CSV
+        <span class="hidden sm:inline">CSV</span>
       </button>
       <button onclick="loadData()" id="btnRefresh" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition flex items-center gap-2">
         <svg id="refreshIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -72,55 +94,61 @@ tailwind.config = {
   </div>
 </header>
 
-<!-- Stats -->
+<!-- Stats + Donut -->
 <div class="max-w-[1400px] mx-auto px-4 py-4">
-  <div class="grid grid-cols-3 md:grid-cols-6 gap-2.5">
-    <div class="stat-card bg-white rounded-xl p-3 shadow-sm border border-gray-100" onclick="filterByStat('')">
-      <div class="flex items-baseline justify-between">
-        <p class="text-2xl font-bold text-gray-800" id="statTotal">-</p>
-        <span class="text-[10px] text-gray-400 font-medium" id="pctTotal"></span>
-      </div>
-      <p class="text-[11px] text-gray-500 mt-0.5">Total</p>
+  <div class="flex gap-4 items-start">
+    <!-- Donut chart -->
+    <div class="hidden md:flex flex-col items-center bg-white rounded-xl p-4 shadow-sm border border-gray-100 min-w-[120px]">
+      <svg viewBox="0 0 36 36" class="w-20 h-20">
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="3"/>
+        <circle id="donutNuevo" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+        <circle id="donutCitado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+        <circle id="donutDescartado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#ef4444" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+        <circle id="donutSeleccionado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
+        <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="6" font-weight="700" id="donutCenter">-</text>
+      </svg>
+      <p class="text-[10px] text-gray-400 mt-1">Distribucion</p>
     </div>
-    <div class="stat-card bg-blue-50/70 rounded-xl p-3 shadow-sm border border-blue-100/60" onclick="filterByStat('Nuevo')">
-      <div class="flex items-baseline justify-between">
-        <p class="text-2xl font-bold text-blue-700" id="statNuevo">-</p>
-        <span class="text-[10px] text-blue-400 font-medium" id="pctNuevo"></span>
+    <!-- Stat cards -->
+    <div class="flex-1 grid grid-cols-3 md:grid-cols-5 gap-2.5">
+      <div class="stat-card bg-white rounded-xl p-3 shadow-sm border border-gray-100" onclick="filterByStat('')">
+        <div class="flex items-baseline justify-between">
+          <p class="text-2xl font-bold text-gray-800" id="statTotal">-</p>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-0.5">Total</p>
       </div>
-      <p class="text-[11px] text-blue-600 mt-0.5">Nuevos</p>
-      <div class="mt-1.5 bg-blue-100 rounded-full overflow-hidden"><div class="pct-bar bg-blue-500" id="barNuevo"></div></div>
-    </div>
-    <div class="stat-card bg-amber-50/70 rounded-xl p-3 shadow-sm border border-amber-100/60" onclick="filterByStat('Citado')">
-      <div class="flex items-baseline justify-between">
-        <p class="text-2xl font-bold text-amber-700" id="statCitado">-</p>
-        <span class="text-[10px] text-amber-400 font-medium" id="pctCitado"></span>
+      <div class="stat-card bg-blue-50/70 rounded-xl p-3 shadow-sm border border-blue-100/60" onclick="filterByStat('Nuevo')">
+        <div class="flex items-baseline justify-between">
+          <p class="text-2xl font-bold text-blue-700" id="statNuevo">-</p>
+          <span class="text-[10px] text-blue-400 font-medium" id="pctNuevo"></span>
+        </div>
+        <p class="text-[11px] text-blue-600 mt-0.5">Nuevos</p>
+        <div class="mt-1.5 bg-blue-100 rounded-full overflow-hidden"><div class="pct-bar bg-blue-500" id="barNuevo"></div></div>
       </div>
-      <p class="text-[11px] text-amber-600 mt-0.5">Citados</p>
-      <div class="mt-1.5 bg-amber-100 rounded-full overflow-hidden"><div class="pct-bar bg-amber-500" id="barCitado"></div></div>
-    </div>
-    <div class="stat-card bg-red-50/70 rounded-xl p-3 shadow-sm border border-red-100/60" onclick="filterByStat('Descartado')">
-      <div class="flex items-baseline justify-between">
-        <p class="text-2xl font-bold text-red-700" id="statDescartado">-</p>
-        <span class="text-[10px] text-red-400 font-medium" id="pctDescartado"></span>
+      <div class="stat-card bg-amber-50/70 rounded-xl p-3 shadow-sm border border-amber-100/60" onclick="filterByStat('Citado')">
+        <div class="flex items-baseline justify-between">
+          <p class="text-2xl font-bold text-amber-700" id="statCitado">-</p>
+          <span class="text-[10px] text-amber-400 font-medium" id="pctCitado"></span>
+        </div>
+        <p class="text-[11px] text-amber-600 mt-0.5">Citados</p>
+        <div class="mt-1.5 bg-amber-100 rounded-full overflow-hidden"><div class="pct-bar bg-amber-500" id="barCitado"></div></div>
       </div>
-      <p class="text-[11px] text-red-600 mt-0.5">Descartados</p>
-      <div class="mt-1.5 bg-red-100 rounded-full overflow-hidden"><div class="pct-bar bg-red-500" id="barDescartado"></div></div>
-    </div>
-    <div class="stat-card bg-emerald-50/70 rounded-xl p-3 shadow-sm border border-emerald-100/60" onclick="filterByStat('Seleccionado')">
-      <div class="flex items-baseline justify-between">
-        <p class="text-2xl font-bold text-emerald-700" id="statSeleccionado">-</p>
-        <span class="text-[10px] text-emerald-400 font-medium" id="pctSeleccionado"></span>
+      <div class="stat-card bg-red-50/70 rounded-xl p-3 shadow-sm border border-red-100/60" onclick="filterByStat('Descartado')">
+        <div class="flex items-baseline justify-between">
+          <p class="text-2xl font-bold text-red-700" id="statDescartado">-</p>
+          <span class="text-[10px] text-red-400 font-medium" id="pctDescartado"></span>
+        </div>
+        <p class="text-[11px] text-red-600 mt-0.5">Descartados</p>
+        <div class="mt-1.5 bg-red-100 rounded-full overflow-hidden"><div class="pct-bar bg-red-500" id="barDescartado"></div></div>
       </div>
-      <p class="text-[11px] text-emerald-600 mt-0.5">Seleccionados</p>
-      <div class="mt-1.5 bg-emerald-100 rounded-full overflow-hidden"><div class="pct-bar bg-emerald-500" id="barSeleccionado"></div></div>
-    </div>
-    <div class="stat-card bg-violet-50/70 rounded-xl p-3 shadow-sm border border-violet-100/60" onclick="filterByStat('')">
-      <div class="flex items-baseline justify-between">
-        <p class="text-2xl font-bold text-violet-700" id="statOrganizado">-</p>
-        <span class="text-[10px] text-violet-400 font-medium" id="pctOrganizado"></span>
+      <div class="stat-card bg-emerald-50/70 rounded-xl p-3 shadow-sm border border-emerald-100/60" onclick="filterByStat('Seleccionado')">
+        <div class="flex items-baseline justify-between">
+          <p class="text-2xl font-bold text-emerald-700" id="statSeleccionado">-</p>
+          <span class="text-[10px] text-emerald-400 font-medium" id="pctSeleccionado"></span>
+        </div>
+        <p class="text-[11px] text-emerald-600 mt-0.5">Seleccionados</p>
+        <div class="mt-1.5 bg-emerald-100 rounded-full overflow-hidden"><div class="pct-bar bg-emerald-500" id="barSeleccionado"></div></div>
       </div>
-      <p class="text-[11px] text-violet-600 mt-0.5">Organizados</p>
-      <div class="mt-1.5 bg-violet-100 rounded-full overflow-hidden"><div class="pct-bar bg-violet-500" id="barOrganizado"></div></div>
     </div>
   </div>
 </div>
@@ -130,23 +158,19 @@ tailwind.config = {
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 flex flex-wrap gap-2.5 items-end">
     <div>
       <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Situacion</label>
-      <select id="filterSituacion" onchange="applyFilters()" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
-        <option value="">Todas</option>
-        <option value="Nuevo">Nuevo</option>
-        <option value="Citado">Citado</option>
-        <option value="Descartado">Descartado</option>
-        <option value="Seleccionado">Seleccionado</option>
+      <select id="filterSituacion" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+        <option value="">Todas</option><option value="Nuevo">Nuevo</option><option value="Citado">Citado</option><option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
       </select>
     </div>
     <div>
       <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Mes</label>
-      <select id="filterMes" onchange="applyFilters()" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+      <select id="filterMes" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
         <option value="">Todos</option>
       </select>
     </div>
     <div>
       <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Posicion</label>
-      <select id="filterPosicion" onchange="applyFilters()" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+      <select id="filterPosicion" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
         <option value="">Todas</option>
       </select>
     </div>
@@ -154,16 +178,23 @@ tailwind.config = {
       <label class="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-1">Buscar</label>
       <div class="relative">
         <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input id="filterSearch" type="text" placeholder="Nombre, telefono, email..." oninput="applyFilters()" class="w-full text-sm border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+        <input id="filterSearch" type="text" placeholder="Nombre, telefono, email..." oninput="applyFilters(true)" class="w-full text-sm border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
       </div>
     </div>
     <button onclick="clearFilters()" id="btnClear" class="text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg text-xs hover:bg-gray-100 transition hidden" title="Limpiar filtros">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
-    <button onclick="deleteSelected()" id="btnDelete" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-100 transition hidden items-center gap-1 border border-red-200">
-      <svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-      Eliminar (<span id="deleteCount">0</span>)
-    </button>
+    <!-- Bulk actions -->
+    <div id="bulkActions" class="hidden items-center gap-1.5">
+      <select id="bulkSituacion" class="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50">
+        <option value="">Cambiar a...</option><option value="Nuevo">Nuevo</option><option value="Citado">Citado</option><option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
+      </select>
+      <button onclick="bulkChangeSituacion()" class="bg-brand-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">Aplicar</button>
+      <button onclick="deleteSelected()" class="bg-red-50 text-red-600 px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-red-100 transition border border-red-200 flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <span id="deleteCount">0</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -180,10 +211,10 @@ tailwind.config = {
             <th class="px-3 py-2.5 text-left sortable hidden md:table-cell" data-col="MES" onclick="sortBy(this)">Mes <span class="sort-icon">&#9650;</span></th>
             <th class="px-3 py-2.5 text-left sortable hidden lg:table-cell" data-col="OFICINA" onclick="sortBy(this)">Oficina <span class="sort-icon">&#9650;</span></th>
             <th class="px-3 py-2.5 text-left hidden sm:table-cell">Telefono</th>
+            <th class="px-3 py-2.5 text-left hidden sm:table-cell">Email</th>
             <th class="px-3 py-2.5 text-left sortable" data-col="SITUACION" onclick="sortBy(this)">Situacion <span class="sort-icon">&#9650;</span></th>
             <th class="px-3 py-2.5 text-left sortable hidden lg:table-cell" data-col="POSICION" onclick="sortBy(this)">Posicion <span class="sort-icon">&#9650;</span></th>
-            <th class="px-3 py-2.5 text-left hidden xl:table-cell">Comentarios</th>
-            <th class="px-3 py-2.5 text-center w-16"></th>
+            <th class="px-3 py-2.5 text-center w-12"></th>
           </tr>
         </thead>
         <tbody id="tableBody">
@@ -211,11 +242,15 @@ tailwind.config = {
   <div class="modal-panel absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl overflow-y-auto">
     <div class="sticky top-0 bg-white/95 backdrop-blur-sm border-b px-6 py-4 z-10">
       <div class="flex justify-between items-center">
-        <div>
-          <h2 class="text-lg font-bold text-gray-800" id="modalTitle">Detalle</h2>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-lg font-bold text-gray-800 truncate" id="modalTitle">Detalle</h2>
           <p class="text-xs text-gray-400" id="modalSubtitle"></p>
         </div>
-        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition">&times;</button>
+        <div class="flex items-center gap-1 ml-3">
+          <button onclick="modalNav(-1)" id="modalPrev" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition" title="Anterior">&#8249;</button>
+          <button onclick="modalNav(1)" id="modalNext" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition" title="Siguiente">&#8250;</button>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition ml-1">&times;</button>
+        </div>
       </div>
     </div>
     <div id="modalContent" class="p-6 space-y-5"></div>
@@ -223,9 +258,9 @@ tailwind.config = {
 </div>
 
 <script>
-// --- CONFIG ---
 const WEBHOOK_URL = 'https://lacasa-webhook.conexiatec.com/webhook/demo-lacasa';
 const PAGE_SIZE = 50;
+const STORAGE_KEY = 'lacasa_rrhh_filters';
 
 const COL = {
   MES:0, NOMBRE:1, FORMATO:2, OFICINA:3, RESIDENCIA:4, FECHA:5,
@@ -235,7 +270,6 @@ const COL = {
   INICIO:19, FIN:20, CAUSA:21, ACCION:22, FILE_ID:23, FILE_NAME:24, ULTIMO_SYNC:25
 };
 
-// Sheet column letters for update_cell API
 const COL_LETTER = {
   MES:'A', NOMBRE:'B', FORMATO:'C', OFICINA:'D', RESIDENCIA:'E', FECHA:'F',
   HORA:'G', CORREO:'H', TELEFONO:'I', FUENTE:'J', CONFIRMACION:'K',
@@ -255,20 +289,18 @@ const COL_LABELS = {
   FILE_ID:'_fileId', FILE_NAME:'_fileName', ULTIMO_SYNC:'_ultimo_sync'
 };
 
-// Editable fields (shown in modal with edit capability)
 const EDITABLE_FIELDS = ['NOMBRE','OFICINA','RESIDENCIA','FECHA','HORA','CORREO','TELEFONO',
   'SITUACION','POSICION','CITADO_POR','ASISTENCIA','ENTREVISTADO_POR',
   'MOTIVO_DESCARTE','COMENTARIOS','CONFIRMACION','FUENTE'];
 
 // --- STATE ---
-let allRows = [];
-let filteredRows = [];
-let headers = [];
-let currentPage = 0;
-let selectedRows = new Set();
-let sortCol = null;
-let sortAsc = true;
-let modalRowIdx = -1;
+let allRows = [], filteredRows = [], headers = [];
+let currentPage = 0, selectedRows = new Set();
+let sortCol = null, sortAsc = true;
+let modalRowIdx = -1, modalFilteredIdx = -1;
+let autoRefreshId = null, autoRefreshCountdown = 0;
+let confirmResolve = null;
+let searchTerm = '';
 
 // --- API ---
 async function apiCall(body) {
@@ -281,14 +313,54 @@ async function apiCall(body) {
   return resp.json();
 }
 
+// --- CONFIRM MODAL ---
+function showConfirm(msg) {
+  return new Promise(resolve => {
+    confirmResolve = resolve;
+    document.getElementById('confirmMsg').textContent = msg;
+    const m = document.getElementById('confirmModal');
+    m.style.display = 'flex';
+    m.classList.remove('hidden');
+  });
+}
+function confirmOk() { if (confirmResolve) confirmResolve(true); confirmResolve=null; hideConfirm(); }
+function confirmCancel() { if (confirmResolve) confirmResolve(false); confirmResolve=null; hideConfirm(); }
+function hideConfirm() { const m=document.getElementById('confirmModal'); m.style.display='none'; m.classList.add('hidden'); }
+
+// --- AUTO REFRESH ---
+function toggleAutoRefresh() {
+  const btn = document.getElementById('btnAutoRefresh');
+  const label = document.getElementById('autoRefreshLabel');
+  if (autoRefreshId) {
+    clearInterval(autoRefreshId);
+    autoRefreshId = null;
+    btn.classList.remove('text-brand-600');
+    btn.classList.add('text-gray-400');
+    label.textContent = '';
+    return;
+  }
+  btn.classList.remove('text-gray-400');
+  btn.classList.add('text-brand-600');
+  autoRefreshCountdown = 30;
+  label.textContent = '30s';
+  autoRefreshId = setInterval(() => {
+    autoRefreshCountdown--;
+    if (autoRefreshCountdown <= 0) {
+      loadData(true);
+      autoRefreshCountdown = 30;
+    }
+    label.textContent = autoRefreshCountdown + 's';
+  }, 1000);
+}
+
 // --- LOAD ---
-async function loadData() {
+async function loadData(silent = false) {
   const btn = document.getElementById('btnRefresh');
   const icon = document.getElementById('refreshIcon');
   const text = document.getElementById('refreshText');
   btn.disabled = true;
   icon.classList.add('animate-spin');
-  text.textContent = 'Cargando...';
+  if (!silent) text.textContent = 'Cargando...';
   try {
     const data = await apiCall({ action: 'read_sheet' });
     const values = data.values || [];
@@ -297,18 +369,20 @@ async function loadData() {
     selectedRows.clear();
     document.getElementById('checkAll').checked = false;
     populateFilters();
-    applyFilters();
+    applyFilters(false);
     updateStats();
     document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'});
-    toast('Datos cargados correctamente', 'success');
+    if (!silent) toast('Datos cargados', 'success');
   } catch (e) {
-    toast('Error al cargar: ' + e.message, 'error');
-    document.getElementById('tableBody').innerHTML = `<tr><td colspan="10" class="text-center py-16 text-gray-400">
-      <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
-      <p class="font-medium text-gray-500">No se pudo conectar</p>
-      <p class="text-xs mt-1">${esc(e.message)}</p>
-      <button onclick="loadData()" class="mt-3 text-blue-600 hover:text-blue-800 text-xs font-medium">Reintentar</button>
-    </td></tr>`;
+    toast('Error: ' + e.message, 'error');
+    if (!silent) {
+      document.getElementById('tableBody').innerHTML = `<tr><td colspan="10" class="text-center py-16 text-gray-400">
+        <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+        <p class="font-medium text-gray-500">No se pudo conectar</p>
+        <p class="text-xs mt-1">${esc(e.message)}</p>
+        <button onclick="loadData()" class="mt-3 text-blue-600 hover:text-blue-800 text-xs font-medium">Reintentar</button>
+      </td></tr>`;
+    }
   } finally {
     btn.disabled = false;
     icon.classList.remove('animate-spin');
@@ -316,18 +390,16 @@ async function loadData() {
   }
 }
 
-// --- STATS ---
+// --- STATS + DONUT ---
 function updateStats() {
   const total = allRows.length;
-  let nuevo=0, citado=0, descartado=0, seleccionado=0, organizado=0;
+  let nuevo=0,citado=0,descartado=0,seleccionado=0;
   for (const row of allRows) {
-    const sit = (row[COL.SITUACION] || '').toLowerCase();
-    const acc = (row[COL.ACCION] || '').toLowerCase();
-    if (sit.includes('nuevo') || sit === '') nuevo++;
-    else if (sit.includes('citad')) citado++;
+    const sit = (row[COL.SITUACION]||'').toLowerCase();
+    if (sit.includes('citad')) citado++;
     else if (sit.includes('descart')) descartado++;
     else if (sit.includes('seleccion')) seleccionado++;
-    if (acc === 'organized') organizado++;
+    else nuevo++;
   }
   const pct = n => total ? Math.round(n/total*100) : 0;
   document.getElementById('statTotal').textContent = total;
@@ -335,140 +407,172 @@ function updateStats() {
   document.getElementById('statCitado').textContent = citado;
   document.getElementById('statDescartado').textContent = descartado;
   document.getElementById('statSeleccionado').textContent = seleccionado;
-  document.getElementById('statOrganizado').textContent = organizado;
   document.getElementById('pctNuevo').textContent = pct(nuevo)+'%';
   document.getElementById('pctCitado').textContent = pct(citado)+'%';
   document.getElementById('pctDescartado').textContent = pct(descartado)+'%';
   document.getElementById('pctSeleccionado').textContent = pct(seleccionado)+'%';
-  document.getElementById('pctOrganizado').textContent = pct(organizado)+'%';
   document.getElementById('barNuevo').style.width = pct(nuevo)+'%';
   document.getElementById('barCitado').style.width = pct(citado)+'%';
   document.getElementById('barDescartado').style.width = pct(descartado)+'%';
   document.getElementById('barSeleccionado').style.width = pct(seleccionado)+'%';
-  document.getElementById('barOrganizado').style.width = pct(organizado)+'%';
+  // Donut
+  const circ = 100;
+  const pN=total?nuevo/total*circ:0, pC=total?citado/total*circ:0, pD=total?descartado/total*circ:0, pS=total?seleccionado/total*circ:0;
+  let offset = 25;
+  setDonut('donutNuevo', pN, offset); offset -= pN;
+  setDonut('donutCitado', pC, offset); offset -= pC;
+  setDonut('donutDescartado', pD, offset); offset -= pD;
+  setDonut('donutSeleccionado', pS, offset);
+  document.getElementById('donutCenter').textContent = total;
+}
+
+function setDonut(id, pct, offset) {
+  const el = document.getElementById(id);
+  el.setAttribute('stroke-dasharray', `${pct} ${100-pct}`);
+  el.setAttribute('stroke-dashoffset', String(offset));
 }
 
 function filterByStat(val) {
   document.getElementById('filterSituacion').value = val;
-  applyFilters();
+  applyFilters(true);
 }
 
-// --- FILTERS ---
+// --- FILTERS + LOCALSTORAGE ---
+function saveFilters() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      sit: document.getElementById('filterSituacion').value,
+      mes: document.getElementById('filterMes').value,
+      pos: document.getElementById('filterPosicion').value,
+      search: document.getElementById('filterSearch').value
+    }));
+  } catch(e) {}
+}
+
+function restoreFilters() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!s) return;
+    if (s.sit) document.getElementById('filterSituacion').value = s.sit;
+    if (s.mes) document.getElementById('filterMes').value = s.mes;
+    if (s.pos) document.getElementById('filterPosicion').value = s.pos;
+    if (s.search) document.getElementById('filterSearch').value = s.search;
+  } catch(e) {}
+}
+
 function populateFilters() {
   const meses = new Set(), posiciones = new Set();
   for (const row of allRows) {
-    const m = (row[COL.MES]||'').trim(), p = (row[COL.POSICION]||'').trim();
-    if (m) meses.add(m);
-    if (p) posiciones.add(p);
+    const m=(row[COL.MES]||'').trim(), p=(row[COL.POSICION]||'').trim();
+    if (m) meses.add(m); if (p) posiciones.add(p);
   }
-  const selMes = document.getElementById('filterMes');
-  const selPos = document.getElementById('filterPosicion');
-  const curMes = selMes.value, curPos = selPos.value;
-  selMes.innerHTML = '<option value="">Todos</option>';
-  selPos.innerHTML = '<option value="">Todas</option>';
+  const selMes=document.getElementById('filterMes'), selPos=document.getElementById('filterPosicion');
+  const curMes=selMes.value, curPos=selPos.value;
+  selMes.innerHTML='<option value="">Todos</option>';
+  selPos.innerHTML='<option value="">Todas</option>';
   [...meses].sort().forEach(m => selMes.innerHTML += `<option value="${esc(m)}" ${m===curMes?'selected':''}>${esc(m)}</option>`);
   [...posiciones].sort().forEach(p => selPos.innerHTML += `<option value="${esc(p)}" ${p===curPos?'selected':''}>${esc(p)}</option>`);
 }
 
-function applyFilters() {
-  const sit = document.getElementById('filterSituacion').value.toLowerCase();
-  const mes = document.getElementById('filterMes').value;
-  const pos = document.getElementById('filterPosicion').value;
-  const search = document.getElementById('filterSearch').value.toLowerCase().trim();
+function applyFilters(save=false) {
+  const sit=document.getElementById('filterSituacion').value.toLowerCase();
+  const mes=document.getElementById('filterMes').value;
+  const pos=document.getElementById('filterPosicion').value;
+  searchTerm=document.getElementById('filterSearch').value.toLowerCase().trim();
 
   filteredRows = allRows.filter(row => {
     if (sit && !(row[COL.SITUACION]||'').toLowerCase().includes(sit)) return false;
-    if (mes && (row[COL.MES]||'').trim() !== mes) return false;
-    if (pos && (row[COL.POSICION]||'').trim() !== pos) return false;
-    if (search) {
-      const h = [row[COL.NOMBRE],row[COL.TELEFONO],row[COL.CORREO],row[COL.COMENTARIOS],row[COL.POSICION],row[COL.OFICINA]]
+    if (mes && (row[COL.MES]||'').trim()!==mes) return false;
+    if (pos && (row[COL.POSICION]||'').trim()!==pos) return false;
+    if (searchTerm) {
+      const h=[row[COL.NOMBRE],row[COL.TELEFONO],row[COL.CORREO],row[COL.COMENTARIOS],row[COL.POSICION],row[COL.OFICINA]]
         .map(v=>(v||'').toLowerCase()).join(' ');
-      if (!h.includes(search)) return false;
+      if (!h.includes(searchTerm)) return false;
     }
     return true;
   });
-
-  // Apply sort
-  if (sortCol !== null) doSort();
-
-  currentPage = 0;
+  if (sortCol) doSort();
+  currentPage=0;
   renderTable();
-
-  // Show/hide clear button
-  const hasFilter = sit || mes || pos || search;
+  const hasFilter=sit||mes||pos||searchTerm;
   document.getElementById('btnClear').classList.toggle('hidden', !hasFilter);
+  if (save) saveFilters();
 }
 
 function clearFilters() {
-  document.getElementById('filterSituacion').value = '';
-  document.getElementById('filterMes').value = '';
-  document.getElementById('filterPosicion').value = '';
-  document.getElementById('filterSearch').value = '';
-  sortCol = null; sortAsc = true;
-  document.querySelectorAll('th.sortable').forEach(th => { th.classList.remove('sorted-asc','sorted-desc'); });
-  applyFilters();
+  document.getElementById('filterSituacion').value='';
+  document.getElementById('filterMes').value='';
+  document.getElementById('filterPosicion').value='';
+  document.getElementById('filterSearch').value='';
+  sortCol=null; sortAsc=true;
+  document.querySelectorAll('th.sortable').forEach(th=>th.classList.remove('sorted-asc','sorted-desc'));
+  applyFilters(true);
 }
 
 // --- SORT ---
 function sortBy(th) {
-  const col = th.dataset.col;
-  if (sortCol === col) { sortAsc = !sortAsc; } else { sortCol = col; sortAsc = true; }
-  document.querySelectorAll('th.sortable').forEach(t => t.classList.remove('sorted-asc','sorted-desc'));
-  th.classList.add(sortAsc ? 'sorted-asc' : 'sorted-desc');
-  doSort();
-  currentPage = 0;
-  renderTable();
+  const col=th.dataset.col;
+  if (sortCol===col) sortAsc=!sortAsc; else { sortCol=col; sortAsc=true; }
+  document.querySelectorAll('th.sortable').forEach(t=>t.classList.remove('sorted-asc','sorted-desc'));
+  th.classList.add(sortAsc?'sorted-asc':'sorted-desc');
+  doSort(); currentPage=0; renderTable();
 }
 
 function doSort() {
   if (!sortCol) return;
-  const colIdx = sortCol === 'ROW' ? -1 : COL[sortCol];
-  filteredRows.sort((a, b) => {
-    let va, vb;
-    if (colIdx === -1) { va = allRows.indexOf(a); vb = allRows.indexOf(b); }
-    else { va = (a[colIdx]||'').toLowerCase(); vb = (b[colIdx]||'').toLowerCase(); }
-    if (va < vb) return sortAsc ? -1 : 1;
-    if (va > vb) return sortAsc ? 1 : -1;
-    return 0;
+  const ci = sortCol==='ROW' ? -1 : COL[sortCol];
+  filteredRows.sort((a,b)=>{
+    let va,vb;
+    if (ci===-1){va=allRows.indexOf(a);vb=allRows.indexOf(b);}
+    else{va=(a[ci]||'').toLowerCase();vb=(b[ci]||'').toLowerCase();}
+    return va<vb?(sortAsc?-1:1):va>vb?(sortAsc?1:-1):0;
   });
+}
+
+// --- HIGHLIGHT SEARCH ---
+function highlight(text) {
+  if (!searchTerm || !text) return esc(text);
+  const escaped = esc(text);
+  const re = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return escaped.replace(re, '<mark>$1</mark>');
 }
 
 // --- TABLE ---
 function renderTable() {
-  const tbody = document.getElementById('tableBody');
-  const start = currentPage * PAGE_SIZE;
-  const page = filteredRows.slice(start, start + PAGE_SIZE);
-  const totalPages = Math.ceil(filteredRows.length / PAGE_SIZE) || 1;
+  const tbody=document.getElementById('tableBody');
+  const start=currentPage*PAGE_SIZE;
+  const page=filteredRows.slice(start,start+PAGE_SIZE);
+  const totalPages=Math.ceil(filteredRows.length/PAGE_SIZE)||1;
 
-  if (page.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-16 text-gray-400">
+  if (!page.length) {
+    tbody.innerHTML=`<tr><td colspan="10" class="text-center py-16 text-gray-400">
       <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
       <p class="text-sm">Sin resultados</p></td></tr>`;
   } else {
     tbody.innerHTML = page.map(row => {
-      const gi = allRows.indexOf(row);
-      const sr = gi + 2;
-      const sit = (row[COL.SITUACION]||'Nuevo').trim();
-      const sitClass = getSitClass(sit);
-      const ck = selectedRows.has(sr) ? 'checked' : '';
-      const phone = (row[COL.TELEFONO]||'').trim();
-      const phoneLink = phone ? `<a href="tel:${phone}" class="text-gray-600 hover:text-blue-600 transition">${esc(phone)}</a>` : '<span class="text-gray-300">-</span>';
-      return `<tr class="border-t border-gray-50 row-hover">
+      const gi=allRows.indexOf(row), sr=gi+2;
+      const sit=(row[COL.SITUACION]||'Nuevo').trim();
+      const ck=selectedRows.has(sr)?'checked':'';
+      const phone=(row[COL.TELEFONO]||'').trim();
+      const email=(row[COL.CORREO]||'').trim();
+      const phoneHtml=phone?`<a href="tel:${esc(phone)}" class="text-gray-600 hover:text-blue-600 transition">${highlight(phone)}</a>`:'<span class="text-gray-300">-</span>';
+      const emailHtml=email?`<a href="mailto:${esc(email)}" class="text-gray-600 hover:text-blue-600 transition truncate block max-w-[140px]" title="${esc(email)}">${highlight(email)}</a>`:'<span class="text-gray-300">-</span>';
+      return `<tr class="border-t border-gray-50 row-hover" id="row-${sr}">
         <td class="px-3 py-2"><input type="checkbox" value="${sr}" ${ck} onchange="toggleRow(this)" class="rounded"></td>
         <td class="px-3 py-2 text-gray-300 text-xs">${sr}</td>
-        <td class="px-3 py-2 font-medium text-gray-800">${esc(row[COL.NOMBRE]||'')}</td>
+        <td class="px-3 py-2 font-medium text-gray-800">${highlight(row[COL.NOMBRE]||'')}</td>
         <td class="px-3 py-2 text-gray-500 hidden md:table-cell">${esc(row[COL.MES]||'')}</td>
-        <td class="px-3 py-2 text-gray-500 hidden lg:table-cell">${esc(row[COL.OFICINA]||'')}</td>
-        <td class="px-3 py-2 hidden sm:table-cell">${phoneLink}</td>
+        <td class="px-3 py-2 text-gray-500 hidden lg:table-cell">${highlight(row[COL.OFICINA]||'')}</td>
+        <td class="px-3 py-2 hidden sm:table-cell">${phoneHtml}</td>
+        <td class="px-3 py-2 hidden sm:table-cell">${emailHtml}</td>
         <td class="px-3 py-2">
-          <select class="sit-select ${sitClass}" data-row="${sr}" data-original="${esc(sit)}" onchange="updateSituacion(this)">
-            ${['Nuevo','Citado','Descartado','Seleccionado'].map(o =>
+          <select class="sit-select ${getSitClass(sit)}" data-row="${sr}" data-original="${esc(sit)}" onchange="updateSituacion(this)">
+            ${['Nuevo','Citado','Descartado','Seleccionado'].map(o=>
               `<option value="${o}" ${o.toLowerCase()===sit.toLowerCase()?'selected':''}>${o}</option>`
             ).join('')}
           </select>
         </td>
-        <td class="px-3 py-2 text-gray-500 hidden lg:table-cell text-xs">${esc(row[COL.POSICION]||'')}</td>
-        <td class="px-3 py-2 text-gray-400 max-w-[180px] truncate text-xs hidden xl:table-cell" title="${esc(row[COL.COMENTARIOS]||'')}">${esc(row[COL.COMENTARIOS]||'')}</td>
+        <td class="px-3 py-2 text-gray-500 hidden lg:table-cell text-xs">${highlight(row[COL.POSICION]||'')}</td>
         <td class="px-3 py-2 text-center">
           <button onclick="showDetail(${gi})" class="text-gray-400 hover:text-blue-600 transition p-1 rounded hover:bg-blue-50">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -478,240 +582,263 @@ function renderTable() {
     }).join('');
   }
 
-  document.getElementById('rowCount').textContent = `${filteredRows.length} de ${allRows.length} candidatos`;
-  document.getElementById('pageInfo').textContent = `${currentPage+1} / ${totalPages}`;
-  document.getElementById('btnPrev').disabled = currentPage === 0;
-  document.getElementById('btnNext').disabled = start + PAGE_SIZE >= filteredRows.length;
-  updateDeleteBtn();
+  document.getElementById('rowCount').textContent=`${filteredRows.length} de ${allRows.length} candidatos`;
+  document.getElementById('pageInfo').textContent=`${currentPage+1} / ${totalPages}`;
+  document.getElementById('btnPrev').disabled=currentPage===0;
+  document.getElementById('btnNext').disabled=start+PAGE_SIZE>=filteredRows.length;
+  updateBulkUI();
 }
 
-function prevPage() { if (currentPage > 0) { currentPage--; renderTable(); } }
-function nextPage() { if ((currentPage+1)*PAGE_SIZE < filteredRows.length) { currentPage++; renderTable(); } }
+function flashRow(sheetRow) {
+  const el=document.getElementById('row-'+sheetRow);
+  if (el) { el.classList.remove('row-flash'); void el.offsetWidth; el.classList.add('row-flash'); }
+}
+
+function prevPage(){if(currentPage>0){currentPage--;renderTable();}}
+function nextPage(){if((currentPage+1)*PAGE_SIZE<filteredRows.length){currentPage++;renderTable();}}
 
 function toggleAll(el) {
-  document.querySelectorAll('#tableBody input[type=checkbox]').forEach(cb => {
-    cb.checked = el.checked;
-    const r = parseInt(cb.value);
-    if (el.checked) selectedRows.add(r); else selectedRows.delete(r);
+  document.querySelectorAll('#tableBody input[type=checkbox]').forEach(cb=>{
+    cb.checked=el.checked;
+    const r=parseInt(cb.value);
+    if(el.checked)selectedRows.add(r);else selectedRows.delete(r);
   });
-  updateDeleteBtn();
+  updateBulkUI();
 }
 
 function toggleRow(el) {
-  const r = parseInt(el.value);
-  if (el.checked) selectedRows.add(r); else selectedRows.delete(r);
-  updateDeleteBtn();
+  const r=parseInt(el.value);
+  if(el.checked)selectedRows.add(r);else selectedRows.delete(r);
+  updateBulkUI();
 }
 
-function updateDeleteBtn() {
-  const n = selectedRows.size;
-  const btn = document.getElementById('btnDelete');
-  btn.classList.toggle('hidden', n === 0);
-  btn.classList.toggle('flex', n > 0);
-  document.getElementById('deleteCount').textContent = n;
+function updateBulkUI() {
+  const n=selectedRows.size;
+  const ba=document.getElementById('bulkActions');
+  ba.classList.toggle('hidden',n===0);
+  ba.classList.toggle('flex',n>0);
+  document.getElementById('deleteCount').textContent=n;
 }
 
 // --- EDIT ---
 async function updateSituacion(select) {
-  const row = select.dataset.row;
-  const value = select.value;
-  const original = select.dataset.original;
-  if (value === original) return;
-  select.disabled = true;
+  const row=select.dataset.row, value=select.value, original=select.dataset.original;
+  if(value===original) return;
+  select.disabled=true;
   try {
-    await apiCall({ action:'update_cell', range:`R${row}`, value });
-    select.dataset.original = value;
-    select.className = 'sit-select ' + getSitClass(value);
-    const idx = parseInt(row) - 2;
-    if (allRows[idx]) allRows[idx][COL.SITUACION] = value;
+    await apiCall({action:'update_cell',range:`R${row}`,value});
+    select.dataset.original=value;
+    select.className='sit-select '+getSitClass(value);
+    const idx=parseInt(row)-2;
+    if(allRows[idx])allRows[idx][COL.SITUACION]=value;
     updateStats();
-    toast(`${original} → ${value}`, 'success');
-  } catch (e) {
-    select.value = original;
-    toast('Error: ' + e.message, 'error');
-  } finally { select.disabled = false; }
+    flashRow(parseInt(row));
+    toast(`${original} → ${value}`,'success');
+  } catch(e){ select.value=original; toast('Error: '+e.message,'error'); }
+  finally{ select.disabled=false; }
 }
 
-async function updateField(colKey, sheetRow, newValue) {
-  const letter = COL_LETTER[colKey];
-  if (!letter) return;
+async function updateField(colKey,sheetRow,newValue) {
+  const letter=COL_LETTER[colKey];
+  if(!letter)return;
   try {
-    await apiCall({ action:'update_cell', range:`${letter}${sheetRow}`, value: newValue });
-    const idx = sheetRow - 2;
-    if (allRows[idx]) allRows[idx][COL[colKey]] = newValue;
-    if (colKey === 'SITUACION') updateStats();
-    toast(`${COL_LABELS[colKey]} actualizado`, 'success');
-  } catch (e) {
-    toast('Error: ' + e.message, 'error');
-    throw e;
+    await apiCall({action:'update_cell',range:`${letter}${sheetRow}`,value:newValue});
+    const idx=sheetRow-2;
+    if(allRows[idx])allRows[idx][COL[colKey]]=newValue;
+    if(colKey==='SITUACION')updateStats();
+    flashRow(sheetRow);
+    toast(`${COL_LABELS[colKey]} actualizado`,'success');
+  } catch(e){ toast('Error: '+e.message,'error'); throw e; }
+}
+
+// --- BULK CHANGE ---
+async function bulkChangeSituacion() {
+  const val=document.getElementById('bulkSituacion').value;
+  if(!val){toast('Selecciona una situacion','info');return;}
+  if(selectedRows.size===0)return;
+  const n=selectedRows.size;
+  const ok=await showConfirm(`Cambiar ${n} candidato(s) a "${val}"?`);
+  if(!ok)return;
+  let success=0;
+  for(const sr of [...selectedRows]){
+    try{
+      await apiCall({action:'update_cell',range:`R${sr}`,value:val});
+      const idx=sr-2;
+      if(allRows[idx])allRows[idx][COL.SITUACION]=val;
+      success++;
+    }catch(e){}
   }
+  updateStats(); renderTable();
+  toast(`${success}/${n} actualizados a ${val}`,'success');
+  document.getElementById('bulkSituacion').value='';
 }
 
 // --- DELETE ---
 async function deleteSelected() {
-  if (selectedRows.size === 0) return;
-  const n = selectedRows.size;
-  if (!confirm(`Eliminar ${n} fila(s) permanentemente?`)) return;
-  const rows = [...selectedRows].sort((a,b)=>a-b);
-  try {
-    await apiCall({ action:'delete_rows', rows });
-    toast(`${n} fila(s) eliminadas`, 'success');
+  if(selectedRows.size===0)return;
+  const n=selectedRows.size;
+  const ok=await showConfirm(`Eliminar ${n} fila(s) permanentemente?`);
+  if(!ok)return;
+  const rows=[...selectedRows].sort((a,b)=>a-b);
+  try{
+    await apiCall({action:'delete_rows',rows});
+    toast(`${n} fila(s) eliminadas`,'success');
     selectedRows.clear();
     await loadData();
-  } catch(e) { toast('Error: '+e.message, 'error'); }
+  }catch(e){toast('Error: '+e.message,'error');}
 }
 
 // --- DETAIL MODAL ---
 function showDetail(idx) {
-  modalRowIdx = idx;
-  const row = allRows[idx];
-  if (!row) return;
-  const sheetRow = idx + 2;
-  document.getElementById('modalTitle').textContent = row[COL.NOMBRE] || `Fila ${sheetRow}`;
-  document.getElementById('modalSubtitle').textContent = `Fila ${sheetRow} · ${row[COL.SITUACION]||'Nuevo'} · ${row[COL.POSICION]||'Sin posicion'}`;
+  modalRowIdx=idx;
+  modalFilteredIdx=filteredRows.indexOf(allRows[idx]);
+  renderModal();
+  const modal=document.getElementById('modal');
+  modal.classList.remove('hidden');
+  requestAnimationFrame(()=>modal.querySelector('.modal-panel').classList.add('open'));
+}
 
-  const sections = [
-    { title:'Datos personales', fields:['NOMBRE','RESIDENCIA','CORREO','TELEFONO'] },
-    { title:'Proceso', fields:['SITUACION','POSICION','OFICINA','FECHA','HORA','FUENTE'] },
-    { title:'Evaluacion', fields:['CONFIRMACION','CITADO_POR','ASISTENCIA','ENTREVISTADO_POR'] },
-    { title:'Resultado', fields:['MOTIVO_DESCARTE','MAIL_DESCARTE','COMENTARIOS'] },
-    { title:'Contrato', fields:['INICIO','FIN','CAUSA'] },
-    { title:'Sistema', fields:['ACCION','FILE_NAME','ULTIMO_SYNC'], readonly:true }
+function modalNav(dir) {
+  const newFi=modalFilteredIdx+dir;
+  if(newFi<0||newFi>=filteredRows.length)return;
+  modalFilteredIdx=newFi;
+  modalRowIdx=allRows.indexOf(filteredRows[newFi]);
+  renderModal();
+}
+
+function renderModal() {
+  const row=allRows[modalRowIdx];
+  if(!row)return;
+  const sheetRow=modalRowIdx+2;
+  document.getElementById('modalTitle').textContent=row[COL.NOMBRE]||`Fila ${sheetRow}`;
+  document.getElementById('modalSubtitle').textContent=`Fila ${sheetRow} · ${row[COL.SITUACION]||'Nuevo'} · ${row[COL.POSICION]||'Sin posicion'}`;
+  document.getElementById('modalPrev').disabled=modalFilteredIdx<=0;
+  document.getElementById('modalNext').disabled=modalFilteredIdx>=filteredRows.length-1;
+
+  const sections=[
+    {title:'Datos personales',fields:['NOMBRE','RESIDENCIA','CORREO','TELEFONO']},
+    {title:'Proceso',fields:['SITUACION','POSICION','OFICINA','FECHA','HORA','FUENTE']},
+    {title:'Evaluacion',fields:['CONFIRMACION','CITADO_POR','ASISTENCIA','ENTREVISTADO_POR']},
+    {title:'Resultado',fields:['MOTIVO_DESCARTE','MAIL_DESCARTE','COMENTARIOS']},
+    {title:'Contrato',fields:['INICIO','FIN','CAUSA']},
+    {title:'Sistema',fields:['ACCION','FILE_NAME','ULTIMO_SYNC'],readonly:true}
   ];
 
-  let html = '';
-  for (const sec of sections) {
-    html += `<div>
+  let html='';
+  for(const sec of sections){
+    html+=`<div>
       <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">${sec.title}</h3>
       <div class="grid grid-cols-2 gap-x-4 gap-y-2">`;
-    for (const key of sec.fields) {
-      const val = row[COL[key]] || '';
-      const label = COL_LABELS[key] || key;
-      const editable = !sec.readonly && EDITABLE_FIELDS.includes(key);
-      if (editable && key === 'SITUACION') {
-        const sitClass = getSitClass(val||'Nuevo');
-        html += `<div class="col-span-2 field-edit p-2">
+    for(const key of sec.fields){
+      const val=row[COL[key]]||'';
+      const label=COL_LABELS[key]||key;
+      const editable=!sec.readonly&&EDITABLE_FIELDS.includes(key);
+      if(editable&&key==='SITUACION'){
+        html+=`<div class="col-span-2 field-edit p-2">
           <label class="text-[11px] text-gray-400 block mb-1">${esc(label)}</label>
-          <select onchange="modalUpdateField('${key}',${sheetRow},this.value)" class="sit-select ${sitClass} text-sm">
-            ${['Nuevo','Citado','Descartado','Seleccionado'].map(o =>
+          <select onchange="modalUpdateField('${key}',${sheetRow},this.value)" class="sit-select ${getSitClass(val||'Nuevo')} text-sm">
+            ${['Nuevo','Citado','Descartado','Seleccionado'].map(o=>
               `<option value="${o}" ${o.toLowerCase()===(val||'nuevo').toLowerCase()?'selected':''}>${o}</option>`
             ).join('')}
           </select>
         </div>`;
-      } else if (editable) {
-        html += `<div class="field-edit p-2 ${key==='COMENTARIOS'||key==='MOTIVO_DESCARTE'?'col-span-2':''}">
+      } else if(editable){
+        html+=`<div class="field-edit p-2 ${key==='COMENTARIOS'||key==='MOTIVO_DESCARTE'?'col-span-2':''}">
           <label class="text-[11px] text-gray-400 block mb-1">${esc(label)}</label>
-          <input type="text" value="${esc(val)}" data-key="${key}" data-row="${sheetRow}" data-original="${esc(val)}"
+          <input type="${key==='CORREO'?'email':key==='TELEFONO'?'tel':'text'}" value="${esc(val)}" data-key="${key}" data-row="${sheetRow}" data-original="${esc(val)}"
             onblur="handleFieldBlur(this)" onkeydown="if(event.key==='Enter')this.blur()"
-            class="text-sm text-gray-800 w-full" placeholder="Sin datos">
+            class="text-sm text-gray-800 w-full" placeholder="-">
         </div>`;
       } else {
-        html += `<div class="p-2 ${sec.readonly?'opacity-50':''}">
+        html+=`<div class="p-2 ${sec.readonly?'opacity-50':''}">
           <p class="text-[11px] text-gray-400 mb-0.5">${esc(label)}</p>
-          <p class="text-sm text-gray-700 ${val?'':'italic text-gray-300'}">${val ? esc(val) : '-'}</p>
+          <p class="text-sm text-gray-700 ${val?'':'italic text-gray-300'}">${val?esc(val):'-'}</p>
         </div>`;
       }
     }
-    html += '</div></div>';
+    html+='</div></div>';
   }
-
-  document.getElementById('modalContent').innerHTML = html;
-  const modal = document.getElementById('modal');
-  modal.classList.remove('hidden');
-  requestAnimationFrame(() => modal.querySelector('.modal-panel').classList.add('open'));
+  document.getElementById('modalContent').innerHTML=html;
 }
 
 async function handleFieldBlur(input) {
-  const key = input.dataset.key;
-  const row = parseInt(input.dataset.row);
-  const original = input.dataset.original;
-  const val = input.value.trim();
-  if (val === original) return;
-  input.style.opacity = '0.5';
-  try {
-    await updateField(key, row, val);
-    input.dataset.original = val;
-    if (key === 'NOMBRE') {
-      document.getElementById('modalTitle').textContent = val || `Fila ${row}`;
-    }
+  const key=input.dataset.key, row=parseInt(input.dataset.row);
+  const original=input.dataset.original, val=input.value.trim();
+  if(val===original)return;
+  input.style.opacity='0.5';
+  try{
+    await updateField(key,row,val);
+    input.dataset.original=val;
+    if(key==='NOMBRE') document.getElementById('modalTitle').textContent=val||`Fila ${row}`;
     renderTable();
-  } catch(e) { input.value = original; }
-  input.style.opacity = '1';
+  }catch(e){input.value=original;}
+  input.style.opacity='1';
 }
 
-async function modalUpdateField(key, row, val) {
-  try {
-    await updateField(key, row, val);
+async function modalUpdateField(key,row,val) {
+  try{
+    await updateField(key,row,val);
     renderTable();
-    // Refresh subtitle
-    const r = allRows[row-2];
-    if (r) document.getElementById('modalSubtitle').textContent = `Fila ${row} · ${r[COL.SITUACION]||'Nuevo'} · ${r[COL.POSICION]||'Sin posicion'}`;
-  } catch(e) {}
+    const r=allRows[row-2];
+    if(r)document.getElementById('modalSubtitle').textContent=`Fila ${row} · ${r[COL.SITUACION]||'Nuevo'} · ${r[COL.POSICION]||'Sin posicion'}`;
+  }catch(e){}
 }
 
 function closeModal() {
-  const panel = document.querySelector('.modal-panel');
-  panel.classList.remove('open');
-  setTimeout(() => document.getElementById('modal').classList.add('hidden'), 250);
-  modalRowIdx = -1;
+  document.querySelector('.modal-panel').classList.remove('open');
+  setTimeout(()=>document.getElementById('modal').classList.add('hidden'),250);
+  modalRowIdx=-1; modalFilteredIdx=-1;
 }
 
 // --- EXPORT CSV ---
 function exportCSV() {
-  if (filteredRows.length === 0) { toast('Sin datos para exportar', 'info'); return; }
-  const visibleCols = ['NOMBRE','MES','OFICINA','RESIDENCIA','FECHA','TELEFONO','CORREO','SITUACION','POSICION','COMENTARIOS'];
-  const csvHeaders = visibleCols.map(k => COL_LABELS[k]);
-  const csvRows = filteredRows.map(row => visibleCols.map(k => {
-    const v = (row[COL[k]]||'').replace(/"/g,'""');
-    return `"${v}"`;
-  }));
-  const csv = [csvHeaders.join(','), ...csvRows.map(r=>r.join(','))].join('\n');
-  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `candidatos_${new Date().toISOString().split('T')[0]}.csv`;
+  if(!filteredRows.length){toast('Sin datos','info');return;}
+  const cols=['NOMBRE','MES','OFICINA','RESIDENCIA','FECHA','TELEFONO','CORREO','SITUACION','POSICION','COMENTARIOS'];
+  const hdr=cols.map(k=>COL_LABELS[k]);
+  const rows=filteredRows.map(row=>cols.map(k=>`"${(row[COL[k]]||'').replace(/"/g,'""')}"`));
+  const csv=[hdr.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`candidatos_${new Date().toISOString().split('T')[0]}.csv`;
   a.click();
-  URL.revokeObjectURL(url);
-  toast(`${filteredRows.length} filas exportadas`, 'success');
+  URL.revokeObjectURL(a.href);
+  toast(`${filteredRows.length} filas exportadas`,'success');
 }
 
 // --- UTILS ---
-function esc(str) {
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
+function esc(str) { const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
 
 function getSitClass(sit) {
-  const s = (sit||'').toLowerCase();
-  if (s.includes('citad')) return 'sit-citado';
-  if (s.includes('descart')) return 'sit-descartado';
-  if (s.includes('seleccion')) return 'sit-seleccionado';
-  return 'sit-nuevo';
+  const s=(sit||'').toLowerCase();
+  if(s.includes('citad'))return'sit-citado';
+  if(s.includes('descart'))return'sit-descartado';
+  if(s.includes('seleccion'))return'sit-seleccionado';
+  return'sit-nuevo';
 }
 
-function toast(msg, type='info') {
-  const c = document.getElementById('toasts');
-  const colors = {success:'bg-emerald-600',error:'bg-red-600',info:'bg-gray-700'};
-  const icons = {success:'&#10003;',error:'&#10007;',info:'&#8505;'};
-  const el = document.createElement('div');
-  el.className = `toast ${colors[type]||colors.info} text-white px-4 py-2.5 rounded-lg shadow-lg text-sm flex items-center gap-2 max-w-xs`;
-  el.innerHTML = `<span class="text-xs">${icons[type]||''}</span> ${esc(msg)}`;
+function toast(msg,type='info') {
+  const c=document.getElementById('toasts');
+  const colors={success:'bg-emerald-600',error:'bg-red-600',info:'bg-gray-700'};
+  const icons={success:'&#10003;',error:'&#10007;',info:'&#8505;'};
+  const el=document.createElement('div');
+  el.className=`toast ${colors[type]||colors.info} text-white px-4 py-2.5 rounded-lg shadow-lg text-sm flex items-center gap-2 max-w-xs`;
+  el.innerHTML=`<span class="text-xs">${icons[type]||''}</span> ${esc(msg)}`;
   c.appendChild(el);
-  setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity 0.3s'; setTimeout(()=>el.remove(),300); }, 3500);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity 0.3s';setTimeout(()=>el.remove(),300);},3500);
 }
 
-// Keyboard shortcuts
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
-  if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
-  if (e.key === 'ArrowLeft') prevPage();
-  if (e.key === 'ArrowRight') nextPage();
-  if (e.key === 'r' && !e.ctrlKey && !e.metaKey) loadData();
+// Keyboard
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){if(confirmResolve)confirmCancel();else closeModal();}
+  if(document.activeElement.tagName==='INPUT'||document.activeElement.tagName==='SELECT')return;
+  if(e.key==='ArrowLeft')prevPage();
+  if(e.key==='ArrowRight')nextPage();
+  if(e.key==='r'&&!e.ctrlKey&&!e.metaKey)loadData();
 });
 
 // --- INIT ---
+restoreFilters();
 loadData();
 </script>
 </body>
