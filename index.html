@@ -47,6 +47,25 @@ tailwind.config = { theme: { extend: { colors: {
   .donut-ring { transition: stroke-dashoffset 0.6s ease; }
   .login-card { animation: fadeIn 0.3s ease-out; }
   .masked { letter-spacing: 0.5px; }
+  /* Nav tabs */
+  .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 16px; border-radius: 10px; font-size: 11px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: all 0.15s; position: relative; }
+  .nav-tab:hover { color: #64748b; background: #f1f5f9; }
+  .nav-tab.active { color: #2563eb; }
+  .nav-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 20px; height: 2px; background: #2563eb; border-radius: 1px; }
+  .nav-tab svg { width: 20px; height: 20px; }
+  .tab-section { display: none; }
+  .tab-section.active { display: block; }
+  /* Bottom nav on mobile */
+  @media (max-width: 767px) {
+    #topNav { display: none !important; }
+    #bottomNav { display: flex !important; }
+    body.logged-in { padding-bottom: 64px; }
+    .nav-tab::after { display: none !important; }
+    .nav-tab.active { color: #2563eb; background: #eff6ff; }
+  }
+  @media (min-width: 768px) {
+    #bottomNav { display: none !important; }
+  }
 </style>
 </head>
 <body class="min-h-screen">
@@ -149,6 +168,31 @@ tailwind.config = { theme: { extend: { colors: {
   </div>
 </header>
 
+<!-- Top Nav (desktop) -->
+<nav id="topNav" class="bg-white border-b border-gray-100">
+  <div class="flex justify-center gap-1 py-1.5">
+    <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 7a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zm-10-2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1v-5z"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-tab" onclick="switchTab('database')" data-tab="database">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+      Database
+    </button>
+    <button class="nav-tab" onclick="switchTab('statistics')" data-tab="statistics">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      Statistics
+    </button>
+    <button class="nav-tab" onclick="switchTab('configure')" data-tab="configure">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Configure
+    </button>
+  </div>
+</nav>
+
+<!-- ==================== TAB: DASHBOARD ==================== -->
+<div id="tab-dashboard" class="tab-section active">
+
 <!-- Stats + Donut -->
 <div class="max-w-[1400px] mx-auto px-4 py-4">
   <div class="flex gap-4 items-start">
@@ -207,6 +251,11 @@ tailwind.config = { theme: { extend: { colors: {
     </div>
   </div>
 </div>
+
+</div><!-- end tab-dashboard -->
+
+<!-- ==================== TAB: DATABASE ==================== -->
+<div id="tab-database" class="tab-section">
 
 <!-- Filters -->
 <div class="max-w-[1400px] mx-auto px-4 pb-3">
@@ -302,6 +351,34 @@ tailwind.config = { theme: { extend: { colors: {
     <span>Datos protegidos por RGPD (UE 2016/679) y LOPD-GDD (LO 3/2018) &mdash; Acceso exclusivo para personal autorizado de La Casa Agency</span>
   </div>
 </div>
+
+</div><!-- end tab-database -->
+
+<!-- ==================== TAB: STATISTICS ==================== -->
+<div id="tab-statistics" class="tab-section">
+<div class="max-w-[1400px] mx-auto px-4 py-8">
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+    <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    </div>
+    <h2 class="text-lg font-bold text-gray-800 mb-1">Statistics</h2>
+    <p class="text-sm text-gray-400">Proximamente: graficos de tendencias, metricas de conversion y reportes avanzados.</p>
+  </div>
+</div>
+</div><!-- end tab-statistics -->
+
+<!-- ==================== TAB: CONFIGURE ==================== -->
+<div id="tab-configure" class="tab-section">
+<div class="max-w-[1400px] mx-auto px-4 py-8">
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+    <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    </div>
+    <h2 class="text-lg font-bold text-gray-800 mb-1">Configure</h2>
+    <p class="text-sm text-gray-400">Proximamente: configuracion de notificaciones, usuarios y preferencias del sistema.</p>
+  </div>
+</div>
+</div><!-- end tab-configure -->
 
 <!-- Detail Modal -->
 <div id="modal" class="fixed inset-0 z-40 hidden">
@@ -402,6 +479,28 @@ tailwind.config = { theme: { extend: { colors: {
   </div>
 </div>
 
+<!-- Bottom Nav (mobile) -->
+<nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 px-2 pb-[env(safe-area-inset-bottom)]" style="display:none;">
+  <div class="flex justify-around py-1.5">
+    <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 7a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zm-10-2a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1v-5z"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-tab" onclick="switchTab('database')" data-tab="database">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+      Database
+    </button>
+    <button class="nav-tab" onclick="switchTab('statistics')" data-tab="statistics">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      Statistics
+    </button>
+    <button class="nav-tab" onclick="switchTab('configure')" data-tab="configure">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Configure
+    </button>
+  </div>
+</nav>
+
 </div><!-- end dashboardScreen -->
 
 <script>
@@ -489,6 +588,16 @@ let lastActivity = Date.now();
 let sessionTimerId = null;
 let waSelectedTemplate = null;
 let waPasswordOk = false;
+let activeTab = 'dashboard';
+
+// ==================== TAB NAVIGATION ====================
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.nav-tab[data-tab="' + tab + '"]').forEach(t => t.classList.add('active'));
+}
 
 // ==================== AUTH ====================
 // Pure JS SHA-256 (works on HTTP and file:// too, no crypto.subtle needed)
@@ -553,6 +662,7 @@ function doLogout() {
   allRows = []; filteredRows = []; headers = [];
   document.getElementById('dashboardScreen').classList.add('hidden');
   document.getElementById('loginScreen').classList.remove('hidden');
+  document.body.classList.remove('logged-in');
   document.getElementById('loginPassword').value = '';
   document.getElementById('loginPassword').focus();
 }
@@ -571,6 +681,7 @@ function checkSession() {
 function showDashboard() {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('dashboardScreen').classList.remove('hidden');
+  document.body.classList.add('logged-in');
   restoreFilters();
   loadData();
   startSessionTimer();
@@ -754,6 +865,7 @@ function setDonut(id, pct, offset) {
 function filterByStat(val) {
   document.getElementById('filterSituacion').value = val;
   applyFilters(true);
+  switchTab('database');
 }
 
 // ==================== FILTERS + LOCALSTORAGE ====================
