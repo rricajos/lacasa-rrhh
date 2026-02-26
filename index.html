@@ -32,6 +32,13 @@ tailwind.config = { theme: { extend: {
        text-xl    = 20px  → page titles
        text-2xl   = 24px  → stat numbers, hero numbers
 
+     TYPOGRAPHY PATTERNS (use these combos):
+       Card header (h2):    text-sm font-bold text-gray-800 uppercase tracking-wider
+       Sub-header (p):      text-2xs font-semibold text-gray-500 uppercase tracking-wider
+       Widget label (p):    text-2xs font-semibold text-gray-400 uppercase tracking-wider
+       Form label:          text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1
+       Modal title (h3):    text-sm font-bold text-gray-800
+
      COLORS (use brand-* instead of blue-*):
        brand-50   #eff6ff  → active nav bg, subtle highlights
        brand-100  #dbeafe  → badges bg, info bg
@@ -423,7 +430,7 @@ tailwind.config = { theme: { extend: {
 
   <!-- Por Situación -->
   <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Por situación</p>
+    <p class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Por situación</p>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
       <div class="stat-card bg-white rounded-xl p-3.5 shadow-sm border border-gray-100" onclick="filterByStat('')">
         <p class="text-2xl font-bold text-gray-800" id="statTotal">-</p>
@@ -467,7 +474,7 @@ tailwind.config = { theme: { extend: {
   <!-- Por Posición -->
   <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
     <div class="flex items-center justify-between mb-3">
-      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Por posición</p>
+      <p class="text-2xs font-semibold text-gray-500 uppercase tracking-wider">Por posición</p>
       <button onclick="crudAdd('posicion')" class="text-gray-300 hover:text-brand-600 hover:bg-brand-50 p-1 rounded-md transition" title="Añadir posición">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       </button>
@@ -480,7 +487,7 @@ tailwind.config = { theme: { extend: {
   <!-- Por Oficina -->
   <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
     <div class="flex items-center justify-between mb-3">
-      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Por oficina</p>
+      <p class="text-2xs font-semibold text-gray-500 uppercase tracking-wider">Por oficina</p>
       <button onclick="crudAdd('oficina')" class="text-gray-300 hover:text-brand-600 hover:bg-brand-50 p-1 rounded-md transition" title="Añadir oficina">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       </button>
@@ -733,9 +740,7 @@ tailwind.config = { theme: { extend: {
       <button onclick="openCampaignForm()" class="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">+ Nueva</button>
     </div>
   </div>
-  <div id="campaignList" class="space-y-3">
-    <p class="text-gray-300 text-sm text-center py-8">Sin campañas creadas</p>
-  </div>
+  <div id="campaignList" class="space-y-3"></div>
 </div>
 </div><!-- end tab-campaigns -->
 
@@ -745,28 +750,28 @@ tailwind.config = { theme: { extend: {
   <div class="confirm-modal relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
     <div class="sticky top-0 bg-white border-b px-5 py-4 rounded-t-2xl z-10">
       <div class="flex justify-between items-center">
-        <h3 id="campaignModalTitle" class="font-bold text-gray-800">Nueva campaña</h3>
+        <h3 id="campaignModalTitle" class="text-sm font-bold text-gray-800">Nueva campaña</h3>
         <button onclick="closeCampaignModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Cerrar">&times;</button>
       </div>
     </div>
     <div class="p-5 space-y-4">
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Nombre</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Nombre</label>
         <input id="campName" type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Nombre de la campaña">
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Canal</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Canal</label>
         <div class="flex gap-2">
           <button onclick="setCampChannel('whatsapp')" id="campChWA" class="flex-1 p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-center text-sm transition">WhatsApp</button>
           <button onclick="setCampChannel('email')" id="campChEmail" class="flex-1 p-3 rounded-xl border-2 border-gray-100 text-center text-sm transition">Email</button>
         </div>
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Contenido del mensaje</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Contenido del mensaje</label>
         <textarea id="campContent" rows="4" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-y" placeholder="Contenido..."></textarea>
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Destinatarios (filtro)</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Destinatarios (filtro)</label>
         <div class="grid grid-cols-2 gap-2">
           <select id="campFilterSit" onchange="updateCampRecipientCount()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5">
             <option value="">Todas situaciones</option>
@@ -781,11 +786,11 @@ tailwind.config = { theme: { extend: {
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Fecha programada</label>
+          <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Fecha programada</label>
           <input id="campDate" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
         </div>
         <div>
-          <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Hora</label>
+          <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Hora</label>
           <input id="campTime" type="time" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
         </div>
       </div>
@@ -877,21 +882,21 @@ tailwind.config = { theme: { extend: {
     <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">WhatsApp — Créditos y Facturación</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Créditos totales</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Créditos totales</label>
         <input id="masterCreditsTotal" type="number" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" value="0">
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Créditos usados</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Créditos usados</label>
         <p id="masterCreditsUsed" class="text-2xl font-bold text-gray-800 py-1">0</p>
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Precio por mensaje (&euro;)</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Precio por mensaje (&euro;)</label>
         <input id="masterPricePerMsg" type="number" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" value="0.05">
       </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Fecha expiración</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Fecha expiración</label>
         <input id="masterCreditsExpiry" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
       </div>
       <div class="flex items-end">
@@ -913,19 +918,19 @@ tailwind.config = { theme: { extend: {
     <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Configuración SMTP (Email)</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Servidor SMTP</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Servidor SMTP</label>
         <input id="smtpHost" type="text" placeholder="smtp.gmail.com" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Puerto</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Puerto</label>
         <input id="smtpPort" type="number" placeholder="587" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Email</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Email</label>
         <input id="smtpUser" type="email" placeholder="user@company.com" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Password</label>
+        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Password</label>
         <input id="smtpPass" type="password" placeholder="App password..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
       </div>
     </div>
@@ -938,7 +943,7 @@ tailwind.config = { theme: { extend: {
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Claves API</h2>
     <div>
-      <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">OpenAI API Key</label>
+      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">OpenAI API Key</label>
       <input id="masterOpenAIKey" type="password" placeholder="sk-proj-..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
     </div>
     <button onclick="saveMasterAPIKeys()" class="mt-4 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar</button>
@@ -955,7 +960,7 @@ tailwind.config = { theme: { extend: {
       <span id="driveShareStatus" class="text-2xs text-gray-400"></span>
     </div>
     <div class="mt-3">
-      <label class="text-2xs text-gray-400 font-medium uppercase block mb-1">Compartir con email específico</label>
+      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Compartir con email específico</label>
       <div class="flex gap-2">
         <input id="driveShareEmail" type="email" placeholder="usuario@email.com" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
         <button onclick="shareDriveWithEmail()" class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition">Compartir</button>
@@ -3866,7 +3871,28 @@ function renderCampaignList() {
   const campaigns = getCampaigns();
   const el = document.getElementById('campaignList');
   if (!el) return;
-  if (campaigns.length === 0) { el.innerHTML = '<p class="text-gray-300 text-sm text-center py-8">Sin campañas creadas</p>'; return; }
+  if (campaigns.length === 0) {
+    el.innerHTML = `
+      <p class="text-2xs text-gray-400 uppercase tracking-wider font-semibold mb-2">Ejemplos de campañas</p>
+      <div class="opacity-40 pointer-events-none space-y-3">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 border-dashed p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2"><span class="text-base">💬</span><h3 class="font-semibold text-gray-800 text-sm">Bienvenida nuevos candidatos</h3><span class="px-2 py-0.5 rounded-full text-2xs font-medium bg-brand-100 text-brand-700">Programada</span></div>
+          </div>
+          <p class="text-xs text-gray-500 line-clamp-2">Hola {nombre}, gracias por inscribirte en La Casa Agency. Te informamos que tu candidatura para {posicion} está siendo revisada...</p>
+          <div class="flex gap-3 mt-2 text-2xs text-gray-400"><span>Programada: 2026-03-01 09:00</span><span>Por: Admin</span></div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 border-dashed p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2"><span class="text-base">📧</span><h3 class="font-semibold text-gray-800 text-sm">Recordatorio entrevistas semana</h3><span class="px-2 py-0.5 rounded-full text-2xs font-medium bg-gray-100 text-gray-700">Borrador</span></div>
+          </div>
+          <p class="text-xs text-gray-500 line-clamp-2">Estimado/a {nombre}, le recordamos que tiene una entrevista programada para el día {fecha} a las {hora} en nuestra oficina de {oficina}...</p>
+          <div class="flex gap-3 mt-2 text-2xs text-gray-400"><span>Por: Admin</span></div>
+        </div>
+      </div>
+      <p class="text-xs text-gray-400 text-center mt-4">Pulsa <strong>+ Nueva</strong> para crear tu primera campaña</p>`;
+    return;
+  }
   const cfg = { draft: { label:'Borrador', color:'gray' }, scheduled: { label:'Programada', color:'blue' },
     sending: { label:'Enviando', color:'amber' }, completed: { label:'Completada', color:'emerald' }, failed: { label:'Fallida', color:'red' } };
   el.innerHTML = campaigns.slice().reverse().map(c => {
