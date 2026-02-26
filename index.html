@@ -91,6 +91,9 @@ tailwind.config = { theme: { extend: {
   .modal-backdrop { background: rgba(15,23,42,0.5); backdrop-filter: blur(2px); }
   .modal-panel { transform: translateX(100%); transition: transform 0.25s ease-out; }
   .modal-panel.open { transform: translateX(0); }
+  .cv-split-panel { left:0; right:36rem; transform:translateX(100%); transition:transform 0.3s ease-out 0.1s; }
+  .cv-split-panel.open { transform:translateX(0); }
+  @media (max-width:1023px) { .cv-split-panel { display:none !important; } }
   .sit-select { appearance: none; padding: 3px 22px 3px 8px; border-radius: 9999px; border: none; font-size: 10px; font-weight: 600; cursor: pointer; text-transform: uppercase; background-repeat: no-repeat; background-position: right 6px center; background-size: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); }
   .sit-nuevo { background-color: #dbeafe; color: #1e40af; }
   .sit-citado { background-color: #ffedd5; color: #9a3412; }
@@ -403,6 +406,7 @@ tailwind.config = { theme: { extend: {
         <span id="headerUserName" class="text-2xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded-full"></span>
       </div>
       <span id="sessionTimer" class="text-2xs text-gray-400 tabular-nums" title="Tiempo hasta cierre de sesión"></span>
+      <span id="dataAge" class="text-2xs text-gray-400 cursor-pointer hover:underline hidden" onclick="loadData()" title="Clic para refrescar datos"></span>
       <button onclick="doLogout()" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Cerrar sesion" aria-label="Cerrar sesion">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
       </button>
@@ -705,7 +709,7 @@ tailwind.config = { theme: { extend: {
       <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Buscar</label>
       <div class="relative">
         <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input id="filterSearch" type="text" placeholder="Nombre, teléfono, email..." oninput="applyFilters(true)" class="w-full text-sm border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
+        <input id="filterSearch" type="text" placeholder="Buscar candidato... (/)" oninput="clearTimeout(searchDebounce);searchDebounce=setTimeout(()=>applyFilters(true),300)" class="w-full text-sm border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
       </div>
     </div>
     <button onclick="clearFilters()" id="btnClear" class="text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg text-xs hover:bg-gray-100 transition hidden" title="Limpiar filtros">
@@ -1034,6 +1038,25 @@ tailwind.config = { theme: { extend: {
 <!-- Detail Modal -->
 <div id="modal" class="fixed inset-0 z-40 hidden">
   <div class="modal-backdrop absolute inset-0" onclick="closeModal()"></div>
+  <!-- CV Split Panel (behind edit panel via DOM order) -->
+  <div id="cvSplitPanel" class="cv-split-panel absolute top-0 h-full bg-gray-50 border-l border-gray-200 hidden">
+    <div class="flex items-center justify-between px-4 py-2.5 bg-white border-b border-gray-100">
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-6 h-6 rounded bg-brand-50 flex items-center justify-center flex-shrink-0">
+          <svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <span id="cvSplitName" class="text-xs font-medium text-gray-700 truncate">CV</span>
+      </div>
+      <a id="cvSplitDriveLink" href="#" target="_blank" rel="noopener" class="text-2xs text-brand-500 hover:text-brand-700 font-medium flex items-center gap-1 transition">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        Abrir en Drive
+      </a>
+    </div>
+    <div id="cvSplitLoading" class="flex items-center justify-center h-[calc(100%-41px)]">
+      <p class="text-xs text-gray-400">Cargando CV...</p>
+    </div>
+    <iframe id="cvSplitFrame" class="w-full bg-white hidden" style="height:calc(100% - 41px);border:none" src=""></iframe>
+  </div>
   <div class="modal-panel absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl overflow-y-auto">
     <div class="sticky top-0 bg-white/95 backdrop-blur-sm border-b px-6 py-4 z-10">
       <div class="flex justify-between items-center">
@@ -1042,6 +1065,9 @@ tailwind.config = { theme: { extend: {
           <p class="text-xs text-gray-400" id="modalSubtitle"></p>
         </div>
         <div class="flex items-center gap-1 ml-3">
+          <button id="modalCvBtn" onclick="openCvMobile()" class="lg:hidden text-brand-500 hover:text-brand-700 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-brand-50 transition hidden" title="Ver CV" aria-label="Ver CV">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </button>
           <button onclick="modalNav(-1)" id="modalPrev" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition" title="Anterior" aria-label="Candidato anterior">&#8249;</button>
           <button onclick="modalNav(1)" id="modalNext" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition" title="Siguiente" aria-label="Candidato siguiente">&#8250;</button>
           <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition ml-1" aria-label="Cerrar">&times;</button>
@@ -1279,6 +1305,10 @@ let activeTab = 'dashboard';
 let currentUser = null;
 let aiMessages = [];
 let aiPanelOpen = false;
+let lastDataRefresh = 0;
+let searchDebounce = null;
+let cvSplitBlobUrl = null;
+let cvSplitCurrentFileId = null;
 let editingCampaignId = null;
 let campChannel = 'whatsapp';
 
@@ -1531,21 +1561,56 @@ function maskEmail(email) {
 }
 
 // ==================== API ====================
-async function apiCall(body) {
-  if (!checkSession()) throw new Error('Sesión expirada');
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+async function apiCall(body, { retries = 2, timeout = 15000 } = {}) {
+  if (!checkSession()) throw new Error('Sesion expirada');
   body.token = API_TOKEN;
-  const resp = await fetch(WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-  const data = await resp.json();
-  if (data.error === 'Unauthorized') throw new Error('Token no válido');
-  return data;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeout);
+    try {
+      const resp = await fetch(WEBHOOK_URL, {
+        method: 'POST', signal: ctrl.signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      clearTimeout(timer);
+      if (resp.status === 429 || resp.status >= 500) {
+        if (attempt < retries) {
+          toast(`Reintentando (${attempt + 1}/${retries})...`, 'info');
+          await sleep(1000 * (attempt + 1));
+          continue;
+        }
+      }
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      if (data.error === 'Unauthorized') throw new Error('Token no valido');
+      return data;
+    } catch (e) {
+      clearTimeout(timer);
+      if (e.name === 'AbortError') {
+        if (attempt < retries) { await sleep(1000 * (attempt + 1)); continue; }
+        throw new Error('Tiempo de espera agotado');
+      }
+      if (attempt >= retries) throw e;
+      await sleep(1000 * (attempt + 1));
+    }
+  }
 }
 
+function updateDataAge() {
+  const el = document.getElementById('dataAge');
+  if (!el) return;
+  if (!lastDataRefresh) { el.classList.add('hidden'); return; }
+  const mins = Math.floor((Date.now() - lastDataRefresh) / 60000);
+  el.textContent = mins < 1 ? 'Datos: ahora' : `Datos: hace ${mins}m`;
+  el.classList.remove('hidden', 'text-gray-400', 'text-orange-500', 'text-red-500');
+  el.classList.add(mins > 15 ? 'text-red-500' : mins > 5 ? 'text-orange-500' : 'text-gray-400');
+}
+setInterval(updateDataAge, 30000);
+
 // ==================== CONFIRM MODAL ====================
+let confirmKeyHandler = null;
 function showConfirm(msg) {
   return new Promise(resolve => {
     confirmResolve = resolve;
@@ -1553,11 +1618,21 @@ function showConfirm(msg) {
     const m = document.getElementById('confirmModal');
     m.style.display = 'flex';
     m.classList.remove('hidden');
+    const btn = document.getElementById('confirmBtn');
+    if (btn) btn.focus();
+    confirmKeyHandler = e => {
+      if (e.key === 'Enter') { e.preventDefault(); confirmOk(); }
+      else if (e.key === 'Escape') { e.preventDefault(); confirmCancel(); }
+    };
+    document.addEventListener('keydown', confirmKeyHandler);
   });
 }
 function confirmOk() { if (confirmResolve) confirmResolve(true); confirmResolve=null; hideConfirm(); }
 function confirmCancel() { if (confirmResolve) confirmResolve(false); confirmResolve=null; hideConfirm(); }
-function hideConfirm() { const m=document.getElementById('confirmModal'); m.style.display='none'; m.classList.add('hidden'); }
+function hideConfirm() {
+  const m=document.getElementById('confirmModal'); m.style.display='none'; m.classList.add('hidden');
+  if (confirmKeyHandler) { document.removeEventListener('keydown', confirmKeyHandler); confirmKeyHandler = null; }
+}
 
 // ==================== CV UPLOAD + DRIVE ====================
 let driveFilesLoaded = false;
@@ -1688,6 +1763,42 @@ function onDriveFileClick(fileId, name, mimeType) {
   }
 }
 
+async function fetchPdfBlob(fileId) {
+  if (!checkSession()) throw new Error('Sesion expirada');
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 30000);
+  try {
+    const resp = await fetch(WEBHOOK_URL, {
+      method: 'POST', signal: ctrl.signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_pdf', fileId, token: API_TOKEN })
+    });
+    clearTimeout(timer);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const ct = (resp.headers.get('content-type') || '').toLowerCase();
+    // Binary response (n8n returns PDF directly)
+    if (ct.includes('application/pdf') || ct.includes('application/octet-stream') || ct.includes('image/')) {
+      const blob = await resp.blob();
+      if (blob.size > 0) return URL.createObjectURL(blob);
+      throw new Error('PDF vacio');
+    }
+    // JSON response (legacy base64 or error)
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    if (data.base64 && data.base64 !== 'database') {
+      const binary = atob(data.base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return URL.createObjectURL(new Blob([bytes], { type: data.mimeType || 'application/pdf' }));
+    }
+    throw new Error('No se pudo obtener el PDF');
+  } catch (e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') throw new Error('Tiempo de espera agotado');
+    throw e;
+  }
+}
+
 async function openFileViewer(fileId, name) {
   const viewer = document.getElementById('pdfViewer');
   const frame = document.getElementById('pdfViewerFrame');
@@ -1695,27 +1806,16 @@ async function openFileViewer(fileId, name) {
   document.getElementById('pdfViewerLink').href = 'https://drive.google.com/file/d/' + fileId + '/view';
   viewer.classList.remove('hidden');
   viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  // Try base64 proxy (no Google auth needed)
   frame.src = '';
   frame.style.opacity = '0.5';
   try {
-    const resp = await apiCall({ action: 'get_pdf', fileId });
-    if (resp.ok && resp.base64 && resp.base64 !== 'database') {
-      const binary = atob(resp.base64);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      const blob = new Blob([bytes], { type: resp.mimeType || 'application/pdf' });
-      frame.src = URL.createObjectURL(blob);
-      frame.style.opacity = '1';
-      return;
-    }
+    frame.src = await fetchPdfBlob(fileId);
+    frame.style.opacity = '1';
   } catch (e) {
-    console.warn('PDF proxy failed, using Drive preview:', e.message);
+    console.warn('PDF proxy failed:', e.message);
+    frame.style.opacity = '1';
+    frame.srcdoc = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:sans-serif;color:#666"><div style="text-align:center"><p style="font-size:14px;margin:0 0 8px">No se pudo cargar el PDF</p><p style="font-size:12px;margin:0"><a href="https://drive.google.com/file/d/' + fileId + '/view" target="_blank" style="color:#6366f1">Abrir en Google Drive</a></p></div></div>';
   }
-  // Fallback: Google Drive preview (may require auth)
-  frame.src = 'https://drive.google.com/file/d/' + fileId + '/preview';
-  frame.style.opacity = '1';
 }
 
 function closeFileViewer() {
@@ -1952,6 +2052,8 @@ async function loadData(silent = false) {
     applyFilters(false);
     buildDashWeeks();
     updateStats();
+    lastDataRefresh = Date.now();
+    updateDataAge();
     if (!silent) toast('Datos cargados', 'success');
   } catch (e) {
     toast('Error: ' + e.message, 'error');
@@ -2912,7 +3014,7 @@ async function deleteSelected() {
   const rows=[...selectedRows].sort((a,b)=>a-b);
   try{
     await apiCall({action:'delete_rows',rows});
-    logAction('DELETE_ROWS', rows.join(','));
+    try { await logAction('DELETE_ROWS', rows.join(',')); } catch {}
     toast(`${n} fila(s) eliminadas`,'success');
     selectedRows.clear();
     await loadData();
@@ -2927,6 +3029,10 @@ function showDetail(idx) {
   const modal=document.getElementById('modal');
   modal.classList.remove('hidden');
   requestAnimationFrame(()=>modal.querySelector('.modal-panel').classList.add('open'));
+  // Auto-load CV split view
+  const row=allRows[idx];
+  if(row?.[COL.FILE_ID]) loadCvSplit(row[COL.FILE_ID],row[COL.FILE_NAME]);
+  else hideCvSplitInstant();
 }
 
 function modalNav(dir) {
@@ -2935,6 +3041,10 @@ function modalNav(dir) {
   modalFilteredIdx=newFi;
   modalRowIdx=allRows.indexOf(filteredRows[newFi]);
   renderModal();
+  // Update CV split view
+  const row=allRows[modalRowIdx];
+  if(row?.[COL.FILE_ID]) loadCvSplit(row[COL.FILE_ID],row[COL.FILE_NAME]);
+  else hideCvSplitInstant();
 }
 
 function renderModal() {
@@ -3017,9 +3127,86 @@ async function modalUpdateField(key,row,val) {
 }
 
 function closeModal() {
+  hideCvSplit();
   document.querySelector('.modal-panel').classList.remove('open');
-  setTimeout(()=>document.getElementById('modal').classList.add('hidden'),250);
+  setTimeout(()=>document.getElementById('modal').classList.add('hidden'),350);
   modalRowIdx=-1; modalFilteredIdx=-1;
+}
+
+// ==================== CV SPLIT VIEW ====================
+function cleanupCvSplitBlob() {
+  if (cvSplitBlobUrl) { URL.revokeObjectURL(cvSplitBlobUrl); cvSplitBlobUrl = null; }
+  cvSplitCurrentFileId = null;
+}
+
+async function loadCvSplit(fileId, fileName) {
+  const panel = document.getElementById('cvSplitPanel');
+  const frame = document.getElementById('cvSplitFrame');
+  const loading = document.getElementById('cvSplitLoading');
+
+  // Header
+  document.getElementById('cvSplitName').textContent = fileName || 'CV';
+  document.getElementById('cvSplitDriveLink').href = 'https://drive.google.com/file/d/' + fileId + '/view';
+
+  // Show panel + trigger animation
+  panel.classList.remove('hidden');
+  loading.innerHTML = '<p class="text-xs text-gray-400">Cargando CV...</p>';
+  loading.classList.remove('hidden');
+  frame.classList.add('hidden');
+  requestAnimationFrame(() => panel.classList.add('open'));
+
+  // Mobile button
+  const mobileBtn = document.getElementById('modalCvBtn');
+  if (mobileBtn) { mobileBtn.classList.remove('hidden'); mobileBtn.dataset.fileId = fileId; mobileBtn.dataset.fileName = fileName || 'CV'; }
+
+  // Skip reload if same file
+  if (cvSplitCurrentFileId === fileId && cvSplitBlobUrl) {
+    loading.classList.add('hidden');
+    frame.classList.remove('hidden');
+    return;
+  }
+
+  // Cleanup previous
+  cleanupCvSplitBlob();
+  cvSplitCurrentFileId = fileId;
+  frame.src = '';
+
+  try {
+    cvSplitBlobUrl = await fetchPdfBlob(fileId);
+    frame.src = cvSplitBlobUrl;
+    loading.classList.add('hidden');
+    frame.classList.remove('hidden');
+  } catch (e) {
+    console.warn('CV split proxy failed:', e.message);
+    loading.innerHTML = '<div style="text-align:center"><p class="text-xs text-gray-400 mb-1">No se pudo cargar el CV</p><a href="https://drive.google.com/file/d/' + fileId + '/view" target="_blank" class="text-2xs text-brand-500">Abrir en Drive</a></div>';
+  }
+}
+
+function hideCvSplit() {
+  const panel = document.getElementById('cvSplitPanel');
+  panel.classList.remove('open');
+  setTimeout(() => {
+    panel.classList.add('hidden');
+    document.getElementById('cvSplitFrame').src = '';
+    cleanupCvSplitBlob();
+  }, 350);
+  const mobileBtn = document.getElementById('modalCvBtn');
+  if (mobileBtn) mobileBtn.classList.add('hidden');
+}
+
+function hideCvSplitInstant() {
+  const panel = document.getElementById('cvSplitPanel');
+  panel.classList.remove('open');
+  panel.classList.add('hidden');
+  document.getElementById('cvSplitFrame').src = '';
+  cleanupCvSplitBlob();
+  const mobileBtn = document.getElementById('modalCvBtn');
+  if (mobileBtn) mobileBtn.classList.add('hidden');
+}
+
+function openCvMobile() {
+  const btn = document.getElementById('modalCvBtn');
+  if (btn?.dataset.fileId) openFileViewer(btn.dataset.fileId, btn.dataset.fileName);
 }
 
 // ==================== EXPORT CSV ====================
@@ -3270,8 +3457,14 @@ async function sendWhatsAppBatch() {
 
 // Keyboard
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){if(aiPanelOpen){toggleAIPanel();return;}if(confirmResolve)confirmCancel();else if(document.getElementById('campaignModal').style.display==='flex')closeCampaignModal();else closeModal();}
-  if(document.activeElement.tagName==='INPUT'||document.activeElement.tagName==='SELECT'||document.activeElement.tagName==='TEXTAREA')return;
+  // Ctrl+K / Cmd+K → focus search (works even when input is focused)
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();const s=document.getElementById('filterSearch');if(s){s.focus();s.select();}return;}
+  if(e.key==='Escape'){if(aiPanelOpen){toggleAIPanel();return;}if(document.getElementById('campaignModal').style.display==='flex')closeCampaignModal();else closeModal();}
+  const tag=document.activeElement.tagName;
+  if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA')return;
+  if(e.key==='/'){e.preventDefault();const s=document.getElementById('filterSearch');if(s){s.focus();s.select();}return;}
+  const tabs=['dashboard','database','campaigns','configure','master'];
+  if(e.key>='1'&&e.key<='5'){const t=tabs[+e.key-1];if(t)switchTab(t);return;}
   if(e.key==='ArrowLeft')prevPage();
   if(e.key==='ArrowRight')nextPage();
   if(e.key==='r'&&!e.ctrlKey&&!e.metaKey)loadData();
