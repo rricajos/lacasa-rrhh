@@ -299,6 +299,19 @@ tailwind.config = { theme: { extend: { colors: {
     <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     <span id="drillTitle" class="text-sm font-semibold text-gray-800"></span>
   </div>
+  <!-- Drill-down filters -->
+  <div class="flex flex-wrap gap-2 items-center">
+    <select id="drillFilterSit" onchange="applyDrillFilters()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+      <option value="">Todas las situaciones</option>
+      <option value="Nuevo">Nuevo</option><option value="Citado">Citado</option><option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
+    </select>
+    <select id="drillFilterWeek" onchange="applyDrillFilters()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-200 outline-none transition">
+      <option value="">Todas las semanas</option>
+    </select>
+    <button onclick="clearDrillFilters()" id="btnDrillClear" class="text-gray-400 hover:text-gray-600 px-1.5 py-1.5 rounded-lg text-xs hover:bg-gray-100 transition hidden" title="Limpiar filtros">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
   <!-- Mini stats -->
   <div class="grid grid-cols-3 sm:grid-cols-5 gap-2.5" id="drillStats"></div>
   <!-- Filtered table -->
@@ -312,6 +325,7 @@ tailwind.config = { theme: { extend: { colors: {
             <th class="px-3 py-2.5 text-left">Situación</th>
             <th class="px-3 py-2.5 text-left hidden md:table-cell">Posición</th>
             <th class="px-3 py-2.5 text-left hidden md:table-cell">Oficina</th>
+            <th class="px-3 py-2.5 text-left hidden lg:table-cell">Fecha</th>
             <th class="px-3 py-2.5 w-10"></th>
           </tr>
         </thead>
@@ -1056,21 +1070,100 @@ async function crudDelete(type, name) {
 }
 
 // ==================== DASHBOARD DRILL-DOWN ====================
+let drillType = '', drillValue = '', drillBaseRows = [];
+
+function getWeekKey(dateStr) {
+  if (!dateStr) return '';
+  const s = dateStr.trim();
+  let d;
+  if (s.includes('/')) {
+    const p = s.split('/');
+    if (p.length >= 3) d = new Date(+p[2], +p[1]-1, +p[0]);
+  } else {
+    d = new Date(s);
+  }
+  if (!d || isNaN(d.getTime())) return '';
+  const day = d.getDay() || 7;
+  const mon = new Date(d);
+  mon.setDate(d.getDate() - day + 1);
+  return `${String(mon.getDate()).padStart(2,'0')}/${String(mon.getMonth()+1).padStart(2,'0')}/${mon.getFullYear()}`;
+}
+
+function getWeekLabel(key) {
+  const p = key.split('/');
+  const mon = new Date(+p[2], +p[1]-1, +p[0]);
+  const sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  const fmt = dt => `${dt.getDate()}/${dt.getMonth()+1}`;
+  return `Sem ${fmt(mon)} – ${fmt(sun)}`;
+}
+
+function matchSit(rowSit, filterVal) {
+  const vl = (rowSit||'').toLowerCase(), fl = filterVal.toLowerCase();
+  if (fl.includes('nuevo')) return !vl.includes('citad') && !vl.includes('descart') && !vl.includes('seleccion');
+  return vl.includes(fl.substring(0, 5));
+}
+
 function dashDrillDown(type, value) {
+  drillType = type;
+  drillValue = value;
   const colIdx = type === 'oficina' ? COL.OFICINA : type === 'posicion' ? COL.POSICION : COL.SITUACION;
-  const rows = allRows.filter(row => {
+  drillBaseRows = allRows.filter(row => {
     const v = (row[colIdx] || '').trim();
-    if (type === 'situacion') {
-      const vl = v.toLowerCase(), tl = value.toLowerCase();
-      if (tl.includes('nuevo')) return !vl.includes('citad') && !vl.includes('descart') && !vl.includes('seleccion');
-      return vl.includes(tl.substring(0, 5));
-    }
+    if (type === 'situacion') return matchSit(v, value);
     return v === value;
   });
 
-  // Labels
   const typeLabels = { oficina: 'Oficina', posicion: 'Posición', situacion: 'Situación' };
   document.getElementById('drillTitle').textContent = typeLabels[type] + ': ' + value;
+
+  // Populate week dropdown from base rows
+  const weekMap = {};
+  for (const row of drillBaseRows) {
+    const wk = getWeekKey(row[COL.FECHA] || '');
+    if (wk) weekMap[wk] = (weekMap[wk] || 0) + 1;
+  }
+  const weekSel = document.getElementById('drillFilterWeek');
+  weekSel.innerHTML = '<option value="">Todas las semanas</option>';
+  Object.keys(weekMap).sort().reverse().forEach(wk => {
+    weekSel.innerHTML += `<option value="${wk}">${getWeekLabel(wk)} (${weekMap[wk]})</option>`;
+  });
+
+  // Reset sub-filters
+  document.getElementById('drillFilterSit').value = '';
+  weekSel.value = '';
+  document.getElementById('btnDrillClear').classList.add('hidden');
+
+  renderDrillDown();
+
+  document.getElementById('dashMain').classList.add('hidden');
+  document.getElementById('dashDetail').classList.remove('hidden');
+}
+
+function applyDrillFilters() {
+  const sitEl = document.getElementById('drillFilterSit');
+  const weekEl = document.getElementById('drillFilterWeek');
+  const hasFilter = sitEl.value || weekEl.value;
+  document.getElementById('btnDrillClear').classList.toggle('hidden', !hasFilter);
+  renderDrillDown();
+}
+
+function clearDrillFilters() {
+  document.getElementById('drillFilterSit').value = '';
+  document.getElementById('drillFilterWeek').value = '';
+  document.getElementById('btnDrillClear').classList.add('hidden');
+  renderDrillDown();
+}
+
+function renderDrillDown() {
+  const sitFilter = document.getElementById('drillFilterSit').value;
+  const weekFilter = document.getElementById('drillFilterWeek').value;
+
+  const rows = drillBaseRows.filter(row => {
+    if (sitFilter && !matchSit(row[COL.SITUACION]||'', sitFilter)) return false;
+    if (weekFilter && getWeekKey(row[COL.FECHA]||'') !== weekFilter) return false;
+    return true;
+  });
 
   // Mini stats
   let nuevo=0, citado=0, descartado=0, seleccionado=0;
@@ -1083,45 +1176,68 @@ function dashDrillDown(type, value) {
   }
   document.getElementById('drillStats').innerHTML = `
     <div class="bg-gray-50 rounded-xl p-3 text-center"><p class="text-xl font-bold text-gray-800">${rows.length}</p><p class="text-[10px] text-gray-500">Total</p></div>
-    <div class="bg-blue-50 rounded-xl p-3 text-center"><p class="text-xl font-bold text-blue-700">${nuevo}</p><p class="text-[10px] text-blue-600">Nuevos</p></div>
-    <div class="bg-amber-50 rounded-xl p-3 text-center"><p class="text-xl font-bold text-amber-700">${citado}</p><p class="text-[10px] text-amber-600">Citados</p></div>
-    <div class="bg-red-50 rounded-xl p-3 text-center hidden sm:block"><p class="text-xl font-bold text-red-700">${descartado}</p><p class="text-[10px] text-red-600">Descart.</p></div>
-    <div class="bg-emerald-50 rounded-xl p-3 text-center hidden sm:block"><p class="text-xl font-bold text-emerald-700">${seleccionado}</p><p class="text-[10px] text-emerald-600">Selecc.</p></div>
+    <div class="bg-blue-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-blue-200" onclick="document.getElementById('drillFilterSit').value='Nuevo';applyDrillFilters()"><p class="text-xl font-bold text-blue-700">${nuevo}</p><p class="text-[10px] text-blue-600">Nuevos</p></div>
+    <div class="bg-amber-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-amber-200" onclick="document.getElementById('drillFilterSit').value='Citado';applyDrillFilters()"><p class="text-xl font-bold text-amber-700">${citado}</p><p class="text-[10px] text-amber-600">Citados</p></div>
+    <div class="bg-red-50 rounded-xl p-3 text-center hidden sm:block cursor-pointer hover:ring-2 hover:ring-red-200" onclick="document.getElementById('drillFilterSit').value='Descartado';applyDrillFilters()"><p class="text-xl font-bold text-red-700">${descartado}</p><p class="text-[10px] text-red-600">Descart.</p></div>
+    <div class="bg-emerald-50 rounded-xl p-3 text-center hidden sm:block cursor-pointer hover:ring-2 hover:ring-emerald-200" onclick="document.getElementById('drillFilterSit').value='Seleccionado';applyDrillFilters()"><p class="text-xl font-bold text-emerald-700">${seleccionado}</p><p class="text-[10px] text-emerald-600">Selecc.</p></div>
   `;
 
   // Table
   const tbody = document.getElementById('drillTableBody');
   if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-400 text-sm">Sin resultados</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-400 text-sm">Sin resultados</td></tr>';
   } else {
     tbody.innerHTML = rows.map(row => {
       const gi = allRows.indexOf(row);
+      const sr = gi + 2;
       const sit = (row[COL.SITUACION] || 'Nuevo').trim();
       const phone = maskPhone((row[COL.TELEFONO]||'').trim());
-      return `<tr class="border-t border-gray-50 row-hover">
+      const fecha = (row[COL.FECHA]||'').trim();
+      return `<tr class="border-t border-gray-50 row-hover cursor-pointer" onclick="showDetail(${gi})">
         <td class="px-3 py-2 font-medium text-gray-800">${esc(row[COL.NOMBRE]||'-')}</td>
         <td class="px-3 py-2 text-gray-500 hidden sm:table-cell"><span class="masked">${esc(phone||'-')}</span></td>
-        <td class="px-3 py-2"><span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${sitColorClass(sit)}">${esc(sit)}</span></td>
+        <td class="px-3 py-2" onclick="event.stopPropagation()">
+          <select class="sit-select ${getSitClass(sit)}" data-row="${sr}" data-original="${esc(sit)}" onchange="updateSituacionDrill(this)">
+            ${['Nuevo','Citado','Descartado','Seleccionado'].map(o =>
+              `<option value="${o}" ${o.toLowerCase()===sit.toLowerCase()?'selected':''}>${o}</option>`
+            ).join('')}
+          </select>
+        </td>
         <td class="px-3 py-2 text-gray-500 text-xs hidden md:table-cell">${esc(row[COL.POSICION]||'-')}</td>
         <td class="px-3 py-2 text-gray-500 text-xs hidden md:table-cell">${esc(row[COL.OFICINA]||'-')}</td>
+        <td class="px-3 py-2 text-gray-500 text-xs hidden lg:table-cell">${esc(fecha||'-')}</td>
         <td class="px-3 py-2 text-center">
-          <button onclick="showDetail(${gi})" class="text-gray-400 hover:text-blue-600 transition p-1 rounded hover:bg-blue-50">
+          <button onclick="event.stopPropagation();showDetail(${gi})" class="text-gray-400 hover:text-blue-600 transition p-1 rounded hover:bg-blue-50">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </button>
         </td>
       </tr>`;
     }).join('');
   }
-  document.getElementById('drillRowCount').textContent = rows.length + ' candidato' + (rows.length !== 1 ? 's' : '');
+  document.getElementById('drillRowCount').textContent = rows.length + ' candidato' + (rows.length !== 1 ? 's' : '') + (drillBaseRows.length !== rows.length ? ` (de ${drillBaseRows.length})` : '');
+}
 
-  // Show detail, hide main
-  document.getElementById('dashMain').classList.add('hidden');
-  document.getElementById('dashDetail').classList.remove('hidden');
+async function updateSituacionDrill(select) {
+  const sr = select.dataset.row, value = select.value, original = select.dataset.original;
+  if (value === original) return;
+  select.disabled = true;
+  try {
+    await apiCall({action:'update_cell', range:`R${sr}`, value});
+    select.dataset.original = value;
+    select.className = 'sit-select ' + getSitClass(value);
+    const idx = parseInt(sr) - 2;
+    if (allRows[idx]) allRows[idx][COL.SITUACION] = value;
+    updateStats();
+    renderDrillDown();
+    toast(`${original} → ${value}`, 'success');
+  } catch(e) { select.value = original; toast('Error: ' + e.message, 'error'); }
+  finally { select.disabled = false; }
 }
 
 function dashDrillBack() {
   document.getElementById('dashDetail').classList.add('hidden');
   document.getElementById('dashMain').classList.remove('hidden');
+  drillBaseRows = [];
 }
 
 function setDonut(id, pct, offset) {
