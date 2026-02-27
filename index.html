@@ -93,7 +93,7 @@ tailwind.config = { theme: { extend: {
   ================================================================ */
   /* ========== COMPONENT CLASSES ========== */
   /* Card: white container with border + shadow (compose with p-4/p-5/p-6 for padding) */
-  .card { background: rgba(255,255,255,0.72); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 0.75rem; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04); border: 1px solid rgba(255,255,255,0.6); }
+  .card { background: rgba(255,255,255,0.78); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 0.75rem; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.04); border: 1px solid rgba(255,255,255,0.7); }
   /* Section title: uppercase label inside cards */
   .section-title { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
   /* Section label: lighter variant for widget sublabels */
@@ -481,7 +481,7 @@ tailwind.config = { theme: { extend: {
 <div id="dashboardScreen" class="hidden" style="opacity:0;transition:opacity 0.2s ease-out">
 
 <!-- Header -->
-<header class="border-b border-gray-200/50" style="background:rgba(255,255,255,0.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
+<header class="border-b border-gray-200/50" style="background:rgba(255,255,255,0.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)">
   <div class="page-container py-2 flex items-center justify-between gap-3">
     <!-- Logo — click to reload -->
     <div class="header-logo flex items-center gap-2.5 flex-shrink-0" onclick="loadData()" title="Actualizar datos">
@@ -1881,8 +1881,12 @@ function doLogout(reason) {
   keepSessionUntilMidnight = false;
   if (sessionTimerId) { clearInterval(sessionTimerId); sessionTimerId = null; }
   allRows = []; filteredRows = []; headers = [];
-  document.getElementById('dashboardScreen').classList.add('hidden');
-  document.getElementById('loginScreen').classList.remove('hidden');
+  const dashEl = document.getElementById('dashboardScreen');
+  const loginEl = document.getElementById('loginScreen');
+  dashEl.style.opacity = '0';
+  dashEl.classList.add('hidden');
+  loginEl.classList.remove('hidden');
+  requestAnimationFrame(() => loginEl.style.opacity = '1');
   document.body.classList.remove('logged-in');
   document.getElementById('loginUsername').value = '';
   document.getElementById('loginPassword').value = '';
