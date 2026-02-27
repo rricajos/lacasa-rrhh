@@ -24,21 +24,36 @@ tailwind.config = { theme: { extend: {
   /* ================================================================
      DESIGN TOKENS — La Casa Agency RRHH
      ================================================================
-     TYPOGRAPHY (font sizes — only use these):
-       text-2xs   = 10px  → labels, badges, metadata, captions
-       text-xs    = 12px  → secondary text, small buttons, timestamps
+     TYPOGRAPHY (5 tiers — only use these):
+       text-xs    = 12px  → labels, badges, metadata, secondary text, timestamps
        text-sm    = 14px  → body text, form inputs, table cells
        text-base  = 16px  → headings inside cards
        text-lg    = 18px  → section titles
-       text-xl    = 20px  → page titles
-       text-2xl   = 24px  → stat numbers, hero numbers
+       text-xl    = 20px  → page titles, stat numbers
 
-     TYPOGRAPHY PATTERNS (use these combos):
-       Card header (h2):    text-sm font-bold text-gray-800 uppercase tracking-wider
-       Sub-header (p):      text-2xs font-semibold text-gray-500 uppercase tracking-wider
-       Widget label (p):    text-2xs font-semibold text-gray-400 uppercase tracking-wider
-       Form label:          text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1
-       Modal title (h3):    text-sm font-bold text-gray-800
+     COMPONENT CLASSES (use these instead of inline Tailwind):
+       .card             → white card with border + shadow (add p-4/p-5/p-6 for padding)
+       .section-title    → uppercase label (gray-500, inside cards)
+       .section-label    → uppercase label (gray-400, lighter variant)
+       .form-label       → form field label (gray-400, block mb-1)
+       .form-input       → standard form input (w-full, rounded-lg, focus ring)
+       .form-input-lg    → large input for login/modals (rounded-xl, more padding)
+       .filter-select    → compact filter dropdown (gray-50 bg, focus ring)
+       .btn              → base button (flex, gap, transition, rounded-lg)
+       .btn-sm           → compact button (px-3 py-1.5, text-xs)
+       .btn-md           → standard button (px-4 py-2, text-sm)
+       .btn-block        → full-width button (login/modals)
+       .btn-primary      → brand-600 bg, white text
+       .btn-secondary    → outline with border, gray text
+       .btn-icon         → icon-only hover button (p-2, ghost)
+       .hero-bar         → hero header flex container (justify-between)
+       .hero-left        → hero left group (icon + text, gap-4)
+       .hero-title       → hero h1 (text-base, bold, gray-800)
+       .hero-subtitle    → hero p (text-xs, gray-400)
+       .hero-actions     → hero right actions (flex, gap-2)
+       .modal-card       → centered popup (rounded-2xl, heavy shadow, border)
+       .loader-sm        → small 14px spinner (use with .loader)
+       .page-container   → max-w-800 centered with px-4
 
      COLORS (use brand-* instead of blue-*):
        brand-50   #eff6ff  → active nav bg, subtle highlights
@@ -76,14 +91,59 @@ tailwind.config = { theme: { extend: {
        Modals:  shadow-2xl
        Hover:   hover:shadow-md
   ================================================================ */
+  /* ========== COMPONENT CLASSES ========== */
+  /* Card: white container with border + shadow (compose with p-4/p-5/p-6 for padding) */
+  .card { background: white; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); border: 1px solid #f3f4f6; }
+  /* Section title: uppercase label inside cards */
+  .section-title { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+  /* Section label: lighter variant for widget sublabels */
+  .section-label { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
+  /* Form label */
+  .form-label { font-size: 11px; color: #9ca3af; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem; }
+  /* Standard form input */
+  .form-input { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; font-size: 0.875rem; outline: none; transition: all 0.15s; }
+  .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+  /* Login/modal large input */
+  .form-input-lg { width: 100%; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 0.75rem; font-size: 0.875rem; outline: none; transition: all 0.15s; }
+  .form-input-lg:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(59,130,246,0.15); }
+  /* Filter select (compact inputs in filter bars) */
+  .filter-select { font-size: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 0.375rem 0.625rem; background: #f9fafb; outline: none; transition: all 0.15s; }
+  .filter-select:focus { background: white; border-color: #3b82f6; box-shadow: 0 0 0 1px rgba(191,219,254,0.6); }
+  /* Base button */
+  .btn { display: inline-flex; align-items: center; gap: 0.375rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; transition: all 0.15s; border: none; white-space: nowrap; }
+  .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
+  .btn-md { padding: 0.5rem 1rem; font-size: 0.875rem; }
+  .btn-primary { background: #2563eb; color: white; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-secondary { background: transparent; border: 1px solid #e5e7eb; color: #4b5563; }
+  .btn-secondary:hover { background: #f9fafb; }
+  .btn-icon { padding: 0.5rem; color: #9ca3af; background: transparent; border-radius: 0.5rem; border: none; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; justify-content: center; }
+  .btn-icon:hover { background: #f1f5f9; color: #64748b; }
+  .btn-block { width: 100%; justify-content: center; padding: 0.75rem; border-radius: 0.75rem; font-weight: 500; font-size: 0.875rem; }
+  /* Hero header layout */
+  .hero-bar { display: flex; align-items: center; justify-content: space-between; }
+  .hero-left { display: flex; align-items: center; gap: 1rem; }
+  .hero-title { font-size: 1rem; font-weight: 700; color: #1f2937; }
+  .hero-subtitle { font-size: 0.75rem; color: #9ca3af; }
+  .hero-actions { display: flex; align-items: center; gap: 0.5rem; }
+  /* Modal card: centered popup with heavy shadow */
+  .modal-card { background: white; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid #f3f4f6; }
+  /* Small loader (14px spinner for inline use) */
+  .loader-sm { width: 14px; height: 14px; border-width: 2px; }
+  /* Page section container */
+  .page-container { max-width: 800px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+
   body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; overflow-y: scroll; }
   .loader { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
   table th { position: sticky; top: 0; z-index: 10; }
   th.sortable { cursor: pointer; user-select: none; }
   th.sortable:hover { color: #1d4ed8; }
-  th .sort-icon { opacity: 0.3; font-size: 10px; }
+  th .sort-icon { opacity: 0.3; font-size: 10px; display: inline-block; transition: all 0.15s; }
+  th.sortable:hover .sort-icon { opacity: 0.6; }
   th.sorted-asc .sort-icon, th.sorted-desc .sort-icon { opacity: 1; color: #2563eb; }
+  th.sorted-desc .sort-icon { transform: rotate(180deg); }
+  th.sorted-asc, th.sorted-desc { background: rgba(59,130,246,0.06); }
   .stat-card { transition: all 0.15s; cursor: pointer; }
   .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
   .row-no-cv { background: #fffbeb; }
@@ -97,7 +157,7 @@ tailwind.config = { theme: { extend: {
   .cv-split-panel { left:0; right:36rem; transform:translateX(100%); transition:transform 0.2s ease-in; }
   .cv-split-panel.open { transform:translateX(0); transition:transform 0.3s ease-out 0.15s; }
   @media (max-width:1023px) { .cv-split-panel { display:none !important; } }
-  .sit-select { appearance: none; padding: 3px 22px 3px 8px; border-radius: 9999px; border: none; font-size: 10px; font-weight: 600; cursor: pointer; text-transform: uppercase; background-repeat: no-repeat; background-position: right 6px center; background-size: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); }
+  .sit-select { appearance: none; padding: 3px 22px 3px 8px; border-radius: 9999px; border: none; font-size: 11px; font-weight: 600; cursor: pointer; text-transform: uppercase; background-repeat: no-repeat; background-position: right 6px center; background-size: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); }
   .sit-nuevo { background-color: #dbeafe; color: #1e40af; }
   .sit-citado { background-color: #ffedd5; color: #9a3412; }
   .sit-descartado { background-color: #fee2e2; color: #991b1b; }
@@ -110,14 +170,27 @@ tailwind.config = { theme: { extend: {
   mark { background: #fef08a; color: inherit; padding: 0 1px; border-radius: 2px; }
   .confirm-modal { animation: fadeIn 0.15s ease-out; }
   @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-  .donut-ring { transition: stroke-dashoffset 0.6s ease; }
+  .donut-ring { transition: stroke-dashoffset 0.6s ease, stroke-width 0.15s; }
+  .donut-ring:hover { stroke-width: 3.4; cursor: pointer; }
+  /* Placeholder donuts (próximamente) */
+  .donut-placeholder { position: relative; }
+  .donut-placeholder > .donut-inner { opacity: 0.35; filter: saturate(0.4); pointer-events: none; }
+  .donut-placeholder .badge-soon { position:absolute; top:8px; right:8px; background:#f0f9ff; color:#0369a1; font-size:10px; font-weight:600; padding:2px 8px; border-radius:9999px; border:1px solid #bae6fd; letter-spacing:0.3px; }
+  /* Toast notification system */
+  .toast-item { pointer-events:auto; padding:8px 16px; border-radius:10px; font-size:12px; font-weight:500; box-shadow:0 4px 12px rgba(0,0,0,0.12); display:flex; align-items:center; gap:6px; animation:toastIn 0.25s ease-out; max-width:360px; }
+  .toast-item.removing { animation:toastOut 0.2s ease-in forwards; }
+  .toast-success { background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+  .toast-error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+  .toast-info { background:#f8fafc; color:#475569; border:1px solid #e2e8f0; }
+  @keyframes toastIn { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes toastOut { to{opacity:0;transform:translateY(-8px)} }
   .login-card { animation: fadeIn 0.3s ease-out; }
   .masked { letter-spacing: 0.5px; }
   /* Nav tabs — header inline (desktop): icon + text horizontal */
-  .header-nav .nav-tab { display: flex; flex-direction: row; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s, background 0.15s; white-space: nowrap; }
+  .header-nav .nav-tab { display: flex; flex-direction: row; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s, background 0.15s; white-space: nowrap; }
   .header-nav .nav-tab:hover { color: #64748b; background: #f1f5f9; }
   .header-nav .nav-tab.active { color: #2563eb; background: #eff6ff; }
-  .header-nav .nav-tab svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .header-nav .nav-tab svg { width: 13px; height: 13px; flex-shrink: 0; opacity: 0.7; }
   .tab-section { display: none; }
   .tab-section.active { display: block; }
   .header-logo { cursor: pointer; transition: opacity 0.15s; }
@@ -129,7 +202,7 @@ tailwind.config = { theme: { extend: {
     body.logged-in { padding-bottom: 72px; }
   }
   /* Bottom nav mobile: icon above text, full width */
-  #bottomNav .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 10px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s; border-radius: 0; flex: 1; white-space: nowrap; }
+  #bottomNav .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s; border-radius: 0; flex: 1; white-space: nowrap; }
   #bottomNav .nav-tab svg { width: 24px; height: 24px; }
   #bottomNav .nav-tab.active { color: #2563eb; }
   @media (min-width: 768px) {
@@ -147,13 +220,35 @@ tailwind.config = { theme: { extend: {
   /* Animations */
   @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes slideIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes heroIconPop { 0% { opacity: 0; transform: scale(0.5) rotate(-12deg); } 60% { transform: scale(1.08) rotate(2deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+  @keyframes heroTextSlide { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes heroGlow { 0%,100% { box-shadow: 0 2px 8px rgba(59,130,246,0.15); } 50% { box-shadow: 0 4px 20px rgba(59,130,246,0.3); } }
+  @keyframes stepReveal { from { opacity: 0; transform: translateY(24px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes footerFade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   .tab-section.active { animation: fadeUp 0.25s ease-out; }
   .anim-card { animation: fadeUp 0.3s ease-out both; }
   .anim-slide { animation: slideIn 0.3s ease-out both; }
+  /* Hero header styles */
+  .hero-icon { animation: heroIconPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .hero-icon:hover { background: #e5e7eb; }
+  .hero-text { animation: heroTextSlide 0.4s ease-out 0.15s both; }
+  /* Subfooter step stagger */
+  .step-card { animation: stepReveal 0.5s ease-out both; }
+  .step-card:nth-child(1) { animation-delay: 0.05s; }
+  .step-card:nth-child(2) { animation-delay: 0.15s; }
+  .step-card:nth-child(3) { animation-delay: 0.25s; }
+  .step-card:nth-child(4) { animation-delay: 0.35s; }
+  .step-card:hover .step-num { transform: scale(1.1); }
+  .step-num { transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1); }
+  .tip-card { animation: stepReveal 0.4s ease-out both; }
+  .tip-card:nth-child(1) { animation-delay: 0.4s; }
+  .tip-card:nth-child(2) { animation-delay: 0.5s; }
+  .tip-card:nth-child(3) { animation-delay: 0.6s; }
+  .footer-animated { animation: footerFade 0.5s ease-out 0.3s both; }
   /* Week calendar grid */
   .wk-quarter { border-radius: 10px; overflow: hidden; border: 1px solid; min-width: 0; }
-  .wk-quarter-head { padding: 5px 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid; }
-  .wk-month { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 5px 8px 2px; cursor: pointer; border-radius: 4px; margin: 2px 4px 0; display: flex; align-items: center; justify-content: space-between; transition: background 0.12s; }
+  .wk-quarter-head { padding: 5px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid; }
+  .wk-month { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 5px 8px 2px; cursor: pointer; border-radius: 4px; margin: 2px 4px 0; display: flex; align-items: center; justify-content: space-between; transition: background 0.12s; }
   .wk-month:hover { filter: brightness(0.95); }
   .wk-month.month-active { color: white !important; }
   .wk-row { display: flex; align-items: center; gap: 5px; padding: 2.5px 8px; cursor: pointer; border-radius: 5px; margin: 1px 4px; transition: all 0.12s; min-width: 0; }
@@ -164,18 +259,18 @@ tailwind.config = { theme: { extend: {
   .wk-row.current { box-shadow: inset 0 0 0 1.5px #3b82f6; }
   .wk-row.future { opacity: 0.3; cursor: default; pointer-events: none; }
   .wk-row.month-highlight { background: rgba(59,130,246,0.08); }
-  .wk-num { width: 22px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #475569; background: rgba(0,0,0,0.05); border-radius: 4px; flex-shrink: 0; }
-  .wk-range { font-size: 10px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-  .wk-count { font-size: 9px; color: #94a3b8; margin-left: auto; min-width: 16px; text-align: right; font-weight: 600; }
+  .wk-num { width: 22px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #475569; background: rgba(0,0,0,0.05); border-radius: 4px; flex-shrink: 0; }
+  .wk-range { font-size: 11px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .wk-count { font-size: 11px; color: #94a3b8; margin-left: auto; min-width: 16px; text-align: right; font-weight: 600; }
   .wk-count:empty { display: none; }
   .wk-row.active .wk-count { color: rgba(255,255,255,0.7); }
   .wk-filter-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .wk-filter-chip { font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 9999px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: white; transition: all 0.15s; }
+  .wk-filter-chip { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 9999px; cursor: pointer; border: 1px solid #cbd5e1; color: #64748b; background: white; transition: all 0.15s; }
   .wk-filter-chip:hover { border-color: #94a3b8; }
   .wk-filter-chip.active { background: #1d4ed8; color: white; border-color: #1d4ed8; }
   /* Mobile quarter tabs + swipe */
   .wk-qtabs { display: none; }
-  .wk-qtab { flex: 1; text-align: center; padding: 6px 0; font-size: 10px; font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.15s; color: #94a3b8; }
+  .wk-qtab { flex: 1; text-align: center; padding: 6px 0; font-size: 11px; font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.15s; color: #94a3b8; }
   .wk-qtab.active { color: white; }
   .wk-scroll { scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .wk-scroll::-webkit-scrollbar { display: none; }
@@ -251,15 +346,17 @@ tailwind.config = { theme: { extend: {
 </head>
 <body class="min-h-screen">
 
+<!-- Toast container -->
+<div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2 pointer-events-none" style="max-width:calc(100vw - 2rem)"></div>
 
 <!-- Confirm Modal -->
-<div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="display:none;">
+<div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center">
   <div class="absolute inset-0 bg-black/40" onclick="confirmCancel()"></div>
-  <div class="confirm-modal relative bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
+  <div class="confirm-modal relative modal-card p-6 max-w-sm w-full mx-4">
     <p id="confirmMsg" class="text-gray-800 font-medium text-sm mb-4"></p>
     <div class="flex gap-2 justify-end">
-      <button onclick="confirmCancel()" class="px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition">Cancelar</button>
-      <button onclick="confirmOk()" id="confirmBtn" class="px-4 py-2 rounded-lg text-sm text-white bg-red-600 hover:bg-red-700 transition">Confirmar</button>
+      <button onclick="confirmCancel()" class="btn btn-md btn-secondary">Cancelar</button>
+      <button onclick="confirmOk()" id="confirmBtn" class="btn btn-md bg-red-600 text-white hover:bg-red-700">Confirmar</button>
     </div>
   </div>
 </div>
@@ -267,13 +364,13 @@ tailwind.config = { theme: { extend: {
 <!-- ==================== LOGIN SCREEN ==================== -->
 <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-blue-50">
   <div class="login-card w-full max-w-md mx-4">
-    <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+    <div class="modal-card overflow-hidden">
       <!-- Header -->
       <div class="bg-brand-600 px-8 py-8 text-center">
         <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <span class="text-3xl font-bold text-white">LC</span>
         </div>
-        <h1 class="text-2xl font-bold text-white">La Casa Agency</h1>
+        <h1 class="text-xl font-bold text-white">La Casa Agency</h1>
         <p class="text-brand-200 text-sm mt-1">Panel de Recursos Humanos</p>
       </div>
       <!-- Form -->
@@ -281,13 +378,13 @@ tailwind.config = { theme: { extend: {
         <div class="mb-4">
           <label class="text-xs text-gray-500 font-medium uppercase tracking-wider block mb-2">Usuario o email</label>
           <input id="loginUsername" type="text" placeholder="Tu usuario o email..."
-            class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
+            class="form-input-lg"
             onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
         </div>
         <div class="mb-5">
           <label class="text-xs text-gray-500 font-medium uppercase tracking-wider block mb-2">Clave de acceso</label>
           <input id="loginPassword" type="password" placeholder="Introduce la clave..."
-            class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
+            class="form-input-lg"
             onkeydown="if(event.key==='Enter')doLogin()">
         </div>
         <div id="loginError" class="hidden text-red-600 text-xs mb-3 flex items-center gap-1.5">
@@ -298,7 +395,7 @@ tailwind.config = { theme: { extend: {
           <input type="checkbox" id="keepSession" class="rounded border-gray-300 text-brand-600 focus:ring-brand-200 w-4 h-4">
           <span class="text-xs text-gray-500">Mantener sesión activa hasta las 23:59h</span>
         </label>
-        <button onclick="doLogin()" class="w-full bg-brand-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-brand-700 transition flex items-center justify-center gap-2">
+        <button onclick="doLogin()" class="btn btn-block btn-primary flex items-center justify-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
           Acceder
         </button>
@@ -310,7 +407,7 @@ tailwind.config = { theme: { extend: {
       <div class="border-t border-gray-100 px-8 py-4 bg-gray-50/50">
         <div class="flex items-start gap-2">
           <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-          <p class="text-2xs text-gray-400 leading-relaxed">
+          <p class="text-xs text-gray-400 leading-relaxed">
             <strong class="text-gray-500">Acceso restringido.</strong> Este sistema contiene datos de carácter personal protegidos por el
             Reglamento General de Protección de Datos (RGPD - UE 2016/679) y la Ley Orgánica 3/2018 de Protección de Datos Personales
             y garantía de los derechos digitales (LOPD-GDD). El acceso no autorizado queda prohibido y será perseguido conforme a la legislación vigente.
@@ -323,7 +420,7 @@ tailwind.config = { theme: { extend: {
 
 <!-- ==================== PASSWORD RECOVERY MODAL ==================== -->
 <div id="forgotPasswordModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
-  <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-sm mx-4 overflow-hidden">
+  <div class="modal-card w-full max-w-sm mx-4 overflow-hidden">
     <div class="bg-brand-600 px-6 py-5 text-center">
       <svg class="w-10 h-10 text-white/80 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
       <h2 class="text-lg font-bold text-white">Recuperar contraseña</h2>
@@ -331,37 +428,37 @@ tailwind.config = { theme: { extend: {
     </div>
     <div class="p-6">
       <div id="forgotStep1">
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Email de tu cuenta</label>
+        <label class="form-label">Email de tu cuenta</label>
         <input id="forgotEmail" type="email" placeholder="Tu email registrado..."
-          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
+          class="form-input-lg"
           onkeydown="if(event.key==='Enter')sendResetCode()">
         <div id="forgotError" class="hidden text-red-600 text-xs mt-2 flex items-center gap-1.5">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           <span id="forgotErrorText"></span>
         </div>
-        <button onclick="sendResetCode()" id="btnSendCode" class="w-full bg-brand-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-brand-700 transition mt-4">
+        <button onclick="sendResetCode()" id="btnSendCode" class="btn btn-block btn-primary mt-4">
           Enviar codigo
         </button>
       </div>
       <div id="forgotStep2" class="hidden">
         <p class="text-xs text-gray-500 mb-3">Codigo enviado a <strong id="forgotEmailDisplay"></strong></p>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Codigo de 6 digitos</label>
+        <label class="form-label">Codigo de 6 digitos</label>
         <input id="resetCode" type="text" maxlength="6" placeholder="000000"
           class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm text-center tracking-[0.5em] font-mono focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
           onkeydown="if(event.key==='Enter')document.getElementById('resetNewPw').focus()">
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1 mt-3">Nueva contraseña</label>
+        <label class="form-label mt-3">Nueva contraseña</label>
         <input id="resetNewPw" type="password" placeholder="Minimo 6 caracteres"
-          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
+          class="form-input-lg"
           onkeydown="if(event.key==='Enter')document.getElementById('resetConfirmPw').focus()">
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1 mt-3">Confirmar contraseña</label>
+        <label class="form-label mt-3">Confirmar contraseña</label>
         <input id="resetConfirmPw" type="password" placeholder="Repite la contraseña"
-          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-brand-600 focus:ring-2 focus:ring-brand-100 outline-none transition"
+          class="form-input-lg"
           onkeydown="if(event.key==='Enter')verifyAndResetPassword()">
         <div id="resetError" class="hidden text-red-600 text-xs mt-2 flex items-center gap-1.5">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           <span id="resetErrorText"></span>
         </div>
-        <button onclick="verifyAndResetPassword()" id="btnResetPw" class="w-full bg-brand-600 text-white py-3 rounded-xl font-medium text-sm hover:bg-brand-700 transition mt-4">
+        <button onclick="verifyAndResetPassword()" id="btnResetPw" class="btn btn-block btn-primary mt-4">
           Restablecer contraseña
         </button>
       </div>
@@ -377,31 +474,31 @@ tailwind.config = { theme: { extend: {
 
 <!-- Header -->
 <header class="bg-white border-b border-gray-200">
-  <div class="max-w-[1400px] mx-auto px-4 py-2 flex items-center justify-between gap-3">
+  <div class="page-container py-2 flex items-center justify-between gap-3">
     <!-- Logo — click to reload -->
     <div class="header-logo flex items-center gap-2.5 flex-shrink-0" onclick="loadData()" title="Actualizar datos">
       <div class="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">LC</div>
       <div class="hidden sm:block">
         <h1 class="text-base font-bold text-gray-800 leading-tight">La Casa Agency</h1>
-        <p id="headerSubtitle" class="text-2xs text-gray-400 transition-all duration-300">Panel RRHH</p>
+        <p id="headerSubtitle" class="text-xs text-gray-400 transition-all duration-300">Panel RRHH</p>
       </div>
     </div>
     <!-- Nav tabs (desktop inline) -->
     <nav class="header-nav flex items-center gap-1">
       <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Panel
       </button>
       <button class="nav-tab" onclick="switchTab('database')" data-tab="database">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18M3 6h18M3 18h18"/></svg>
         Datos
       </button>
       <button class="nav-tab" onclick="switchTab('campaigns')" data-tab="campaigns">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg>
         Campañas
       </button>
       <button class="nav-tab" onclick="switchTab('configure')" data-tab="configure">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.07-7.07l-1.41 1.41M8.34 15.66l-1.41 1.41m12.14 0l-1.41-1.41M8.34 8.34L6.93 6.93"/></svg>
         Configurar
       </button>
     </nav>
@@ -409,10 +506,10 @@ tailwind.config = { theme: { extend: {
     <div class="flex items-center gap-1.5 flex-shrink-0">
       <div id="currentUserLabel" class="hidden flex items-center gap-1.5 cursor-pointer" onclick="switchTab('configure')" title="Mi perfil">
         <img id="headerAvatar" class="w-6 h-6 rounded-full object-cover hidden" src="" alt="">
-        <span id="headerUserName" class="text-2xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded-full"></span>
+        <span id="headerUserName" class="text-xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded-full"></span>
       </div>
-      <span id="sessionTimer" class="text-2xs text-gray-400 tabular-nums" title="Tiempo hasta cierre de sesión"></span>
-      <span id="dataAge" class="text-2xs text-gray-400 cursor-pointer hover:underline hidden" onclick="loadData()" title="Clic para refrescar datos"></span>
+      <span id="sessionTimer" class="text-xs text-gray-400 tabular-nums" title="Tiempo hasta cierre de sesión"></span>
+      <span id="dataAge" class="text-xs text-gray-400 cursor-pointer hover:underline hidden" onclick="loadData()" title="Clic para refrescar datos"></span>
       <button onclick="doLogout()" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Cerrar sesion" aria-label="Cerrar sesion">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
       </button>
@@ -425,59 +522,44 @@ tailwind.config = { theme: { extend: {
 
 <!-- Main dashboard view -->
 <div id="dashMain">
-<div class="max-w-[1400px] mx-auto px-4 pt-5 pb-4 space-y-4">
+<div class="page-container pt-5 pb-4 space-y-4">
 
   <!-- Hero header -->
-  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-sm">
-        <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+  <div class="hero-bar">
+    <div class="hero-left">
+      <div class="hero-icon w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
       </div>
-      <div>
-        <h1 class="text-sm font-bold text-gray-800">Dashboard</h1>
-        <p class="text-2xs text-gray-400">Resumen de candidatos y metricas de seleccion</p>
+      <div class="hero-text">
+        <h1 class="hero-title">Dashboard</h1>
+        <p class="hero-subtitle">Resumen de candidatos y metricas de seleccion</p>
       </div>
+    </div>
+    <div class="hero-actions">
+      <button onclick="loadData()" class="btn-icon hover:text-brand-600 hover:bg-brand-50" title="Refrescar datos">
+        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      </button>
+      <button onclick="switchTab('database')" class="btn-icon hover:text-slate-600 hover:bg-gray-100" title="Ir a Base de Datos">
+        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+      </button>
     </div>
   </div>
 
   <!-- Week calendar grid -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3">
+  <div class="card p-3">
     <div class="wk-filter-bar mb-2.5" id="weekFilterBar"></div>
     <!-- Mobile: quarter tabs + horizontal scroll -->
     <div class="wk-qtabs" id="wkQtabs"></div>
-    <div class="wk-mobile-scroll wk-scroll overflow-x-auto" id="wkMobileScroll" style="display:none"></div>
+    <div class="wk-mobile-scroll wk-scroll overflow-x-auto" id="wkMobileScroll"></div>
     <!-- Desktop: 4-col grid -->
     <div class="wk-desktop-grid grid sm:grid-cols-2 lg:grid-cols-4 gap-2.5" id="dashWeekRow"></div>
   </div>
 
-  <!-- Donuts row + Recent activity (5-col: 3 donuts + activity 2/5) -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-    <!-- Donut: Anuncios publicados (by FUENTE) -->
-    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center">
-      <p class="text-2xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Anuncios</p>
-      <svg viewBox="0 0 36 36" class="w-24 h-24">
-        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
-        <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700" id="donutAdsCenter">-</text>
-      </svg>
-      <div id="donutAdsLegend" class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-2xs"></div>
-    </div>
-    <!-- Donut: Conversión -->
-    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center">
-      <p class="text-2xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Conversión</p>
-      <svg viewBox="0 0 36 36" class="w-24 h-24">
-        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
-        <circle id="donutConvCitado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#f97316" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-        <circle id="donutConvSelec" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-        <circle id="donutConvDesc" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#ef4444" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-        <circle id="donutConvPend" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#94a3b8" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
-        <text x="18" y="17" text-anchor="middle" fill="#1e293b" font-size="4.5" font-weight="700" id="donutConvPct">-</text>
-        <text x="18" y="22" text-anchor="middle" fill="#94a3b8" font-size="3" id="donutConvLabel">tasa</text>
-      </svg>
-      <div id="donutConvLegend" class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-2xs"></div>
-    </div>
-    <!-- Donut: Situación -->
-    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center">
-      <p class="text-2xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Situación</p>
+  <!-- Row 1: Situación (real) + Actividad reciente -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <!-- Donut: Situación (real data) -->
+    <div class="card p-4 flex flex-col items-center">
+      <p class="section-label mb-2">Situación</p>
       <svg viewBox="0 0 36 36" class="w-24 h-24">
         <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
         <circle id="donutNuevo" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
@@ -486,91 +568,236 @@ tailwind.config = { theme: { extend: {
         <circle id="donutSeleccionado" class="donut-ring" cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="2.8" stroke-dasharray="0 100" stroke-dashoffset="25" stroke-linecap="round"/>
         <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700" id="donutCenter">-</text>
       </svg>
-      <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-2xs">
+      <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-xs">
         <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-brand-500"></span><span class="text-gray-500">Nuevos</span></div>
         <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-500"></span><span class="text-gray-500">Citados</span></div>
         <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span><span class="text-gray-500">Descartados</span></div>
         <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-gray-500">Seleccionados</span></div>
       </div>
     </div>
-    <!-- Recent candidates (2/5 width) -->
-    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 lg:col-span-2">
+    <!-- Recent candidates (2/3 width) -->
+    <div class="card p-4 lg:col-span-2">
       <div class="flex items-center justify-between mb-2">
-        <p class="text-2xs font-semibold text-gray-400 uppercase tracking-wider">Actividad reciente</p>
-        <button onclick="dashDrillDown('reciente','')" class="text-2xs text-brand-600 hover:text-brand-700 font-medium hover:underline transition">Ver todo</button>
+        <p class="section-label">Actividad reciente</p>
+        <button onclick="dashDrillDown('reciente','')" class="text-xs text-brand-600 hover:text-brand-700 font-medium hover:underline transition">Ver todo</button>
       </div>
       <div id="dashRecent" class="space-y-2 max-h-[200px] overflow-y-auto text-sm">
-        <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader" style="width:14px;height:14px;border-width:2px"></div>Cargando...</div>
+        <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader loader-sm"></div>Cargando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Reclutamiento (fake — próximamente) -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <!-- Fake: Anuncios -->
+    <div class="card p-4 donut-placeholder">
+      <span class="badge-soon">Proximamente</span>
+      <div class="donut-inner flex flex-col items-center">
+        <p class="section-label mb-2">Anuncios</p>
+        <svg viewBox="0 0 36 36" class="w-20 h-20">
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#6366f1" stroke-width="2.8" stroke-dasharray="38 62" stroke-dashoffset="25" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#8b5cf6" stroke-width="2.8" stroke-dasharray="24 76" stroke-dashoffset="87" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ec4899" stroke-width="2.8" stroke-dasharray="18 82" stroke-dashoffset="63" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f97316" stroke-width="2.8" stroke-dasharray="20 80" stroke-dashoffset="45" stroke-linecap="round"/>
+          <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700">12</text>
+        </svg>
+        <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-xs">
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#6366f1"></span><span class="text-gray-500">InfoJobs</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#8b5cf6"></span><span class="text-gray-500">Indeed</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#ec4899"></span><span class="text-gray-500">LinkedIn</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#f97316"></span><span class="text-gray-500">Otros</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Fake: Retención -->
+    <div class="card p-4 donut-placeholder">
+      <span class="badge-soon">Proximamente</span>
+      <div class="donut-inner flex flex-col items-center">
+        <p class="section-label mb-2">Retención</p>
+        <svg viewBox="0 0 36 36" class="w-20 h-20">
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="2.8" stroke-dasharray="72 28" stroke-dashoffset="25" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f43f5e" stroke-width="2.8" stroke-dasharray="18 82" stroke-dashoffset="53" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#94a3b8" stroke-width="2.8" stroke-dasharray="10 90" stroke-dashoffset="35" stroke-linecap="round"/>
+          <text x="18" y="17.5" text-anchor="middle" fill="#1e293b" font-size="5" font-weight="700">72%</text>
+          <text x="18" y="22" text-anchor="middle" fill="#94a3b8" font-size="3">tasa</text>
+        </svg>
+        <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-xs">
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#10b981"></span><span class="text-gray-500">Activos</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#f43f5e"></span><span class="text-gray-500">Bajas</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#94a3b8"></span><span class="text-gray-500">Periodo prueba</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Fake: Conversión -->
+    <div class="card p-4 donut-placeholder">
+      <span class="badge-soon">Proximamente</span>
+      <div class="donut-inner flex flex-col items-center">
+        <p class="section-label mb-2">Conversión</p>
+        <svg viewBox="0 0 36 36" class="w-20 h-20">
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f97316" stroke-width="2.8" stroke-dasharray="30 70" stroke-dashoffset="25" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="2.8" stroke-dasharray="14 86" stroke-dashoffset="95" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ef4444" stroke-width="2.8" stroke-dasharray="22 78" stroke-dashoffset="81" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#94a3b8" stroke-width="2.8" stroke-dasharray="34 66" stroke-dashoffset="59" stroke-linecap="round"/>
+          <text x="18" y="17.5" text-anchor="middle" fill="#1e293b" font-size="5" font-weight="700">44%</text>
+          <text x="18" y="22" text-anchor="middle" fill="#94a3b8" font-size="3">tasa</text>
+        </svg>
+        <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-xs">
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#f97316"></span><span class="text-gray-500">Citados</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#10b981"></span><span class="text-gray-500">Selecc.</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#ef4444"></span><span class="text-gray-500">Descart.</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#94a3b8"></span><span class="text-gray-500">Pendientes</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: Comunicación (fake — próximamente) -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <!-- Fake: Mails -->
+    <div class="card p-4 donut-placeholder">
+      <span class="badge-soon">Proximamente</span>
+      <div class="donut-inner flex flex-col items-center">
+        <p class="section-label mb-2">Mails</p>
+        <svg viewBox="0 0 36 36" class="w-20 h-20">
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="2.8" stroke-dasharray="55 45" stroke-dashoffset="25" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#06b6d4" stroke-width="2.8" stroke-dasharray="30 70" stroke-dashoffset="70" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#94a3b8" stroke-width="2.8" stroke-dasharray="15 85" stroke-dashoffset="40" stroke-linecap="round"/>
+          <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700">64</text>
+        </svg>
+        <div class="grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#3b82f6"></span><span class="text-gray-500">Enviados 64</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#06b6d4"></span><span class="text-gray-500">Abiertos 35</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#94a3b8"></span><span class="text-gray-500">Respondidos 18</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Fake: WhatsApps -->
+    <div class="card p-4 donut-placeholder">
+      <span class="badge-soon">Proximamente</span>
+      <div class="donut-inner flex flex-col items-center">
+        <p class="section-label mb-2">WhatsApps</p>
+        <svg viewBox="0 0 36 36" class="w-20 h-20">
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#22c55e" stroke-width="2.8" stroke-dasharray="58 42" stroke-dashoffset="25" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#86efac" stroke-width="2.8" stroke-dasharray="32 68" stroke-dashoffset="67" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#94a3b8" stroke-width="2.8" stroke-dasharray="10 90" stroke-dashoffset="35" stroke-linecap="round"/>
+          <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700">82</text>
+        </svg>
+        <div class="grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#22c55e"></span><span class="text-gray-500">Enviados 82</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#86efac"></span><span class="text-gray-500">Leidos 67</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#94a3b8"></span><span class="text-gray-500">Respondidos 31</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Fake: Respuesta -->
+    <div class="card p-4 donut-placeholder">
+      <span class="badge-soon">Proximamente</span>
+      <div class="donut-inner flex flex-col items-center">
+        <p class="section-label mb-2">Respuesta</p>
+        <svg viewBox="0 0 36 36" class="w-20 h-20">
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#8b5cf6" stroke-width="2.8" stroke-dasharray="42 58" stroke-dashoffset="25" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="2.8" stroke-dasharray="58 42" stroke-dashoffset="83" stroke-linecap="round"/>
+          <text x="18" y="17.5" text-anchor="middle" fill="#1e293b" font-size="5" font-weight="700">42%</text>
+          <text x="18" y="22" text-anchor="middle" fill="#94a3b8" font-size="3">tasa</text>
+        </svg>
+        <div class="grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#8b5cf6"></span><span class="text-gray-500">Respondidos</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#e2e8f0"></span><span class="text-gray-500">Sin respuesta</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Fake: Conversión comms -->
+    <div class="card p-4 donut-placeholder">
+      <span class="badge-soon">Proximamente</span>
+      <div class="donut-inner flex flex-col items-center">
+        <p class="section-label mb-2">Conversión</p>
+        <svg viewBox="0 0 36 36" class="w-20 h-20">
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f97316" stroke-width="2.8" stroke-dasharray="38 62" stroke-dashoffset="25" stroke-linecap="round"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="2.8" stroke-dasharray="62 38" stroke-dashoffset="87" stroke-linecap="round"/>
+          <text x="18" y="17.5" text-anchor="middle" fill="#1e293b" font-size="5" font-weight="700">38%</text>
+          <text x="18" y="22" text-anchor="middle" fill="#94a3b8" font-size="3">lead→resp</text>
+        </svg>
+        <div class="grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#f97316"></span><span class="text-gray-500">Convertidos</span></div>
+          <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#e2e8f0"></span><span class="text-gray-500">Pendientes</span></div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Por Situación -->
-  <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-    <p class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Por situación</p>
+  <div class="card p-5">
+    <p class="section-title mb-3">Por situación</p>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
-      <div class="stat-card bg-white rounded-xl p-3.5 shadow-sm border border-gray-100" onclick="filterByStat('')">
-        <p class="text-2xl font-bold text-gray-800" id="statTotal">-</p>
-        <p class="text-2xs text-gray-500 mt-0.5">Total candidatos</p>
+      <div class="stat-card card p-3.5" onclick="filterByStat('')">
+        <p class="text-xl font-bold text-gray-800" id="statTotal">-</p>
+        <p class="text-xs text-gray-500 mt-0.5">Total candidatos</p>
       </div>
       <div class="stat-card bg-brand-50/70 rounded-xl p-3.5 shadow-sm border border-brand-100/60" onclick="filterByStat('Nuevo')">
         <div class="flex items-baseline justify-between">
-          <p class="text-2xl font-bold text-brand-700" id="statNuevo">-</p>
-          <span class="text-2xs text-brand-400 font-medium" id="pctNuevo"></span>
+          <p class="text-xl font-bold text-brand-700" id="statNuevo">-</p>
+          <span class="text-xs text-brand-400 font-medium" id="pctNuevo"></span>
         </div>
-        <p class="text-2xs text-brand-600 mt-0.5">Nuevos</p>
+        <p class="text-xs text-brand-600 mt-0.5">Nuevos</p>
         <div class="mt-1.5 bg-brand-100 rounded-full overflow-hidden"><div class="pct-bar bg-brand-500" id="barNuevo"></div></div>
       </div>
       <div class="stat-card bg-orange-50/70 rounded-xl p-3.5 shadow-sm border border-orange-100/60" onclick="filterByStat('Citado')">
         <div class="flex items-baseline justify-between">
-          <p class="text-2xl font-bold text-orange-700" id="statCitado">-</p>
-          <span class="text-2xs text-orange-400 font-medium" id="pctCitado"></span>
+          <p class="text-xl font-bold text-orange-700" id="statCitado">-</p>
+          <span class="text-xs text-orange-400 font-medium" id="pctCitado"></span>
         </div>
-        <p class="text-2xs text-orange-600 mt-0.5">Citados</p>
+        <p class="text-xs text-orange-600 mt-0.5">Citados</p>
         <div class="mt-1.5 bg-orange-100 rounded-full overflow-hidden"><div class="pct-bar bg-orange-500" id="barCitado"></div></div>
       </div>
       <div class="stat-card bg-red-50/70 rounded-xl p-3.5 shadow-sm border border-red-100/60" onclick="filterByStat('Descartado')">
         <div class="flex items-baseline justify-between">
-          <p class="text-2xl font-bold text-red-700" id="statDescartado">-</p>
-          <span class="text-2xs text-red-400 font-medium" id="pctDescartado"></span>
+          <p class="text-xl font-bold text-red-700" id="statDescartado">-</p>
+          <span class="text-xs text-red-400 font-medium" id="pctDescartado"></span>
         </div>
-        <p class="text-2xs text-red-600 mt-0.5">Descartados</p>
+        <p class="text-xs text-red-600 mt-0.5">Descartados</p>
         <div class="mt-1.5 bg-red-100 rounded-full overflow-hidden"><div class="pct-bar bg-red-500" id="barDescartado"></div></div>
       </div>
       <div class="stat-card bg-emerald-50/70 rounded-xl p-3.5 shadow-sm border border-emerald-100/60 hidden sm:block" onclick="filterByStat('Seleccionado')">
         <div class="flex items-baseline justify-between">
-          <p class="text-2xl font-bold text-emerald-700" id="statSeleccionado">-</p>
-          <span class="text-2xs text-emerald-400 font-medium" id="pctSeleccionado"></span>
+          <p class="text-xl font-bold text-emerald-700" id="statSeleccionado">-</p>
+          <span class="text-xs text-emerald-400 font-medium" id="pctSeleccionado"></span>
         </div>
-        <p class="text-2xs text-emerald-600 mt-0.5">Seleccionados</p>
+        <p class="text-xs text-emerald-600 mt-0.5">Seleccionados</p>
         <div class="mt-1.5 bg-emerald-100 rounded-full overflow-hidden"><div class="pct-bar bg-emerald-500" id="barSeleccionado"></div></div>
       </div>
     </div>
   </div>
 
   <!-- Por Posición -->
-  <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+  <div class="card p-5">
     <div class="flex items-center justify-between mb-3">
-      <p class="text-2xs font-semibold text-gray-500 uppercase tracking-wider">Por posición</p>
+      <p class="section-title">Por posición</p>
       <button onclick="crudAdd('posicion')" class="text-gray-300 hover:text-brand-600 hover:bg-brand-50 p-1 rounded-md transition" title="Añadir posición">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       </button>
     </div>
     <div id="dashPositions" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
-      <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader" style="width:14px;height:14px;border-width:2px"></div>Cargando...</div>
+      <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader loader-sm"></div>Cargando...</div>
     </div>
   </div>
 
   <!-- Por Oficina -->
-  <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+  <div class="card p-5">
     <div class="flex items-center justify-between mb-3">
-      <p class="text-2xs font-semibold text-gray-500 uppercase tracking-wider">Por oficina</p>
+      <p class="section-title">Por oficina</p>
       <button onclick="crudAdd('oficina')" class="text-gray-300 hover:text-brand-600 hover:bg-brand-50 p-1 rounded-md transition" title="Añadir oficina">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       </button>
     </div>
     <div id="dashOffices" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
-      <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader" style="width:14px;height:14px;border-width:2px"></div>Cargando...</div>
+      <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader loader-sm"></div>Cargando...</div>
     </div>
   </div>
 
@@ -579,48 +806,56 @@ tailwind.config = { theme: { extend: {
 
 <!-- Drill-down detail view (hidden by default) -->
 <div id="dashDetail" class="hidden">
-<div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
-  <!-- Breadcrumb -->
-  <div class="flex items-center gap-2">
-    <button onclick="dashDrillBack()" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-    </button>
-    <span class="text-sm text-gray-400">Dashboard</span>
-    <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-    <span id="drillTitle" class="text-sm font-semibold text-gray-800"></span>
-    <div class="flex-1"></div>
-    <button onclick="openDrillWhatsApp()" id="drillWABtn" class="hidden bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-700 transition flex items-center gap-1.5" title="Enviar WhatsApp a filtrados">
-      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
-      <span id="drillWALabel">WhatsApp</span>
-    </button>
+<div class="page-container pt-5 pb-4 space-y-4">
+  <!-- Hero header (normalized height) -->
+  <div class="hero-bar">
+    <div class="hero-left">
+      <button onclick="dashDrillBack()" class="hero-icon w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition cursor-pointer border-0" title="Volver al Dashboard">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="hero-text">
+        <div class="flex items-center gap-2">
+          <span class="hero-subtitle">Dashboard</span>
+          <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <span id="drillTitle" class="hero-title"></span>
+        </div>
+        <p class="hero-subtitle" id="drillSubtitle">Detalle filtrado por grupo</p>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <button onclick="openDrillWhatsApp()" id="drillWABtn" class="hidden btn btn-sm bg-emerald-600 text-white hover:bg-emerald-700" title="Enviar WhatsApp a filtrados">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+        <span id="drillWALabel">WhatsApp</span>
+      </button>
+    </div>
   </div>
   <!-- Drill-down filters -->
   <div class="flex flex-wrap gap-2 items-center">
-    <select id="drillFilterSit" onchange="applyDrillFilters()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
+    <select id="drillFilterSit" onchange="applyDrillFilters()" class="filter-select">
       <option value="">Todas las situaciones</option>
       <option value="Nuevo">Nuevo</option><option value="Citado">Citado</option><option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
     </select>
-    <select id="drillFilterWeek" onchange="applyDrillFilters()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition hidden">
+    <select id="drillFilterWeek" onchange="applyDrillFilters()" class="filter-select hidden">
       <option value="">Todas las semanas</option>
     </select>
-    <button onclick="clearDrillFilters()" id="btnDrillClear" class="text-gray-400 hover:text-gray-600 px-1.5 py-1.5 rounded-lg text-xs hover:bg-gray-100 transition hidden" title="Limpiar filtros">
+    <button onclick="clearDrillFilters()" id="btnDrillClear" class="btn-icon hover:text-gray-600 hover:bg-gray-100 hidden" title="Limpiar filtros">
       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
   </div>
   <!-- Drill-down week calendar -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3">
+  <div class="card p-3">
     <div class="wk-filter-bar mb-2.5" id="drillWeekFilterBar"></div>
     <div class="wk-qtabs" id="drillQtabs"></div>
-    <div class="wk-mobile-scroll wk-scroll overflow-x-auto" id="drillMobileScroll" style="display:none"></div>
+    <div class="wk-mobile-scroll wk-scroll overflow-x-auto" id="drillMobileScroll"></div>
     <div class="wk-desktop-grid grid sm:grid-cols-2 lg:grid-cols-4 gap-2.5" id="drillWeekRow"></div>
   </div>
   <!-- Mini stats -->
   <div class="grid grid-cols-3 sm:grid-cols-5 gap-2.5" id="drillStats"></div>
   <!-- Filtered table -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="card overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50/80 text-gray-500 text-2xs uppercase tracking-wider">
+        <thead class="bg-gray-50/80 text-gray-500 text-xs uppercase tracking-wider">
           <tr>
             <th class="px-3 py-2.5 text-left">Nombre</th>
             <th class="px-3 py-2.5 text-left hidden sm:table-cell">Teléfono</th>
@@ -647,23 +882,32 @@ tailwind.config = { theme: { extend: {
 <div id="tab-database" class="tab-section">
 
 <!-- Hero header -->
-<div class="max-w-[1400px] mx-auto px-4 pt-5 pb-3">
-  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center shadow-sm">
-        <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+<div class="page-container pt-5 pb-4">
+  <div class="hero-bar">
+    <div class="hero-left">
+      <div class="hero-icon w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18M3 6h18M3 18h18"/></svg>
       </div>
-      <div>
-        <h1 class="text-sm font-bold text-gray-800">Base de Datos</h1>
-        <p class="text-2xs text-gray-400">Sube CVs, gestiona candidatos y explora la carpeta de Drive</p>
+      <div class="hero-text">
+        <h1 class="hero-title">Base de Datos</h1>
+        <p class="hero-subtitle">Sube CVs, gestiona candidatos y explora la carpeta de Drive</p>
       </div>
+    </div>
+    <div class="hero-actions">
+      <button onclick="document.getElementById('cvFileInput').click()" class="btn btn-sm bg-slate-700 text-white hover:bg-slate-800" title="Subir CVs">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+        <span class="hidden sm:inline">Subir CV</span>
+      </button>
+      <button onclick="loadData()" class="btn-icon hover:text-slate-600 hover:bg-gray-100" title="Refrescar datos">
+        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      </button>
     </div>
   </div>
 </div>
 
 <!-- CV Upload + Drive folder -->
-<div class="max-w-[1400px] mx-auto px-4 pb-2">
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+<div class="page-container pb-2">
+  <div class="card p-4">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- Upload drop zone -->
       <div class="cv-drop flex flex-col items-center justify-center p-6 text-center lg:col-span-1"
@@ -677,18 +921,18 @@ tailwind.config = { theme: { extend: {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
         </svg>
         <p class="text-sm font-medium text-gray-500">Arrastra CVs aquí</p>
-        <p class="text-2xs text-gray-400 mt-0.5">o haz clic para seleccionar PDF</p>
+        <p class="text-xs text-gray-400 mt-0.5">o haz clic para seleccionar PDF</p>
       </div>
       <!-- Drive folder contents -->
       <div class="lg:col-span-2">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-2 min-w-0">
             <svg class="w-4 h-4 text-brand-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 3.5L1.15 15l4.58 7.5h13.54l4.58-7.5L17.29 3.5H7.71zm-.18 1h9.94l5.66 10H2.87l5.66-10z" opacity=".3"/><path d="M19.54 10L14.29 2H9.71L4.46 10l2.63 4.29L2.46 22h19.08l-4.63-7.71L19.54 10zM9.71 4h4.58l4.29 7H5.42l4.29-7z"/></svg>
-            <div id="driveBreadcrumb" class="flex items-center gap-1 text-2xs font-semibold text-gray-500 uppercase tracking-wider min-w-0 flex-wrap">
+            <div id="driveBreadcrumb" class="flex items-center gap-1 section-title min-w-0 flex-wrap">
               <span>Carpeta Google Drive</span>
             </div>
           </div>
-          <button onclick="driveRefresh()" class="text-2xs text-brand-500 hover:text-brand-700 font-medium flex items-center gap-1 transition flex-shrink-0">
+          <button onclick="driveRefresh()" class="text-xs text-brand-500 hover:text-brand-700 font-medium flex items-center gap-1 transition flex-shrink-0">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             Actualizar
           </button>
@@ -696,7 +940,7 @@ tailwind.config = { theme: { extend: {
         <div id="driveFileList" class="space-y-1 max-h-[220px] overflow-y-auto pr-1">
           <p class="text-gray-300 text-xs text-center py-4">Haz clic en Actualizar para ver los archivos</p>
         </div>
-        <div id="driveFileCount" class="text-2xs text-gray-400 mt-1.5 hidden"></div>
+        <div id="driveFileCount" class="text-xs text-gray-400 mt-1.5 hidden"></div>
       </div>
     </div>
     <!-- Upload progress area -->
@@ -705,8 +949,8 @@ tailwind.config = { theme: { extend: {
 </div>
 
 <!-- File Viewer -->
-<div id="pdfViewer" class="hidden max-w-[1400px] mx-auto px-4 pt-2 pb-2">
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<div id="pdfViewer" class="hidden page-container pt-2 pb-2">
+  <div class="card overflow-hidden">
     <div class="flex items-center justify-between px-4 py-2.5 bg-gray-50 border-b">
       <div class="flex items-center gap-2 min-w-0">
         <div class="w-6 h-6 rounded bg-brand-50 flex items-center justify-center flex-shrink-0">
@@ -715,11 +959,11 @@ tailwind.config = { theme: { extend: {
         <span id="pdfViewerName" class="text-xs font-medium text-gray-700 truncate"></span>
       </div>
       <div class="flex items-center gap-3">
-        <a id="pdfViewerLink" href="#" target="_blank" rel="noopener" class="text-2xs text-brand-500 hover:text-brand-700 font-medium flex items-center gap-1 transition">
+        <a id="pdfViewerLink" href="#" target="_blank" rel="noopener" class="text-xs text-brand-500 hover:text-brand-700 font-medium flex items-center gap-1 transition">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
           Abrir en Drive
         </a>
-        <button onclick="closeFileViewer()" class="text-gray-400 hover:text-gray-600 w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100 transition" aria-label="Cerrar">&times;</button>
+        <button onclick="closeFileViewer()" class="btn-icon w-6 h-6 hover:text-gray-600" aria-label="Cerrar">&times;</button>
       </div>
     </div>
     <iframe id="pdfViewerFrame" class="w-full bg-gray-50" style="height:500px;border:none" src=""></iframe>
@@ -727,56 +971,57 @@ tailwind.config = { theme: { extend: {
 </div>
 
 <!-- Data tab mini-stats -->
-<div class="max-w-[1400px] mx-auto px-4 pt-2 pb-1">
+<div class="page-container pt-2 pb-1">
   <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="dataTabStats"></div>
 </div>
 
 <!-- Filters -->
-<div class="max-w-[1400px] mx-auto px-4 pt-2 pb-3">
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 flex flex-wrap gap-2.5 items-end">
+<div class="page-container pt-2 pb-3">
+  <div class="card p-3 flex flex-wrap gap-2.5 items-end">
     <div>
-      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Situación</label>
-      <select id="filterSituacion" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
+      <label class="form-label">Situación</label>
+      <select id="filterSituacion" onchange="applyFilters(true)" class="filter-select">
         <option value="">Todas</option><option value="Nuevo">Nuevo</option><option value="Citado">Citado</option><option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
       </select>
     </div>
     <div>
-      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Mes</label>
-      <select id="filterMes" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
+      <label class="form-label">Mes</label>
+      <select id="filterMes" onchange="applyFilters(true)" class="filter-select">
         <option value="">Todos</option>
       </select>
     </div>
     <div>
-      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Posición</label>
-      <select id="filterPosicion" onchange="applyFilters(true)" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
+      <label class="form-label">Posición</label>
+      <select id="filterPosicion" onchange="applyFilters(true)" class="filter-select">
         <option value="">Todas</option>
       </select>
     </div>
     <div class="flex-1 min-w-[180px]">
-      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Buscar</label>
+      <label class="form-label">Buscar</label>
       <div class="relative">
-        <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input id="filterSearch" type="text" placeholder="Buscar candidato... (/)" oninput="clearTimeout(searchDebounce);searchDebounce=setTimeout(()=>applyFilters(true),300)" class="w-full text-sm border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-200 outline-none transition">
+        <svg id="searchIcon" class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <div id="searchSpinner" class="loader loader-sm absolute left-2.5 top-1/2 -translate-y-1/2 hidden"></div>
+        <input id="filterSearch" type="text" placeholder="Buscar candidato... (/)" oninput="document.getElementById('searchIcon').classList.add('hidden');document.getElementById('searchSpinner').classList.remove('hidden');clearTimeout(searchDebounce);searchDebounce=setTimeout(()=>{document.getElementById('searchSpinner').classList.add('hidden');document.getElementById('searchIcon').classList.remove('hidden');applyFilters(true)},300)" class="filter-select w-full pl-8 pr-3">
       </div>
     </div>
-    <button onclick="clearFilters()" id="btnClear" class="text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg text-xs hover:bg-gray-100 transition hidden" title="Limpiar filtros">
+    <button onclick="clearFilters()" id="btnClear" class="btn-icon hover:text-gray-600 hover:bg-gray-100 hidden" title="Limpiar filtros">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
     <!-- Bulk actions -->
     <div id="bulkActions" class="hidden items-center gap-1.5">
-      <select id="bulkSituacion" class="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50">
+      <select id="bulkSituacion" class="filter-select">
         <option value="">Cambiar a...</option><option value="Nuevo">Nuevo</option><option value="Citado">Citado</option><option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
       </select>
-      <button onclick="bulkChangeSituacion()" class="bg-brand-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">Aplicar</button>
-      <button onclick="exportCSV()" class="text-gray-500 hover:text-gray-700 px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-100 transition border border-gray-200 flex items-center gap-1" title="Exportar CSV">
+      <button onclick="bulkChangeSituacion()" class="btn btn-sm btn-primary">Aplicar</button>
+      <button onclick="exportCSV()" class="btn btn-sm btn-secondary" title="Exportar CSV">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         <span>CSV</span>
       </button>
-      <button onclick="deleteSelected()" class="role-admin bg-red-50 text-red-600 px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-red-100 transition border border-red-200 flex items-center gap-1">
+      <button onclick="deleteSelected()" class="role-admin btn btn-sm bg-red-50 text-red-600 hover:bg-red-100 border border-red-200">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         <span id="deleteCount">0</span>
       </button>
-      <button onclick="openWhatsAppModal()" class="role-admin bg-emerald-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-700 transition flex items-center gap-1.5" title="Enviar WhatsApp">
+      <button onclick="openWhatsAppModal()" class="role-admin btn btn-sm bg-emerald-600 text-white hover:bg-emerald-700" title="Enviar WhatsApp">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.09.54 4.09 1.56 5.88L.05 23.56a.75.75 0 00.9.9l5.68-1.51A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.69 9.69 0 01-5.22-1.524l-.375-.224-3.375.9.9-3.375-.246-.39A9.693 9.693 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z"/></svg>
         <span>WhatsApp</span>
       </button>
@@ -785,11 +1030,11 @@ tailwind.config = { theme: { extend: {
 </div>
 
 <!-- Table -->
-<div class="max-w-[1400px] mx-auto px-4 pb-4">
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="page-container pb-4">
+  <div class="card overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full text-sm" id="mainTable">
-        <thead class="bg-gray-50/80 text-gray-500 text-2xs uppercase tracking-wider">
+        <thead class="bg-gray-50/80 text-gray-500 text-xs uppercase tracking-wider">
           <tr>
             <th class="px-3 py-2.5 text-left w-8"><input type="checkbox" id="checkAll" onchange="toggleAll(this)" class="rounded"></th>
             <th class="px-3 py-2.5 text-left w-10 sortable" data-col="ROW" onclick="sortBy(this)"># <span class="sort-icon">&#9650;</span></th>
@@ -811,13 +1056,16 @@ tailwind.config = { theme: { extend: {
         </tbody>
       </table>
     </div>
-    <div class="px-4 py-2.5 bg-gray-50/50 border-t text-xs text-gray-400 flex justify-between items-center">
-      <span id="rowCount">-</span>
-      <div class="flex items-center gap-1.5">
-        <button onclick="prevPage()" id="btnPrev" class="px-2.5 py-1 rounded-md border bg-white hover:bg-gray-50 disabled:opacity-30 transition text-gray-600" disabled>&#8249;</button>
-        <span id="pageInfo" class="px-2 py-1 text-gray-500 min-w-[80px] text-center">-</span>
-        <button onclick="nextPage()" id="btnNext" class="px-2.5 py-1 rounded-md border bg-white hover:bg-gray-50 disabled:opacity-30 transition text-gray-600" disabled>&#8250;</button>
+    <div class="px-4 py-2.5 bg-gray-50/50 border-t text-xs text-gray-400 flex justify-between items-center flex-wrap gap-2">
+      <div class="flex items-center gap-2">
+        <span id="rowCount">-</span>
+        <select id="pageSizeSelect" onchange="changePageSize(this.value)" class="filter-select py-1 text-xs" style="min-width:auto;width:auto;padding-right:24px">
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
       </div>
+      <div class="flex items-center gap-1" id="paginationControls"></div>
     </div>
   </div>
 </div>
@@ -826,24 +1074,24 @@ tailwind.config = { theme: { extend: {
 
 <!-- ==================== TAB: CAMPAIGNS ==================== -->
 <div id="tab-campaigns" class="tab-section">
-<div class="max-w-[1400px] mx-auto px-4 pt-5 pb-4 space-y-4">
+<div class="page-container pt-5 pb-4 space-y-4">
   <!-- Hero header -->
-  <div class="flex items-center justify-between flex-wrap gap-3">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-sm">
-        <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+  <div class="hero-bar flex-wrap gap-3">
+    <div class="hero-left">
+      <div class="hero-icon w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg>
       </div>
-      <div>
-        <h1 class="text-sm font-bold text-gray-800">Campanas</h1>
-        <p class="text-2xs text-gray-400">Plantillas de WhatsApp y comunicacion con candidatos</p>
+      <div class="hero-text">
+        <h1 class="hero-title">Campanas</h1>
+        <p class="hero-subtitle">Plantillas de WhatsApp y comunicacion con candidatos</p>
       </div>
     </div>
-    <div class="flex gap-2">
-      <button onclick="openAICampaignDraft()" class="bg-violet-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-violet-700 transition flex items-center gap-1.5">
+    <div class="hero-actions">
+      <button onclick="openAICampaignDraft()" class="btn btn-sm bg-violet-600 text-white hover:bg-violet-700">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5M14.25 3.104c.251.023.501.05.75.082M19 14.5l-2.47 2.47a2.25 2.25 0 01-1.591.659H9.061a2.25 2.25 0 01-1.591-.659L5 14.5m14 0V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-3.5"/></svg>
         IA Draft
       </button>
-      <button onclick="openCampaignForm()" class="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">+ Nueva</button>
+      <button onclick="openCampaignForm()" class="btn btn-sm btn-primary">+ Nueva</button>
     </div>
   </div>
   <div id="campaignList" class="space-y-3"></div>
@@ -851,61 +1099,61 @@ tailwind.config = { theme: { extend: {
 </div><!-- end tab-campaigns -->
 
 <!-- Campaign Form Modal -->
-<div id="campaignModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="display:none;">
+<div id="campaignModal" class="fixed inset-0 z-50 hidden items-center justify-center">
   <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeCampaignModal()"></div>
-  <div class="confirm-modal relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+  <div class="confirm-modal relative modal-card w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
     <div class="sticky top-0 bg-white border-b px-5 py-4 rounded-t-2xl z-10">
       <div class="flex justify-between items-center">
         <h3 id="campaignModalTitle" class="text-sm font-bold text-gray-800">Nueva campaña</h3>
-        <button onclick="closeCampaignModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Cerrar">&times;</button>
+        <button onclick="closeCampaignModal()" class="btn-icon w-8 h-8 hover:text-gray-600" aria-label="Cerrar">&times;</button>
       </div>
     </div>
     <div class="p-5 space-y-4">
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Nombre</label>
-        <input id="campName" type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Nombre de la campaña">
+        <label class="form-label">Nombre</label>
+        <input id="campName" type="text" class="form-input" placeholder="Nombre de la campaña">
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Canal</label>
+        <label class="form-label">Canal</label>
         <div class="flex gap-2">
           <button onclick="setCampChannel('whatsapp')" id="campChWA" class="flex-1 p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-center text-sm transition">WhatsApp</button>
           <button onclick="setCampChannel('email')" id="campChEmail" class="flex-1 p-3 rounded-xl border-2 border-gray-100 text-center text-sm transition">Email</button>
         </div>
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Contenido del mensaje</label>
-        <textarea id="campContent" rows="4" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-y" placeholder="Contenido..."></textarea>
+        <label class="form-label">Contenido del mensaje</label>
+        <textarea id="campContent" rows="4" class="form-input resize-y" placeholder="Contenido..."></textarea>
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Destinatarios (filtro)</label>
+        <label class="form-label">Destinatarios (filtro)</label>
         <div class="grid grid-cols-2 gap-2">
-          <select id="campFilterSit" onchange="updateCampRecipientCount()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5">
+          <select id="campFilterSit" onchange="updateCampRecipientCount()" class="filter-select">
             <option value="">Todas situaciones</option>
             <option value="Nuevo">Nuevo</option><option value="Citado">Citado</option>
             <option value="Descartado">Descartado</option><option value="Seleccionado">Seleccionado</option>
           </select>
-          <select id="campFilterPos" onchange="updateCampRecipientCount()" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5">
+          <select id="campFilterPos" onchange="updateCampRecipientCount()" class="filter-select">
             <option value="">Todas posiciones</option>
           </select>
         </div>
-        <p id="campRecipientCount" class="text-2xs text-gray-400 mt-1">0 destinatarios coinciden</p>
+        <p id="campRecipientCount" class="text-xs text-gray-400 mt-1">0 destinatarios coinciden</p>
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Fecha programada</label>
-          <input id="campDate" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+          <label class="form-label">Fecha programada</label>
+          <input id="campDate" type="date" class="form-input">
         </div>
         <div>
-          <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Hora</label>
-          <input id="campTime" type="time" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+          <label class="form-label">Hora</label>
+          <input id="campTime" type="time" class="form-input">
         </div>
       </div>
     </div>
     <div class="sticky bottom-0 bg-white border-t px-5 py-3 rounded-b-2xl flex justify-between">
-      <button onclick="closeCampaignModal()" class="px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition">Cancelar</button>
+      <button onclick="closeCampaignModal()" class="btn btn-md btn-secondary">Cancelar</button>
       <div class="flex gap-2">
-        <button onclick="saveCampaign('draft')" class="px-4 py-2 rounded-lg text-sm border border-gray-200 text-gray-600 hover:bg-gray-50 transition">Borrador</button>
-        <button onclick="saveCampaign('scheduled')" class="px-4 py-2 rounded-lg text-sm text-white bg-brand-600 hover:bg-brand-700 transition font-medium">Programar</button>
+        <button onclick="saveCampaign('draft')" class="btn btn-md btn-secondary">Borrador</button>
+        <button onclick="saveCampaign('scheduled')" class="btn btn-md btn-primary">Programar</button>
       </div>
     </div>
   </div>
@@ -913,20 +1161,30 @@ tailwind.config = { theme: { extend: {
 
 <!-- ==================== TAB: CONFIGURE ==================== -->
 <div id="tab-configure" class="tab-section">
-<div class="max-w-[1400px] mx-auto px-4 pt-5 pb-4 space-y-4">
+<div class="page-container pt-5 pb-4 space-y-4">
   <!-- Hero header -->
-  <div class="flex items-center gap-3">
-    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center shadow-sm">
-      <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+  <div class="hero-bar">
+    <div class="hero-left">
+      <div class="hero-icon w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.07-7.07l-1.41 1.41M8.34 15.66l-1.41 1.41m12.14 0l-1.41-1.41M8.34 8.34L6.93 6.93"/></svg>
+      </div>
+      <div class="hero-text">
+        <h1 class="hero-title">Configuracion</h1>
+        <p class="hero-subtitle">Perfil, preferencias y registro de actividad</p>
+      </div>
     </div>
-    <div>
-      <h1 class="text-sm font-bold text-gray-800">Configuracion</h1>
-      <p class="text-2xs text-gray-400">Perfil, preferencias y registro de actividad</p>
+    <div class="hero-actions">
+      <button onclick="document.getElementById('profilePhotoInput').click()" class="btn-icon hover:text-gray-600 hover:bg-gray-100" title="Cambiar foto de perfil">
+        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
+      <button onclick="doLogout()" class="btn-icon hover:text-red-600 hover:bg-red-50" title="Cerrar sesion">
+        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      </button>
     </div>
   </div>
   <!-- My Profile -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Mi Perfil</h2>
+  <div class="card p-6">
+    <h2 class="section-title mb-4">Mi Perfil</h2>
     <div class="flex flex-col sm:flex-row gap-6">
       <!-- Avatar -->
       <div class="flex flex-col items-center gap-2">
@@ -937,29 +1195,29 @@ tailwind.config = { theme: { extend: {
           <img id="profileAvatarImg" class="profile-avatar hidden" src="" alt="Avatar">
         </div>
         <input type="file" id="profilePhotoInput" accept="image/*" class="hidden" onchange="handleProfilePhoto(this.files)">
-        <button onclick="removeProfilePhoto()" id="btnRemoveAvatar" class="text-2xs text-gray-400 hover:text-red-500 hidden">Quitar foto</button>
+        <button onclick="removeProfilePhoto()" id="btnRemoveAvatar" class="text-xs text-gray-400 hover:text-red-500 hidden">Quitar foto</button>
       </div>
       <!-- Info + password -->
       <div class="flex-1 space-y-3">
         <div class="flex items-center gap-3">
           <span id="profileName" class="font-semibold text-gray-800"></span>
-          <span id="profileRolBadge" class="px-2 py-0.5 rounded-full text-2xs font-medium"></span>
+          <span id="profileRolBadge" class="px-2 py-0.5 rounded-full text-xs font-medium"></span>
         </div>
         <p id="profileEmail" class="text-xs text-gray-400"></p>
         <!-- Change password -->
         <details class="mt-2">
           <summary class="text-xs font-medium text-brand-600 cursor-pointer hover:text-brand-800 select-none">Cambiar contraseña</summary>
           <div class="mt-2 space-y-2 max-w-xs">
-            <input id="pwOld" type="password" placeholder="Contraseña actual" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-            <input id="pwNew" type="password" placeholder="Nueva contraseña" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-            <input id="pwConfirm" type="password" placeholder="Confirmar nueva" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-            <button onclick="changePassword()" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-xs font-medium hover:bg-brand-700 transition">Guardar</button>
+            <input id="pwOld" type="password" placeholder="Contraseña actual" class="form-input">
+            <input id="pwNew" type="password" placeholder="Nueva contraseña" class="form-input">
+            <input id="pwConfirm" type="password" placeholder="Confirmar nueva" class="form-input">
+            <button onclick="changePassword()" class="btn btn-sm btn-primary">Guardar</button>
           </div>
         </details>
       </div>
       <!-- Theme -->
       <div class="flex flex-col gap-2">
-        <p class="text-2xs font-semibold text-gray-500 uppercase tracking-wider">Tema</p>
+        <p class="section-title">Tema</p>
         <div class="flex flex-wrap gap-2" id="themeSwatches">
           <div class="theme-swatch" style="background:#2563eb" onclick="setTheme('default')" title="Azul (defecto)"></div>
           <div class="theme-swatch" style="background:#4f46e5" onclick="setTheme('indigo')" title="Indigo"></div>
@@ -972,17 +1230,17 @@ tailwind.config = { theme: { extend: {
     </div>
   </div>
   <!-- User Management -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+  <div class="card p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider">Gestión de Usuarios</h2>
-      <button onclick="openAddUserModal()" id="btnAddUser" class="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">+ Nuevo usuario</button>
+      <h2 class="section-title">Gestión de Usuarios</h2>
+      <button onclick="openAddUserModal()" id="btnAddUser" class="btn btn-sm btn-primary">+ Nuevo usuario</button>
     </div>
     <div id="cfgUserList" class="divide-y divide-gray-100 text-sm"></div>
   </div>
   <!-- Audit Log -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+  <div class="card p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider">Registro de Actividad</h2>
+      <h2 class="section-title">Registro de Actividad</h2>
       <button onclick="clearLogs()" class="text-gray-400 hover:text-red-500 text-xs transition">Limpiar</button>
     </div>
     <div id="cfgLogList" class="max-h-[400px] overflow-y-auto text-xs space-y-1"></div>
@@ -992,41 +1250,52 @@ tailwind.config = { theme: { extend: {
 
 <!-- ==================== TAB: MASTER (Conexia only) ==================== -->
 <div id="tab-master" class="tab-section">
-<div class="max-w-[1400px] mx-auto px-4 pt-5 pb-4 space-y-4">
+<div class="page-container pt-5 pb-4 space-y-4">
   <!-- Hero header -->
-  <div class="flex items-center gap-3">
-    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-sm">
-      <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+  <div class="hero-bar">
+    <div class="hero-left">
+      <div class="hero-icon w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      </div>
+      <div class="hero-text">
+        <h1 class="hero-title">Panel Master</h1>
+        <p class="hero-subtitle">Administracion de creditos, usuarios y sistema</p>
+      </div>
     </div>
-    <div>
-      <h1 class="text-sm font-bold text-gray-800">Panel Master</h1>
-      <p class="text-2xs text-gray-400">Administracion de creditos, usuarios y sistema</p>
+    <div class="hero-actions">
+      <button onclick="saveMasterCredits()" class="btn btn-sm bg-emerald-600 text-white hover:bg-emerald-700" title="Guardar creditos">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span class="hidden sm:inline">Guardar</span>
+      </button>
+      <button onclick="saveMasterAPIKeys()" class="btn-icon hover:text-emerald-600 hover:bg-emerald-50" title="Guardar API Keys">
+        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+      </button>
     </div>
   </div>
   <!-- WhatsApp Credits -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">WhatsApp — Creditos y Facturacion</h2>
+  <div class="card p-6">
+    <h2 class="section-title mb-4">WhatsApp — Creditos y Facturacion</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Créditos totales</label>
-        <input id="masterCreditsTotal" type="number" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" value="0">
+        <label class="form-label">Créditos totales</label>
+        <input id="masterCreditsTotal" type="number" min="0" class="form-input" value="0">
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Créditos usados</label>
-        <p id="masterCreditsUsed" class="text-2xl font-bold text-gray-800 py-1">0</p>
+        <label class="form-label">Créditos usados</label>
+        <p id="masterCreditsUsed" class="text-xl font-bold text-gray-800 py-1">0</p>
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Precio por mensaje (&euro;)</label>
-        <input id="masterPricePerMsg" type="number" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" value="0.05">
+        <label class="form-label">Precio por mensaje (&euro;)</label>
+        <input id="masterPricePerMsg" type="number" step="0.01" min="0" class="form-input" value="0.05">
       </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Fecha expiración</label>
-        <input id="masterCreditsExpiry" type="date" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <label class="form-label">Fecha expiración</label>
+        <input id="masterCreditsExpiry" type="date" class="form-input">
       </div>
       <div class="flex items-end">
-        <button onclick="saveMasterCredits()" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar créditos</button>
+        <button onclick="saveMasterCredits()" class="btn btn-md btn-primary">Guardar créditos</button>
       </div>
     </div>
     <div class="mt-4 p-3 bg-gray-50 rounded-xl">
@@ -1040,62 +1309,62 @@ tailwind.config = { theme: { extend: {
     </div>
   </div>
   <!-- SMTP Config -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Configuración SMTP (Email)</h2>
+  <div class="card p-6">
+    <h2 class="section-title mb-4">Configuración SMTP (Email)</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Servidor SMTP</label>
-        <input id="smtpHost" type="text" placeholder="smtp.gmail.com" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <label class="form-label">Servidor SMTP</label>
+        <input id="smtpHost" type="text" placeholder="smtp.gmail.com" class="form-input">
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Puerto</label>
-        <input id="smtpPort" type="number" placeholder="587" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <label class="form-label">Puerto</label>
+        <input id="smtpPort" type="number" placeholder="587" class="form-input">
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Email</label>
-        <input id="smtpUser" type="email" placeholder="user@company.com" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <label class="form-label">Email</label>
+        <input id="smtpUser" type="email" placeholder="user@company.com" class="form-input">
       </div>
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Password</label>
-        <input id="smtpPass" type="password" placeholder="App password..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <label class="form-label">Password</label>
+        <input id="smtpPass" type="password" placeholder="App password..." class="form-input">
       </div>
     </div>
     <div class="flex gap-2 mt-4">
-      <button onclick="saveSMTPConfig()" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar SMTP</button>
-      <button onclick="testSMTP()" class="border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition">Enviar test</button>
+      <button onclick="saveSMTPConfig()" class="btn btn-md btn-primary">Guardar SMTP</button>
+      <button onclick="testSMTP()" class="btn btn-md btn-secondary">Enviar test</button>
     </div>
   </div>
   <!-- API Keys -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Claves API</h2>
+  <div class="card p-6">
+    <h2 class="section-title mb-4">Claves API</h2>
     <div>
-      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">OpenAI API Key</label>
-      <input id="masterOpenAIKey" type="password" placeholder="sk-proj-..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+      <label class="form-label">OpenAI API Key</label>
+      <input id="masterOpenAIKey" type="password" placeholder="sk-proj-..." class="form-input">
     </div>
-    <button onclick="saveMasterAPIKeys()" class="mt-4 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition">Guardar</button>
+    <button onclick="saveMasterAPIKeys()" class="mt-4 btn btn-md btn-primary">Guardar</button>
   </div>
   <!-- Google Drive Access -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Acceso Carpeta Google Drive</h2>
+  <div class="card p-6">
+    <h2 class="section-title mb-4">Acceso Carpeta Google Drive</h2>
     <p class="text-xs text-gray-500 mb-3">Permite que los archivos (PDFs, CVs) se puedan previsualizar en la app sin requerir que el usuario inicie sesión en Google.</p>
     <div class="flex items-center gap-3">
-      <button onclick="shareDrivePublic()" id="btnShareDrive" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition flex items-center gap-2">
+      <button onclick="shareDrivePublic()" id="btnShareDrive" class="btn btn-md btn-primary flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
         Hacer accesible con enlace
       </button>
-      <span id="driveShareStatus" class="text-2xs text-gray-400"></span>
+      <span id="driveShareStatus" class="text-xs text-gray-400"></span>
     </div>
     <div class="mt-3">
-      <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Compartir con email específico</label>
+      <label class="form-label">Compartir con email específico</label>
       <div class="flex gap-2">
-        <input id="driveShareEmail" type="email" placeholder="usuario@email.com" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
-        <button onclick="shareDriveWithEmail()" class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition">Compartir</button>
+        <input id="driveShareEmail" type="email" placeholder="usuario@email.com" class="form-input flex-1">
+        <button onclick="shareDriveWithEmail()" class="btn btn-md btn-secondary">Compartir</button>
       </div>
     </div>
   </div>
   <!-- Message Log -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Registro de Mensajes Enviados</h2>
+  <div class="card p-6">
+    <h2 class="section-title mb-4">Registro de Mensajes Enviados</h2>
     <div id="masterMsgLog" class="max-h-[300px] overflow-y-auto text-xs space-y-1">
       <p class="text-gray-300">Sin mensajes</p>
     </div>
@@ -1105,66 +1374,66 @@ tailwind.config = { theme: { extend: {
 
 <!-- ==================== SUBFOOTER: APP GUIDE ==================== -->
 <div id="appSubfooter" class="hidden border-t border-gray-100 bg-gradient-to-b from-white to-gray-50/80 mt-8">
-  <div class="max-w-[1400px] mx-auto px-4 py-10">
-    <div class="text-center mb-8">
-      <p class="text-xs font-bold text-gray-800 uppercase tracking-wider">Como funciona el Panel RRHH</p>
-      <p class="text-2xs text-gray-400 mt-1">Guia rapida para sacar el maximo partido a la herramienta</p>
+  <div class="page-container py-14">
+    <div class="text-center mb-10 hero-text">
+      <p class="text-sm font-bold text-gray-800 uppercase tracking-wider">Como funciona el Panel RRHH</p>
+      <p class="text-xs text-gray-400 mt-2">Guia rapida para sacar el maximo partido a la herramienta</p>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <!-- Step 1 -->
-      <div class="relative bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md hover:border-brand-200 transition-all group">
-        <div class="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center mb-3 group-hover:bg-brand-100 transition">
-          <span class="text-sm font-bold text-brand-600">1</span>
+      <div class="step-card relative bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:border-brand-200 transition-all duration-300 group">
+        <div class="step-num w-11 h-11 rounded-xl bg-brand-50 flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-all duration-300">
+          <span class="text-base font-bold text-brand-600">1</span>
         </div>
-        <h4 class="text-xs font-semibold text-gray-800 mb-1.5">Sube los CVs</h4>
-        <p class="text-2xs text-gray-500 leading-relaxed">Arrastra PDFs a la zona de carga en <strong>Datos</strong>. La IA extrae nombre, telefono, email y posicion automaticamente para crear la fila del candidato.</p>
+        <h4 class="text-sm font-semibold text-gray-800 mb-2">Sube los CVs</h4>
+        <p class="text-xs text-gray-500 leading-relaxed">Arrastra PDFs a la zona de carga en <strong>Datos</strong>. La IA extrae nombre, telefono, email y posicion automaticamente para crear la fila del candidato.</p>
       </div>
       <!-- Step 2 -->
-      <div class="relative bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md hover:border-brand-200 transition-all group">
-        <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center mb-3 group-hover:bg-orange-100 transition">
-          <span class="text-sm font-bold text-orange-600">2</span>
+      <div class="step-card relative bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:border-orange-200 transition-all duration-300 group">
+        <div class="step-num w-11 h-11 rounded-xl bg-orange-50 flex items-center justify-center mb-4 group-hover:bg-orange-100 transition-all duration-300">
+          <span class="text-base font-bold text-orange-600">2</span>
         </div>
-        <h4 class="text-xs font-semibold text-gray-800 mb-1.5">Gestiona candidatos</h4>
-        <p class="text-2xs text-gray-500 leading-relaxed">Cambia la <strong>situacion</strong> (Nuevo, Citado, Descartado, Seleccionado) directamente desde la tabla. El CV se mueve automaticamente a la carpeta correspondiente en Drive.</p>
+        <h4 class="text-sm font-semibold text-gray-800 mb-2">Gestiona candidatos</h4>
+        <p class="text-xs text-gray-500 leading-relaxed">Cambia la <strong>situacion</strong> (Nuevo, Citado, Descartado, Seleccionado) directamente desde la tabla. El CV se mueve automaticamente a la carpeta correspondiente en Drive.</p>
       </div>
       <!-- Step 3 -->
-      <div class="relative bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md hover:border-brand-200 transition-all group">
-        <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center mb-3 group-hover:bg-emerald-100 transition">
-          <span class="text-sm font-bold text-emerald-600">3</span>
+      <div class="step-card relative bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:border-emerald-200 transition-all duration-300 group">
+        <div class="step-num w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center mb-4 group-hover:bg-emerald-100 transition-all duration-300">
+          <span class="text-base font-bold text-emerald-600">3</span>
         </div>
-        <h4 class="text-xs font-semibold text-gray-800 mb-1.5">Notifica por WhatsApp</h4>
-        <p class="text-2xs text-gray-500 leading-relaxed">Selecciona candidatos y envia mensajes con plantillas predefinidas. Los citados, seleccionados y descartados reciben notificacion automatica.</p>
+        <h4 class="text-sm font-semibold text-gray-800 mb-2">Notifica por WhatsApp</h4>
+        <p class="text-xs text-gray-500 leading-relaxed">Selecciona candidatos y envia mensajes con plantillas predefinidas. Los citados, seleccionados y descartados reciben notificacion automatica.</p>
       </div>
       <!-- Step 4 -->
-      <div class="relative bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md hover:border-brand-200 transition-all group">
-        <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center mb-3 group-hover:bg-violet-100 transition">
-          <span class="text-sm font-bold text-violet-600">4</span>
+      <div class="step-card relative bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:border-violet-200 transition-all duration-300 group">
+        <div class="step-num w-11 h-11 rounded-xl bg-violet-50 flex items-center justify-center mb-4 group-hover:bg-violet-100 transition-all duration-300">
+          <span class="text-base font-bold text-violet-600">4</span>
         </div>
-        <h4 class="text-xs font-semibold text-gray-800 mb-1.5">Analiza en el Dashboard</h4>
-        <p class="text-2xs text-gray-500 leading-relaxed">Consulta metricas por <strong>oficina</strong>, <strong>posicion</strong> y <strong>semana</strong>. Filtra por trimestre en el calendario y haz drill-down para ver el detalle de cada grupo.</p>
+        <h4 class="text-sm font-semibold text-gray-800 mb-2">Analiza en el Dashboard</h4>
+        <p class="text-xs text-gray-500 leading-relaxed">Consulta metricas por <strong>oficina</strong>, <strong>posicion</strong> y <strong>semana</strong>. Filtra por trimestre en el calendario y haz drill-down para ver el detalle de cada grupo.</p>
       </div>
     </div>
     <!-- Tips row -->
-    <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-      <div class="flex items-start gap-2.5 bg-gray-50 rounded-lg p-3">
-        <svg class="w-4 h-4 text-brand-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="tip-card flex items-start gap-3 bg-gray-50 rounded-xl p-4 hover:bg-gray-100/80 transition-colors duration-300">
+        <svg class="w-5 h-5 text-brand-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         <div>
-          <p class="text-2xs font-semibold text-gray-700">Atajos de teclado</p>
-          <p class="text-2xs text-gray-400 mt-0.5"><kbd class="px-1 py-0.5 bg-white rounded border text-3xs">/</kbd> buscar &middot; <kbd class="px-1 py-0.5 bg-white rounded border text-3xs">Esc</kbd> cerrar &middot; <kbd class="px-1 py-0.5 bg-white rounded border text-3xs">&larr;</kbd><kbd class="px-1 py-0.5 bg-white rounded border text-3xs">&rarr;</kbd> navegar</p>
+          <p class="text-xs font-semibold text-gray-700">Atajos de teclado</p>
+          <p class="text-xs text-gray-400 mt-1"><kbd class="px-1.5 py-0.5 bg-white rounded-md border text-xs shadow-sm">/</kbd> buscar &middot; <kbd class="px-1.5 py-0.5 bg-white rounded-md border text-xs shadow-sm">Esc</kbd> cerrar &middot; <kbd class="px-1.5 py-0.5 bg-white rounded-md border text-xs shadow-sm">&larr;</kbd><kbd class="px-1.5 py-0.5 bg-white rounded-md border text-xs shadow-sm">&rarr;</kbd> navegar</p>
         </div>
       </div>
-      <div class="flex items-start gap-2.5 bg-gray-50 rounded-lg p-3">
-        <svg class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+      <div class="tip-card flex items-start gap-3 bg-gray-50 rounded-xl p-4 hover:bg-gray-100/80 transition-colors duration-300">
+        <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
         <div>
-          <p class="text-2xs font-semibold text-gray-700">Indicadores de CV</p>
-          <p class="text-2xs text-gray-400 mt-0.5">Punto <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"></span> verde = CV cargado &middot; <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-300"></span> amarillo = sin CV</p>
+          <p class="text-xs font-semibold text-gray-700">Indicadores de CV</p>
+          <p class="text-xs text-gray-400 mt-1">Punto <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> verde = CV cargado &middot; <span class="inline-block w-2 h-2 rounded-full bg-amber-300"></span> amarillo = sin CV</p>
         </div>
       </div>
-      <div class="flex items-start gap-2.5 bg-gray-50 rounded-lg p-3">
-        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      <div class="tip-card flex items-start gap-3 bg-gray-50 rounded-xl p-4 hover:bg-gray-100/80 transition-colors duration-300">
+        <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
         <div>
-          <p class="text-2xs font-semibold text-gray-700">Privacidad RGPD</p>
-          <p class="text-2xs text-gray-400 mt-0.5">Telefonos y emails enmascarados en la tabla. Solo visibles al abrir el perfil del candidato.</p>
+          <p class="text-xs font-semibold text-gray-700">Privacidad RGPD</p>
+          <p class="text-xs text-gray-400 mt-1">Telefonos y emails enmascarados en la tabla. Solo visibles al abrir el perfil del candidato.</p>
         </div>
       </div>
     </div>
@@ -1173,27 +1442,27 @@ tailwind.config = { theme: { extend: {
 
 <!-- ==================== FOOTER ==================== -->
 <footer id="appFooter" class="hidden border-t border-gray-200 bg-white">
-  <div class="max-w-[1400px] mx-auto px-4 py-5">
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-600 to-brand-700 flex items-center justify-center shadow-sm">
-          <span class="text-white text-2xs font-bold">LC</span>
+  <div class="footer-animated page-container py-6">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 to-brand-700 flex items-center justify-center shadow-md">
+          <span class="text-white text-xs font-bold">LC</span>
         </div>
         <div>
-          <p class="text-xs font-semibold text-gray-700">La Casa Agency &mdash; Panel RRHH</p>
-          <p class="text-2xs text-gray-400">Sistema de gestion de candidatos y seleccion de personal</p>
+          <p class="text-sm font-semibold text-gray-700">La Casa Agency &mdash; Panel RRHH</p>
+          <p class="text-xs text-gray-400">Sistema de gestion de candidatos y seleccion de personal</p>
         </div>
       </div>
-      <div class="flex items-center gap-4 text-2xs text-gray-400">
-        <span class="flex items-center gap-1">
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      <div class="flex items-center gap-5 text-xs text-gray-400">
+        <span class="flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
           RGPD &middot; LOPD-GDD
         </span>
         <span class="hidden sm:inline">&middot;</span>
         <span class="hidden sm:inline">Acceso restringido</span>
         <span class="hidden sm:inline">&middot;</span>
-        <span class="hidden sm:flex items-center gap-1">
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+        <span class="hidden sm:flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
           Powered by Conexia
         </span>
       </div>
@@ -1213,7 +1482,7 @@ tailwind.config = { theme: { extend: {
         </div>
         <span id="cvSplitName" class="text-xs font-medium text-gray-700 truncate">CV</span>
       </div>
-      <a id="cvSplitDriveLink" href="#" target="_blank" rel="noopener" class="text-2xs text-brand-500 hover:text-brand-700 font-medium flex items-center gap-1 transition">
+      <a id="cvSplitDriveLink" href="#" target="_blank" rel="noopener" class="text-xs text-brand-500 hover:text-brand-700 font-medium flex items-center gap-1 transition">
         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
         Abrir en Drive
       </a>
@@ -1234,8 +1503,8 @@ tailwind.config = { theme: { extend: {
           <button id="modalCvBtn" onclick="openCvMobile()" class="lg:hidden text-brand-500 hover:text-brand-700 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-brand-50 transition hidden" title="Ver CV" aria-label="Ver CV">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           </button>
-          <button onclick="modalNav(-1)" id="modalPrev" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition" title="Anterior" aria-label="Candidato anterior">&#8249;</button>
-          <button onclick="modalNav(1)" id="modalNext" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition" title="Siguiente" aria-label="Candidato siguiente">&#8250;</button>
+          <button onclick="modalNav(-1)" id="modalPrev" class="btn-icon w-8 h-8 hover:text-gray-600" title="Anterior" aria-label="Candidato anterior">&#8249;</button>
+          <button onclick="modalNav(1)" id="modalNext" class="btn-icon w-8 h-8 hover:text-gray-600" title="Siguiente" aria-label="Candidato siguiente">&#8250;</button>
           <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition ml-1" aria-label="Cerrar">&times;</button>
         </div>
       </div>
@@ -1245,9 +1514,9 @@ tailwind.config = { theme: { extend: {
 </div>
 
 <!-- WhatsApp Send Modal -->
-<div id="waModal" class="fixed inset-0 z-50 hidden items-center justify-center" style="display:none;">
+<div id="waModal" class="fixed inset-0 z-50 hidden items-center justify-center">
   <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeWAModal()"></div>
-  <div class="confirm-modal relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+  <div class="confirm-modal relative modal-card w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
     <!-- Header -->
     <div class="sticky top-0 bg-white border-b px-5 py-4 rounded-t-2xl z-10">
       <div class="flex justify-between items-center">
@@ -1257,26 +1526,26 @@ tailwind.config = { theme: { extend: {
           </div>
           <h3 class="font-bold text-gray-800">Enviar WhatsApp</h3>
         </div>
-        <button onclick="closeWAModal()" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Cerrar">&times;</button>
+        <button onclick="closeWAModal()" class="btn-icon w-8 h-8 hover:text-gray-600" aria-label="Cerrar">&times;</button>
       </div>
     </div>
 
     <div class="p-5 space-y-4">
       <!-- Template selector -->
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-2">Plantilla</label>
+        <label class="form-label mb-2">Plantilla</label>
         <div id="waTemplateList" class="grid gap-2"></div>
       </div>
 
       <!-- Recipients list -->
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-2">Destinatarios (<span id="waRecipientCount">0</span>)</label>
+        <label class="form-label mb-2">Destinatarios (<span id="waRecipientCount">0</span>)</label>
         <div id="waRecipientList" class="max-h-[180px] overflow-y-auto border border-gray-100 rounded-xl divide-y divide-gray-50"></div>
       </div>
 
       <!-- Preview -->
       <div id="waPreviewBox" class="hidden">
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-2">Vista previa del mensaje</label>
+        <label class="form-label mb-2">Vista previa del mensaje</label>
         <div id="waPreview" class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-sm text-gray-700 italic"></div>
       </div>
 
@@ -1290,10 +1559,10 @@ tailwind.config = { theme: { extend: {
 
       <!-- Second password -->
       <div>
-        <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1.5">Clave de autorización</label>
+        <label class="form-label mb-1.5">Clave de autorización</label>
         <div class="flex gap-2">
           <input type="password" id="waPassword" placeholder="Introduce la clave para enviar..." oninput="validateWAPassword()"
-            class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 outline-none transition">
+            class="form-input flex-1">
           <span id="waPasswordStatus" class="flex items-center text-xs text-gray-300"></span>
         </div>
       </div>
@@ -1312,9 +1581,9 @@ tailwind.config = { theme: { extend: {
 
     <!-- Footer -->
     <div class="sticky bottom-0 bg-white border-t px-5 py-3 rounded-b-2xl flex justify-between items-center">
-      <button onclick="closeWAModal()" class="px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition">Cancelar</button>
+      <button onclick="closeWAModal()" class="btn btn-md btn-secondary">Cancelar</button>
       <button onclick="sendWhatsAppBatch()" id="waSendBtn" disabled
-        class="px-5 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2">
+        class="btn btn-md bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         Enviar
       </button>
@@ -1326,19 +1595,19 @@ tailwind.config = { theme: { extend: {
 <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 pb-[env(safe-area-inset-bottom)]" style="display:none;">
   <div class="flex py-1">
     <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
       Panel
     </button>
     <button class="nav-tab" onclick="switchTab('database')" data-tab="database">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18M3 6h18M3 18h18"/></svg>
       Datos
     </button>
     <button class="nav-tab" onclick="switchTab('campaigns')" data-tab="campaigns">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg>
       Campañas
     </button>
     <button class="nav-tab" onclick="switchTab('configure')" data-tab="configure">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.07-7.07l-1.41 1.41M8.34 15.66l-1.41 1.41m12.14 0l-1.41-1.41M8.34 8.34L6.93 6.93"/></svg>
       Configurar
     </button>
   </div>
@@ -1384,7 +1653,7 @@ tailwind.config = { theme: { extend: {
 // ==================== CONFIGURATION ====================
 const WEBHOOK_URL = 'https://lacasa-webhook.conexiatec.com/webhook/demo-lacasa';
 const API_TOKEN = 'tVI5cOh3mMfrukfQ0BjhJEgyCz9HPuia';
-const PAGE_SIZE = 50;
+let PAGE_SIZE = parseInt(localStorage.getItem('lacasa_page_size') || '50');
 const STORAGE_KEY = 'lacasa_rrhh_filters';
 const SESSION_KEY = 'lacasa_rrhh_session';
 const SESSION_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
@@ -1873,7 +2142,7 @@ async function loadDriveFiles(force = false, folderId) {
     const files = Array.isArray(data) ? data : (data.files || []);
     driveFilesLoaded = true;
     if (!files.length) {
-      const backBtn = driveNavStack.length ? '<button onclick="driveNavigateTo('+(driveNavStack.length-2)+')" class="text-brand-500 hover:text-brand-700 text-2xs mt-1 font-medium">Volver</button>' : '';
+      const backBtn = driveNavStack.length ? '<button onclick="driveNavigateTo('+(driveNavStack.length-2)+')" class="text-brand-500 hover:text-brand-700 text-xs mt-1 font-medium">Volver</button>' : '';
       el.innerHTML = `<p class="text-gray-300 text-xs text-center py-4">Carpeta vacía${driveNavStack.length ? '' : ' — sube CVs arrastrándolos a la izquierda'}<br>${backBtn}</p>`;
       return;
     }
@@ -1904,7 +2173,7 @@ async function loadDriveFiles(force = false, folderId) {
         <div class="cv-icon ${iconClass}">${DRIVE_ICONS[fType] || DRIVE_ICONS.other}</div>
         <div class="flex-1 min-w-0">
           <p class="truncate font-medium text-xs text-gray-700">${esc(name)}</p>
-          <p class="text-2xs text-gray-400">${typeLabel}${date ? ' · '+date : ''}</p>
+          <p class="text-xs text-gray-400">${typeLabel}${date ? ' · '+date : ''}</p>
         </div>
         ${statusDot}
         ${chevron}
@@ -1927,7 +2196,7 @@ async function loadDriveFiles(force = false, folderId) {
   } catch (e) {
     el.innerHTML = `<div class="text-gray-400 text-xs text-center py-4">
       <svg class="w-5 h-5 mx-auto text-gray-300 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-      No se pudo cargar la carpeta<br><button onclick="driveRefresh()" class="text-brand-500 hover:text-brand-700 text-2xs mt-1 font-medium">Reintentar</button></div>`;
+      No se pudo cargar la carpeta<br><button onclick="driveRefresh()" class="text-brand-500 hover:text-brand-700 text-xs mt-1 font-medium">Reintentar</button></div>`;
   }
 }
 
@@ -2040,7 +2309,7 @@ async function processSingleCV(file, progressEl) {
     <div class="cv-icon cv-file-pdf flex-shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
     <div class="flex-1 min-w-0">
       <p class="text-xs font-medium text-gray-700 truncate">${esc(file.name)}</p>
-      <p class="cv-status text-2xs text-brand-600 mt-0.5">Subiendo archivo...</p>
+      <p class="cv-status text-xs text-brand-600 mt-0.5">Subiendo archivo...</p>
     </div>
     <div class="loader w-5 h-5 flex-shrink-0"></div>
   `;
@@ -2097,7 +2366,7 @@ async function processSingleCV(file, progressEl) {
       <div class="cv-icon" style="background:#dcfce7;color:#16a34a"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
       <div class="flex-1 min-w-0">
         <p class="text-xs font-medium text-emerald-700">${esc(extractedData.nombre || file.name)}</p>
-        <p class="text-2xs text-emerald-500">Candidato añadido correctamente</p>
+        <p class="text-xs text-emerald-500">Candidato añadido correctamente</p>
       </div>
     `;
 
@@ -2126,7 +2395,7 @@ async function processSingleCV(file, progressEl) {
     card.querySelector('.loader')?.remove();
     card.style.background = '#fef2f2';
     statusEl.textContent = 'Error: ' + e.message;
-    statusEl.className = 'cv-status text-2xs text-red-600 mt-0.5';
+    statusEl.className = 'cv-status text-xs text-red-600 mt-0.5';
   }
 }
 
@@ -2296,14 +2565,12 @@ function updateStats() {
   const circ = 100;
   const pN=total?nuevo/total*circ:0, pC=total?citado/total*circ:0, pD=total?descartado/total*circ:0, pS=total?seleccionado/total*circ:0;
   let offset = 25;
-  setDonut('donutNuevo', pN, offset); offset -= pN;
-  setDonut('donutCitado', pC, offset); offset -= pC;
-  setDonut('donutDescartado', pD, offset); offset -= pD;
-  setDonut('donutSeleccionado', pS, offset);
+  setDonut('donutNuevo', pN, offset, 'Nuevo', nuevo, total); offset -= pN;
+  setDonut('donutCitado', pC, offset, 'Citado', citado, total); offset -= pC;
+  setDonut('donutDescartado', pD, offset, 'Descartado', descartado, total); offset -= pD;
+  setDonut('donutSeleccionado', pS, offset, 'Seleccionado', seleccionado, total);
   document.getElementById('donutCenter').textContent = total;
-  // Dynamic donuts: anuncios (fuente) + conversión
-  renderDynamicDonut(filtered, COL.FUENTE, 'donutAds', 'donutAdsCenter', 'donutAdsLegend');
-  renderConversionDonut(filtered, nuevo, citado, descartado, seleccionado);
+  // Dynamic donuts disabled (placeholder UI — próximamente)
   updateDashboardPanels();
 }
 
@@ -2333,6 +2600,9 @@ function renderDynamicDonut(rows, colIdx, svgPrefix, centerId, legendId) {
     circle.setAttribute('stroke-width', '2.8'); circle.setAttribute('stroke-linecap', 'round');
     circle.setAttribute('stroke-dasharray', `${pct} ${100 - pct}`);
     circle.setAttribute('stroke-dashoffset', String(offset));
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = `${name}: ${count} (${Math.round(count/total*100)}%)`;
+    circle.appendChild(title);
     svg.insertBefore(circle, centerEl);
     offset -= pct;
   });
@@ -2356,10 +2626,10 @@ function renderConversionDonut(filtered, nuevo, citado, descartado, seleccionado
   const pDesc = total ? descartado / total * circ : 0;
   const pPend = total ? nuevo / total * circ : 0;
   let offset = 25;
-  setDonut('donutConvCitado', pCit, offset); offset -= pCit;
-  setDonut('donutConvSelec', pSel, offset); offset -= pSel;
-  setDonut('donutConvDesc', pDesc, offset); offset -= pDesc;
-  setDonut('donutConvPend', pPend, offset);
+  setDonut('donutConvCitado', pCit, offset, 'Citados', citado, total); offset -= pCit;
+  setDonut('donutConvSelec', pSel, offset, 'Seleccionados', seleccionado, total); offset -= pSel;
+  setDonut('donutConvDesc', pDesc, offset, 'Descartados', descartado, total); offset -= pDesc;
+  setDonut('donutConvPend', pPend, offset, 'Pendientes', nuevo, total);
   // Conversion rate: (citado + seleccionado) / total
   const convRate = total ? Math.round((citado + seleccionado) / total * 100) : 0;
   const pctEl = document.getElementById('donutConvPct');
@@ -2423,7 +2693,7 @@ function updateDashboardPanels() {
       const bar = sitBar(filtered, COL.POSICION, name, count);
       return `<div class="crud-item dash-clickable anim-card bg-gray-50 rounded-lg p-3 pb-4 text-center relative group card-bar" style="animation-delay:${i*40}ms" onclick="dashDrillDown('posicion','${esc(name).replace(/'/g,"\\'")}')">
         <p class="text-lg font-bold text-gray-800">${count}</p>
-        <p class="text-2xs text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
+        <p class="text-xs text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
         <div class="absolute top-1 right-1 flex gap-0.5 crud-btn">
           <button onclick="event.stopPropagation();crudRename('posicion','${esc(name).replace(/'/g,"\\'")}')" class="text-gray-300 hover:text-brand-500 p-0.5" title="Renombrar">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
@@ -2454,7 +2724,7 @@ function updateDashboardPanels() {
       const bar = sitBar(filtered, COL.OFICINA, name, count);
       return `<div class="crud-item dash-clickable anim-card bg-gray-50 rounded-lg p-3 pb-4 text-center relative group card-bar" style="animation-delay:${i*40}ms" onclick="dashDrillDown('oficina','${esc(name).replace(/'/g,"\\'")}')">
         <p class="text-lg font-bold text-gray-800">${count}</p>
-        <p class="text-2xs text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
+        <p class="text-xs text-gray-500 truncate mt-0.5" title="${esc(name)}">${esc(name)}</p>
         <div class="absolute top-1 right-1 flex gap-0.5 crud-btn">
           <button onclick="event.stopPropagation();crudRename('oficina','${esc(name).replace(/'/g,"\\'")}')" class="text-gray-300 hover:text-brand-500 p-0.5" title="Renombrar">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
@@ -2482,9 +2752,9 @@ function updateDashboardPanels() {
       return `<div class="flex items-center justify-between gap-2 py-1.5 px-1 rounded-md hover:bg-gray-50 cursor-pointer" onclick="showDetail(${idx})">
         <div class="min-w-0">
           <p class="text-gray-800 font-medium truncate">${esc(row[COL.NOMBRE] || '-')}</p>
-          <p class="text-2xs text-gray-400 truncate">${esc(row[COL.POSICION] || '-')} &middot; ${esc(row[COL.OFICINA] || '-')}</p>
+          <p class="text-xs text-gray-400 truncate">${esc(row[COL.POSICION] || '-')} &middot; ${esc(row[COL.OFICINA] || '-')}</p>
         </div>
-        <span class="text-2xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${sitColorClass(sit)}">${esc(sit)}</span>
+        <span class="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${sitColorClass(sit)}">${esc(sit)}</span>
       </div>`;
     }).join('');
   }
@@ -2773,6 +3043,8 @@ function dashDrillDown(type, value) {
 
   const typeLabels = { oficina: 'Oficina', posicion: 'Posición', situacion: 'Situación', reciente: 'Actividad reciente' };
   document.getElementById('drillTitle').textContent = type === 'reciente' ? 'Actividad reciente' : typeLabels[type] + ': ' + value;
+  const subtitles = { oficina: 'Candidatos filtrados por oficina', posicion: 'Candidatos filtrados por posicion', situacion: 'Candidatos filtrados por estado', reciente: 'Ultimos candidatos registrados' };
+  document.getElementById('drillSubtitle').textContent = subtitles[type] || 'Detalle filtrado por grupo';
 
   // Populate week dropdown from base rows
   const weekMap = {};
@@ -2956,11 +3228,11 @@ function renderDrillDown() {
   const toggle = v => `document.getElementById('drillFilterSit').value=document.getElementById('drillFilterSit').value==='${v}'?'':'${v}';applyDrillFilters()`;
   const clickable = (count) => count > 0 ? 'cursor-pointer hover:ring-2' : 'opacity-50 cursor-default';
   document.getElementById('drillStats').innerHTML = `
-    <div class="bg-gray-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-gray-300 ${!sitFilter?'ring-2 ring-gray-300':''}" onclick="document.getElementById('drillFilterSit').value='';applyDrillFilters()"><p class="text-xl font-bold text-gray-800">${totalBase}</p><p class="text-2xs text-gray-500">Total</p></div>
-    <div class="bg-brand-50 rounded-xl p-3 text-center ${clickable(nuevo)} hover:ring-brand-300 ${act('nuevo')?'ring-2 ring-brand-400':''}" ${nuevo?`onclick="${toggle('Nuevo')}"`:''}><p class="text-xl font-bold text-brand-700">${nuevo}</p><p class="text-2xs text-brand-600">Nuevos</p></div>
-    <div class="bg-orange-50 rounded-xl p-3 text-center ${clickable(citado)} hover:ring-orange-300 ${act('citado')?'ring-2 ring-orange-400':''}" ${citado?`onclick="${toggle('Citado')}"`:''}><p class="text-xl font-bold text-orange-700">${citado}</p><p class="text-2xs text-orange-600">Citados</p></div>
-    <div class="bg-red-50 rounded-xl p-3 text-center hidden sm:block ${clickable(descartado)} hover:ring-red-300 ${act('descartado')?'ring-2 ring-red-400':''}" ${descartado?`onclick="${toggle('Descartado')}"`:''}><p class="text-xl font-bold text-red-700">${descartado}</p><p class="text-2xs text-red-600">Descart.</p></div>
-    <div class="bg-emerald-50 rounded-xl p-3 text-center hidden sm:block ${clickable(seleccionado)} hover:ring-emerald-300 ${act('seleccionado')?'ring-2 ring-emerald-400':''}" ${seleccionado?`onclick="${toggle('Seleccionado')}"`:''}><p class="text-xl font-bold text-emerald-700">${seleccionado}</p><p class="text-2xs text-emerald-600">Selecc.</p></div>
+    <div class="bg-gray-50 rounded-xl p-3 text-center cursor-pointer hover:ring-2 hover:ring-gray-300 ${!sitFilter?'ring-2 ring-gray-300':''}" onclick="document.getElementById('drillFilterSit').value='';applyDrillFilters()"><p class="text-xl font-bold text-gray-800">${totalBase}</p><p class="text-xs text-gray-500">Total</p></div>
+    <div class="bg-brand-50 rounded-xl p-3 text-center ${clickable(nuevo)} hover:ring-brand-300 ${act('nuevo')?'ring-2 ring-brand-400':''}" ${nuevo?`onclick="${toggle('Nuevo')}"`:''}><p class="text-xl font-bold text-brand-700">${nuevo}</p><p class="text-xs text-brand-600">Nuevos</p></div>
+    <div class="bg-orange-50 rounded-xl p-3 text-center ${clickable(citado)} hover:ring-orange-300 ${act('citado')?'ring-2 ring-orange-400':''}" ${citado?`onclick="${toggle('Citado')}"`:''}><p class="text-xl font-bold text-orange-700">${citado}</p><p class="text-xs text-orange-600">Citados</p></div>
+    <div class="bg-red-50 rounded-xl p-3 text-center hidden sm:block ${clickable(descartado)} hover:ring-red-300 ${act('descartado')?'ring-2 ring-red-400':''}" ${descartado?`onclick="${toggle('Descartado')}"`:''}><p class="text-xl font-bold text-red-700">${descartado}</p><p class="text-xs text-red-600">Descart.</p></div>
+    <div class="bg-emerald-50 rounded-xl p-3 text-center hidden sm:block ${clickable(seleccionado)} hover:ring-emerald-300 ${act('seleccionado')?'ring-2 ring-emerald-400':''}" ${seleccionado?`onclick="${toggle('Seleccionado')}"`:''}><p class="text-xl font-bold text-emerald-700">${seleccionado}</p><p class="text-xs text-emerald-600">Selecc.</p></div>
   `;
 
   // Table
@@ -3075,10 +3347,13 @@ function openDrillWhatsApp() {
   if (autoKey) selectWATemplate(autoKey);
 }
 
-function setDonut(id, pct, offset) {
+function setDonut(id, pct, offset, label, count, total) {
   const el = document.getElementById(id);
   el.setAttribute('stroke-dasharray', `${pct} ${100-pct}`);
   el.setAttribute('stroke-dashoffset', String(offset));
+  if (label !== undefined && total > 0) {
+    el.innerHTML = `<title>${label}: ${count} (${Math.round(count/total*100)}%)</title>`;
+  }
 }
 
 function filterByStat(val) {
@@ -3219,10 +3494,10 @@ function renderTable() {
       const cvDot = hasCV
         ? '<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 flex-shrink-0" title="CV cargado"></span>'
         : '<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-300 mr-1.5 flex-shrink-0" title="Sin CV"></span>';
-      return `<tr class="border-t border-gray-50 row-hover${hasCV?'':' row-no-cv'}" id="row-${sr}">
+      return `<tr class="border-t border-gray-50 row-hover${hasCV?'':' row-no-cv'} sm:cursor-default cursor-pointer" id="row-${sr}" onclick="if(window.innerWidth<640)showDetail(${gi})">
         <td class="px-3 py-2"><input type="checkbox" value="${sr}" ${ck} onchange="toggleRow(this)" class="rounded"></td>
         <td class="px-3 py-2 text-gray-300 text-xs">${sr}</td>
-        <td class="px-3 py-2 font-medium text-gray-800"><div class="flex items-center">${cvDot}${highlight(row[COL.NOMBRE]||'')}</div></td>
+        <td class="px-3 py-2 font-medium text-gray-800"><div class="flex items-center">${cvDot}${highlight(row[COL.NOMBRE]||'')}</div><p class="text-xs text-gray-400 truncate sm:hidden mt-0.5 pl-3">${esc(row[COL.POSICION]||'')}${row[COL.OFICINA]?' &middot; '+esc(row[COL.OFICINA]):''}</p></td>
         <td class="px-3 py-2 text-gray-500 hidden md:table-cell">${esc(row[COL.MES]||'')}</td>
         <td class="px-3 py-2 text-gray-500 hidden lg:table-cell">${highlight(row[COL.OFICINA]||'')}</td>
         <td class="px-3 py-2 hidden sm:table-cell">${phoneHtml}</td>
@@ -3244,10 +3519,15 @@ function renderTable() {
     }).join('');
   }
 
-  document.getElementById('rowCount').textContent=`${filteredRows.length} de ${allRows.length} candidatos`;
-  document.getElementById('pageInfo').textContent=`${currentPage+1} / ${totalPages}`;
-  document.getElementById('btnPrev').disabled=currentPage===0;
-  document.getElementById('btnNext').disabled=start+PAGE_SIZE>=filteredRows.length;
+  const rcEl=document.getElementById('rowCount');
+  rcEl.textContent=`${filteredRows.length} de ${allRows.length} candidatos`;
+  rcEl.style.color='#2563eb';setTimeout(()=>rcEl.style.color='',600);
+  // Page size select sync
+  const psSel=document.getElementById('pageSizeSelect');
+  if(psSel)psSel.value=String(PAGE_SIZE);
+  // Pagination controls
+  const pcEl=document.getElementById('paginationControls');
+  if(pcEl)pcEl.innerHTML=buildPageNumbers(currentPage,totalPages);
   updateBulkUI();
   updateDataTabStats();
 }
@@ -3273,21 +3553,21 @@ function updateDataTabStats() {
   const noCV = total - withCV;
   const pctCV = total ? Math.round(withCV/total*100) : 0;
   el.innerHTML = `
-    <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100 text-center">
+    <div class="card p-3 text-center">
       <p class="text-lg font-bold text-gray-800">${total}</p>
-      <p class="text-2xs text-gray-500">Total candidatos</p>
+      <p class="text-xs text-gray-500">Total candidatos</p>
     </div>
     <div class="bg-emerald-50/70 rounded-xl p-3 shadow-sm border border-emerald-100/60 text-center">
       <p class="text-lg font-bold text-emerald-700">${withCV} <span class="text-xs font-normal text-emerald-500">${pctCV}%</span></p>
-      <p class="text-2xs text-emerald-600">Con CV</p>
+      <p class="text-xs text-emerald-600">Con CV</p>
     </div>
     <div class="bg-amber-50/70 rounded-xl p-3 shadow-sm border border-amber-100/60 text-center">
       <p class="text-lg font-bold text-amber-700">${noCV}</p>
-      <p class="text-2xs text-amber-600">Sin CV</p>
+      <p class="text-xs text-amber-600">Sin CV</p>
     </div>
     <div class="bg-brand-50/70 rounded-xl p-3 shadow-sm border border-brand-100/60 text-center">
       <p class="text-lg font-bold text-brand-700">${thisWeek}</p>
-      <p class="text-2xs text-brand-600">Esta semana</p>
+      <p class="text-xs text-brand-600">Esta semana</p>
     </div>`;
 }
 
@@ -3298,6 +3578,28 @@ function flashRow(sheetRow) {
 
 function prevPage(){if(currentPage>0){currentPage--;renderTable();}}
 function nextPage(){if((currentPage+1)*PAGE_SIZE<filteredRows.length){currentPage++;renderTable();}}
+function goToPage(p){currentPage=p;renderTable();}
+function changePageSize(val){PAGE_SIZE=parseInt(val);localStorage.setItem('lacasa_page_size',val);currentPage=0;renderTable();}
+function buildPageNumbers(cur,total){
+  if(total<=1)return`<span class="px-2 py-1 text-gray-400">1 / 1</span>`;
+  const btn=(p,label,active,disabled)=>{
+    if(disabled)return`<span class="px-1.5 py-1 text-gray-300">${label}</span>`;
+    if(active)return`<span class="px-2 py-1 rounded-md bg-blue-50 text-blue-600 font-medium">${label}</span>`;
+    return`<button onclick="goToPage(${p})" class="px-2 py-1 rounded-md border bg-white hover:bg-gray-50 transition text-gray-600">${label}</button>`;
+  };
+  let h=btn(cur-1,'&#8249;',false,cur===0);
+  const show=new Set([0,total-1]);
+  for(let i=Math.max(0,cur-1);i<=Math.min(total-1,cur+1);i++)show.add(i);
+  const pages=[...show].sort((a,b)=>a-b);
+  let last=-1;
+  for(const p of pages){
+    if(last>=0&&p-last>1)h+='<span class="px-1 text-gray-300">&hellip;</span>';
+    h+=btn(p,p+1,p===cur,false);
+    last=p;
+  }
+  h+=btn(cur+1,'&#8250;',false,cur>=total-1);
+  return h;
+}
 
 function toggleAll(el) {
   document.querySelectorAll('#tableBody input[type=checkbox]').forEach(cb=>{
@@ -3449,7 +3751,7 @@ function renderModal() {
       const editable=!sec.readonly&&EDITABLE_FIELDS.includes(key);
       if(editable&&key==='SITUACION'){
         html+=`<div class="col-span-2 field-edit p-2">
-          <label class="text-2xs text-gray-400 block mb-1">${esc(label)}</label>
+          <label class="text-xs text-gray-400 block mb-1">${esc(label)}</label>
           <select onchange="modalUpdateField('${key}',${sheetRow},this.value)" class="sit-select ${getSitClass(val||'Nuevo')} text-sm">
             ${['Nuevo','Citado','Descartado','Seleccionado'].map(o=>
               `<option value="${o}" ${o.toLowerCase()===(val||'nuevo').toLowerCase()?'selected':''}>${o}</option>`
@@ -3459,14 +3761,14 @@ function renderModal() {
       } else if(editable){
         // Modal shows FULL unmasked data
         html+=`<div class="field-edit p-2 ${key==='COMENTARIOS'||key==='MOTIVO_DESCARTE'?'col-span-2':''}">
-          <label class="text-2xs text-gray-400 block mb-1">${esc(label)}</label>
+          <label class="text-xs text-gray-400 block mb-1">${esc(label)}</label>
           <input type="${key==='CORREO'?'email':key==='TELEFONO'?'tel':'text'}" value="${esc(val)}" data-key="${key}" data-row="${sheetRow}" data-original="${esc(val)}"
             onblur="handleFieldBlur(this)" onkeydown="if(event.key==='Enter')this.blur()"
             class="text-sm text-gray-800 w-full" placeholder="-">
         </div>`;
       } else {
         html+=`<div class="p-2 ${sec.readonly?'opacity-50':''}">
-          <p class="text-2xs text-gray-400 mb-0.5">${esc(label)}</p>
+          <p class="text-xs text-gray-400 mb-0.5">${esc(label)}</p>
           <p class="text-sm text-gray-700 ${val?'':'italic text-gray-300'}">${val?esc(val):'-'}</p>
         </div>`;
       }
@@ -3553,7 +3855,7 @@ async function loadCvSplit(fileId, fileName) {
     frame.classList.remove('hidden');
   } catch (e) {
     console.warn('CV split proxy failed:', e.message);
-    loading.innerHTML = '<div style="text-align:center"><p class="text-xs text-gray-400 mb-1">No se pudo cargar el CV</p><a href="https://drive.google.com/file/d/' + fileId + '/view" target="_blank" class="text-2xs text-brand-500">Abrir en Drive</a></div>';
+    loading.innerHTML = '<div style="text-align:center"><p class="text-xs text-gray-400 mb-1">No se pudo cargar el CV</p><a href="https://drive.google.com/file/d/' + fileId + '/view" target="_blank" class="text-xs text-brand-500">Abrir en Drive</a></div>';
   }
 }
 
@@ -3611,26 +3913,14 @@ function getSitClass(sit) {
   return'sit-nuevo';
 }
 
-let toastTimer = null;
 function toast(msg, type='info') {
-  const el = document.getElementById('headerSubtitle');
-  if (!el) return;
-  const colors = { success: '#059669', error: '#dc2626', info: '#6b7280' };
-  clearTimeout(toastTimer);
-  el.style.opacity = '0';
-  setTimeout(() => {
-    el.textContent = msg;
-    el.style.color = colors[type] || colors.info;
-    el.style.opacity = '1';
-  }, 150);
-  toastTimer = setTimeout(() => {
-    el.style.opacity = '0';
-    setTimeout(() => {
-      el.textContent = 'Panel RRHH';
-      el.style.color = '';
-      el.style.opacity = '1';
-    }, 150);
-  }, 3000);
+  const c = document.getElementById('toastContainer');
+  if (!c) return;
+  const el = document.createElement('div');
+  el.className = 'toast-item toast-' + type;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => { el.classList.add('removing'); setTimeout(() => el.remove(), 200); }, 3000);
 }
 
 // ==================== WHATSAPP ====================
@@ -3645,7 +3935,7 @@ function openWhatsAppModal() {
     <button onclick="selectWATemplate('${key}')" id="waTpl_${key}" class="wa-tpl-btn text-left p-3 rounded-xl border-2 border-gray-100 hover:border-emerald-300 transition">
       <div class="flex items-center justify-between">
         <span class="text-sm font-semibold text-gray-800">${esc(t.label)}</span>
-        <span class="text-2xs px-2 py-0.5 rounded-full font-medium ${{orange:'bg-orange-100 text-orange-700',emerald:'bg-emerald-100 text-emerald-700',red:'bg-red-100 text-red-700'}[t.color]||'bg-gray-100 text-gray-700'}">${key}</span>
+        <span class="text-xs px-2 py-0.5 rounded-full font-medium ${{orange:'bg-orange-100 text-orange-700',emerald:'bg-emerald-100 text-emerald-700',red:'bg-red-100 text-red-700'}[t.color]||'bg-gray-100 text-gray-700'}">${key}</span>
       </div>
       <p class="text-xs text-gray-400 mt-0.5">${esc(t.desc)}</p>
     </button>
@@ -3657,7 +3947,7 @@ function openWhatsAppModal() {
   rList.innerHTML = recipients.map((r, i) => {
     const hasPhone = r.phone && r.phone.replace(/\D/g, '').length >= 6;
     return `<div class="flex items-center gap-2 px-3 py-2 text-sm" id="waR_${i}">
-      <span class="w-5 h-5 rounded-full flex items-center justify-center text-2xs font-bold ${hasPhone ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}">${hasPhone ? '&#10003;' : '!'}</span>
+      <span class="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${hasPhone ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}">${hasPhone ? '&#10003;' : '!'}</span>
       <span class="flex-1 font-medium text-gray-800 truncate">${esc(r.nombre)}</span>
       <span class="text-gray-400 text-xs">${hasPhone ? esc(maskPhone(r.phone)) : 'Sin teléfono'}</span>
       <button onclick="removeWARecipient(${r.sheetRow})" class="text-gray-300 hover:text-red-500 transition">&times;</button>
@@ -3897,12 +4187,12 @@ function renderUserList() {
         <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 text-xs font-bold">${esc((u.nombre||'?')[0].toUpperCase())}</div>
         <div>
           <p class="font-medium text-gray-800 text-sm">${esc(u.nombre)}</p>
-          <p class="text-2xs text-gray-400">${esc(u.email)}</p>
+          <p class="text-xs text-gray-400">${esc(u.email)}</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <span class="px-2 py-0.5 rounded-full text-2xs font-medium ${rolBadge}">${u.rol}</span>
-        <span class="text-2xs ${u.activo?'text-emerald-500':'text-red-400'}">${u.activo?'Activo':'Inactivo'}</span>
+        <span class="px-2 py-0.5 rounded-full text-xs font-medium ${rolBadge}">${u.rol}</span>
+        <span class="text-xs ${u.activo?'text-emerald-500':'text-red-400'}">${u.activo?'Activo':'Inactivo'}</span>
         ${actions}
       </div>
     </div>`;
@@ -3912,10 +4202,10 @@ function renderUserList() {
 function openAddUserModal() {
   if (!hasRole('admin')) { toast('Sin permisos', 'info'); return; }
   const html = `<div class="space-y-3">
-    <input id="newUserName" type="text" placeholder="Nombre" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-    <input id="newUserEmail" type="email" placeholder="Email" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-    <input id="newUserPw" type="password" placeholder="Contraseña" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-    <select id="newUserRol" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+    <input id="newUserName" type="text" placeholder="Nombre" class="form-input">
+    <input id="newUserEmail" type="email" placeholder="Email" class="form-input">
+    <input id="newUserPw" type="password" placeholder="Contraseña" class="form-input">
+    <select id="newUserRol" class="form-input">
       <option value="user">Usuario</option><option value="admin">Admin</option>
     </select>
   </div>`;
@@ -3988,7 +4278,7 @@ function renderProfileSection() {
   document.getElementById('profileEmail').textContent = currentUser.email;
   const badge = document.getElementById('profileRolBadge');
   const rolMap = { master: 'bg-purple-100 text-purple-700', admin: 'bg-brand-100 text-brand-700', user: 'bg-gray-100 text-gray-600' };
-  badge.className = 'px-2 py-0.5 rounded-full text-2xs font-medium ' + (rolMap[currentUser.rol] || rolMap.user);
+  badge.className = 'px-2 py-0.5 rounded-full text-xs font-medium ' + (rolMap[currentUser.rol] || rolMap.user);
   badge.textContent = currentUser.rol;
   // Avatar
   const photo = getUserPref('avatar');
@@ -4124,10 +4414,10 @@ function renderAuditLog() {
       `<div class="flex gap-2 py-1 border-b border-gray-50">
         <span class="text-gray-400 tabular-nums shrink-0">${l.timestamp.replace('T',' ').substring(0,16)}</span>
         <span class="font-medium text-gray-700 shrink-0">${esc(l.usuario)}</span>
-        <span class="px-1.5 py-0.5 rounded text-2xs font-medium bg-gray-100 text-gray-600 shrink-0">${esc(l.accion)}</span>
+        <span class="px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 shrink-0">${esc(l.accion)}</span>
         <span class="text-gray-500 truncate">${esc(l.detalle)}</span>
       </div>`
-    ).join('') + (logs.length > MAX_LOG ? `<p class="text-gray-300 text-center py-2 text-2xs">Mostrando ${MAX_LOG} de ${logs.length} registros</p>` : '');
+    ).join('') + (logs.length > MAX_LOG ? `<p class="text-gray-300 text-center py-2 text-xs">Mostrando ${MAX_LOG} de ${logs.length} registros</p>` : '');
   } catch { el.innerHTML = '<p class="text-gray-300">Error leyendo logs</p>'; }
 }
 
@@ -4386,11 +4676,11 @@ async function shareDrivePublic() {
   try {
     await apiCall({ action: 'share_drive' });
     status.textContent = 'Carpeta accesible con enlace';
-    status.className = 'text-2xs text-emerald-600 font-medium';
+    status.className = 'text-xs text-emerald-600 font-medium';
     toast('Carpeta compartida — los PDFs se previsualizarán sin login', 'success');
   } catch (e) {
     status.textContent = 'Error: ' + e.message;
-    status.className = 'text-2xs text-red-500';
+    status.className = 'text-xs text-red-500';
   }
   btn.disabled = false;
 }
@@ -4432,7 +4722,7 @@ function renderMasterMsgLog() {
         <span class="text-gray-400 tabular-nums shrink-0">${m.timestamp.replace('T',' ').substring(0,16)}</span>
         <span class="text-gray-600 shrink-0">${esc(m.usuario)}</span>
         <span class="font-medium text-gray-800 truncate">${esc(m.destinatario)}</span>
-        <span class="px-1.5 py-0.5 rounded-full text-2xs shrink-0 ${m.canal==='whatsapp'?'bg-emerald-100 text-emerald-700':'bg-brand-100 text-brand-700'}">${m.canal}</span>
+        <span class="px-1.5 py-0.5 rounded-full text-xs shrink-0 ${m.canal==='whatsapp'?'bg-emerald-100 text-emerald-700':'bg-brand-100 text-brand-700'}">${m.canal}</span>
         <span class="${m.estado==='sent'?'text-emerald-600':'text-red-500'} shrink-0">${m.estado}</span>
       </div>`
     ).join('');
@@ -4704,21 +4994,21 @@ function renderCampaignList() {
   if (!el) return;
   if (campaigns.length === 0) {
     el.innerHTML = `
-      <p class="text-2xs text-gray-400 uppercase tracking-wider font-semibold mb-2">Ejemplos de campañas</p>
+      <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-2">Ejemplos de campañas</p>
       <div class="opacity-40 pointer-events-none space-y-3">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 border-dashed p-4">
+        <div class="card border-dashed p-4">
           <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-2"><span class="text-base">💬</span><h3 class="font-semibold text-gray-800 text-sm">Bienvenida nuevos candidatos</h3><span class="px-2 py-0.5 rounded-full text-2xs font-medium bg-brand-100 text-brand-700">Programada</span></div>
+            <div class="flex items-center gap-2"><span class="text-base">💬</span><h3 class="font-semibold text-gray-800 text-sm">Bienvenida nuevos candidatos</h3><span class="px-2 py-0.5 rounded-full text-xs font-medium bg-brand-100 text-brand-700">Programada</span></div>
           </div>
           <p class="text-xs text-gray-500 line-clamp-2">Hola {nombre}, gracias por inscribirte en La Casa Agency. Te informamos que tu candidatura para {posicion} está siendo revisada...</p>
-          <div class="flex gap-3 mt-2 text-2xs text-gray-400"><span>Programada: 2026-03-01 09:00</span><span>Por: Admin</span></div>
+          <div class="flex gap-3 mt-2 text-xs text-gray-400"><span>Programada: 2026-03-01 09:00</span><span>Por: Admin</span></div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 border-dashed p-4">
+        <div class="card border-dashed p-4">
           <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-2"><span class="text-base">📧</span><h3 class="font-semibold text-gray-800 text-sm">Recordatorio entrevistas semana</h3><span class="px-2 py-0.5 rounded-full text-2xs font-medium bg-gray-100 text-gray-700">Borrador</span></div>
+            <div class="flex items-center gap-2"><span class="text-base">📧</span><h3 class="font-semibold text-gray-800 text-sm">Recordatorio entrevistas semana</h3><span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">Borrador</span></div>
           </div>
           <p class="text-xs text-gray-500 line-clamp-2">Estimado/a {nombre}, le recordamos que tiene una entrevista programada para el día {fecha} a las {hora} en nuestra oficina de {oficina}...</p>
-          <div class="flex gap-3 mt-2 text-2xs text-gray-400"><span>Por: Admin</span></div>
+          <div class="flex gap-3 mt-2 text-xs text-gray-400"><span>Por: Admin</span></div>
         </div>
       </div>
       <p class="text-xs text-gray-400 text-center mt-4">Pulsa <strong>+ Nueva</strong> para crear tu primera campaña</p>`;
@@ -4728,12 +5018,12 @@ function renderCampaignList() {
     sending: { label:'Enviando', color:'amber' }, completed: { label:'Completada', color:'emerald' }, failed: { label:'Fallida', color:'red' } };
   el.innerHTML = campaigns.slice().reverse().map(c => {
     const s = cfg[c.estado] || cfg.draft;
-    return `<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 anim-card">
+    return `<div class="card p-4 anim-card">
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center gap-2 min-w-0">
           <span class="text-base">${c.canal==='whatsapp'?'💬':'📧'}</span>
           <h3 class="font-semibold text-gray-800 text-sm truncate">${esc(c.nombre)}</h3>
-          <span class="px-2 py-0.5 rounded-full text-2xs font-medium shrink-0 ${{gray:'bg-gray-100 text-gray-700',blue:'bg-blue-100 text-blue-700',brand:'bg-brand-100 text-brand-700',amber:'bg-amber-100 text-amber-700',emerald:'bg-emerald-100 text-emerald-700',red:'bg-red-100 text-red-700'}[s.color]||'bg-gray-100 text-gray-700'}">${s.label}</span>
+          <span class="px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${{gray:'bg-gray-100 text-gray-700',blue:'bg-blue-100 text-blue-700',brand:'bg-brand-100 text-brand-700',amber:'bg-amber-100 text-amber-700',emerald:'bg-emerald-100 text-emerald-700',red:'bg-red-100 text-red-700'}[s.color]||'bg-gray-100 text-gray-700'}">${s.label}</span>
         </div>
         <div class="flex gap-1 shrink-0">
           ${c.estado==='draft'||c.estado==='scheduled'?'<button onclick="openCampaignForm(\''+c.id+'\')" class="text-gray-400 hover:text-brand-500 p-1 rounded transition" title="Editar" aria-label="Editar campaña"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></button>':''}
@@ -4742,7 +5032,7 @@ function renderCampaignList() {
         </div>
       </div>
       <p class="text-xs text-gray-500 line-clamp-2">${esc(c.contenido)}</p>
-      <div class="flex gap-3 mt-2 text-2xs text-gray-400 flex-wrap">
+      <div class="flex gap-3 mt-2 text-xs text-gray-400 flex-wrap">
         ${c.programado?'<span>Programada: '+c.programado.replace('T',' ')+'</span>':''}
         <span>Por: ${esc(c.creadoPor)}</span>
         ${c.enviadosOk?'<span class="text-emerald-500">'+c.enviadosOk+' enviados</span>':''}
