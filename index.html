@@ -2218,8 +2218,13 @@ function onDriveFileClick(fileId, name, mimeType) {
     tableWrap.classList.add('ring-2', 'ring-brand-300');
     setTimeout(() => tableWrap.classList.remove('ring-2', 'ring-brand-300'), 1500);
   } else if (fileId) {
-    // Preview inline (PDF, images, docs — Google Drive preview supports many types)
-    openFileViewer(fileId, name);
+    // Try to find matching row by _fileId → open split-view with edit panel
+    const rowIdx = allRows.findIndex(r => r[COL.FILE_ID] === fileId);
+    if (rowIdx >= 0) {
+      showDetail(rowIdx);
+    } else {
+      openFileViewer(fileId, name);
+    }
   }
 }
 
