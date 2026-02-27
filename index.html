@@ -144,7 +144,7 @@ tailwind.config = { theme: { extend: {
   th.sorted-asc .sort-icon, th.sorted-desc .sort-icon { opacity: 1; color: #2563eb; }
   th.sorted-desc .sort-icon { transform: rotate(180deg); }
   th.sorted-asc, th.sorted-desc { background: rgba(59,130,246,0.06); }
-  .stat-card { transition: all 0.15s; cursor: pointer; }
+  .stat-card { transition: all 0.15s; cursor: pointer; min-height: 72px; }
   .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
   .row-no-cv { background: #fffbeb; }
   .row-no-cv:hover { background: #fef3c7 !important; }
@@ -182,8 +182,8 @@ tailwind.config = { theme: { extend: {
   .toast-success { background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
   .toast-error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
   .toast-info { background:#f8fafc; color:#475569; border:1px solid #e2e8f0; }
-  @keyframes toastIn { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes toastOut { to{opacity:0;transform:translateY(-8px)} }
+  @keyframes toastIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes toastOut { to{opacity:0;transform:translateY(8px)} }
   .login-card { animation: fadeIn 0.3s ease-out; }
   .masked { letter-spacing: 0.5px; }
   /* Nav tabs — header inline (desktop): icon + text horizontal */
@@ -347,7 +347,7 @@ tailwind.config = { theme: { extend: {
 <body class="min-h-screen">
 
 <!-- Toast container -->
-<div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2 pointer-events-none" style="max-width:calc(100vw - 2rem)"></div>
+<div id="toastContainer" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-[60] flex flex-col-reverse items-center gap-2 pointer-events-none" style="max-width:calc(100vw - 2rem)"></div>
 
 <!-- Confirm Modal -->
 <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center">
@@ -546,7 +546,7 @@ tailwind.config = { theme: { extend: {
   </div>
 
   <!-- Week calendar grid -->
-  <div class="card p-3">
+  <div class="card p-3" style="min-height:120px">
     <div class="wk-filter-bar mb-2.5" id="weekFilterBar"></div>
     <!-- Mobile: quarter tabs + horizontal scroll -->
     <div class="wk-qtabs" id="wkQtabs"></div>
@@ -581,7 +581,7 @@ tailwind.config = { theme: { extend: {
         <p class="section-label">Actividad reciente</p>
         <button onclick="dashDrillDown('reciente','')" class="text-xs text-brand-600 hover:text-brand-700 font-medium hover:underline transition">Ver todo</button>
       </div>
-      <div id="dashRecent" class="space-y-2 max-h-[200px] overflow-y-auto text-sm">
+      <div id="dashRecent" class="space-y-2 max-h-[200px] min-h-[80px] overflow-y-auto text-sm">
         <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader loader-sm"></div>Cargando...</div>
       </div>
     </div>
@@ -783,7 +783,7 @@ tailwind.config = { theme: { extend: {
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       </button>
     </div>
-    <div id="dashPositions" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+    <div id="dashPositions" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5" style="min-height:48px">
       <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader loader-sm"></div>Cargando...</div>
     </div>
   </div>
@@ -796,7 +796,7 @@ tailwind.config = { theme: { extend: {
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
       </button>
     </div>
-    <div id="dashOffices" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+    <div id="dashOffices" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5" style="min-height:48px">
       <div class="flex items-center gap-2 text-gray-300 text-xs"><div class="loader loader-sm"></div>Cargando...</div>
     </div>
   </div>
