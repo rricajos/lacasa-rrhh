@@ -53,7 +53,7 @@ tailwind.config = { theme: { extend: {
        .hero-actions     → hero right actions (flex, gap-2)
        .modal-card       → centered popup (rounded-2xl, heavy shadow, border)
        .loader-sm        → small 14px spinner (use with .loader)
-       .page-container   → max-w-800 centered with px-4
+       .page-container   → max-w-900 centered with px-4
 
      COLORS (use brand-* instead of blue-*):
        brand-50   #eff6ff  → active nav bg, subtle highlights
@@ -508,10 +508,10 @@ tailwind.config = { theme: { extend: {
         <img id="headerAvatar" class="w-6 h-6 rounded-full object-cover hidden" src="" alt="">
         <span id="headerUserName" class="text-xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded-full"></span>
       </div>
-      <span id="sessionTimer" class="text-xs text-gray-400 tabular-nums" title="Tiempo hasta cierre de sesión"></span>
       <span id="dataAge" class="text-xs text-gray-400 cursor-pointer hover:underline hidden" onclick="loadData()" title="Clic para refrescar datos"></span>
-      <button onclick="doLogout()" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition" title="Cerrar sesion" aria-label="Cerrar sesion">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      <button onclick="doLogout()" class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-600 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition tabular-nums" title="Cerrar sesion" aria-label="Cerrar sesion">
+        <span id="sessionTimer"></span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
       </button>
     </div>
   </div>
@@ -1957,22 +1957,23 @@ function startSessionTimer() {
     if (!checkSession()) return;
     const remaining = getSessionRemaining();
     const el = document.getElementById('sessionTimer');
+    const btn = el.parentElement;
     const h = Math.floor(remaining / 3600000);
     const m = Math.floor((remaining % 3600000) / 60000);
     const s = Math.floor((remaining % 60000) / 1000);
     if (remaining < 120000) {
       el.textContent = `${m}:${String(s).padStart(2,'0')}`;
-      el.classList.add('text-red-400');
-      el.classList.remove('text-gray-400');
+      btn.classList.add('text-red-400');
+      btn.classList.remove('text-gray-400');
       if (remaining > 59000 && remaining < 62000) toast('Sesion expira en 1 minuto', 'info');
     } else if (h > 0) {
       el.textContent = `${h}h ${String(m).padStart(2,'0')}m`;
-      el.classList.remove('text-red-400');
-      el.classList.add('text-gray-400');
+      btn.classList.remove('text-red-400');
+      btn.classList.add('text-gray-400');
     } else {
       el.textContent = `${m}min`;
-      el.classList.remove('text-red-400');
-      el.classList.add('text-gray-400');
+      btn.classList.remove('text-red-400');
+      btn.classList.add('text-gray-400');
     }
   };
   tick();
@@ -2217,13 +2218,8 @@ function onDriveFileClick(fileId, name, mimeType) {
     tableWrap.classList.add('ring-2', 'ring-brand-300');
     setTimeout(() => tableWrap.classList.remove('ring-2', 'ring-brand-300'), 1500);
   } else if (fileId) {
-    // Try to find matching row by _fileId → open split-view with edit panel
-    const rowIdx = allRows.findIndex(r => r[COL.FILE_ID] === fileId);
-    if (rowIdx >= 0) {
-      showDetail(rowIdx);
-    } else {
-      openFileViewer(fileId, name);
-    }
+    // Preview inline (PDF, images, docs — Google Drive preview supports many types)
+    openFileViewer(fileId, name);
   }
 }
 
