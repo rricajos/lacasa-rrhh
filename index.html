@@ -151,12 +151,12 @@ tailwind.config = { theme: { extend: {
   .anim-card { animation: fadeUp 0.3s ease-out both; }
   .anim-slide { animation: slideIn 0.3s ease-out both; }
   /* Week calendar grid */
-  .wk-quarter { border-radius: 10px; overflow: hidden; border: 1px solid; }
+  .wk-quarter { border-radius: 10px; overflow: hidden; border: 1px solid; min-width: 0; }
   .wk-quarter-head { padding: 5px 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid; }
   .wk-month { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 5px 8px 2px; cursor: pointer; border-radius: 4px; margin: 2px 4px 0; display: flex; align-items: center; justify-content: space-between; transition: background 0.12s; }
   .wk-month:hover { filter: brightness(0.95); }
   .wk-month.month-active { color: white !important; }
-  .wk-row { display: flex; align-items: center; gap: 5px; padding: 2.5px 8px; cursor: pointer; border-radius: 5px; margin: 1px 4px; transition: all 0.12s; }
+  .wk-row { display: flex; align-items: center; gap: 5px; padding: 2.5px 8px; cursor: pointer; border-radius: 5px; margin: 1px 4px; transition: all 0.12s; min-width: 0; }
   .wk-row:hover { background: rgba(0,0,0,0.06); }
   .wk-row.active { background: #1d4ed8; }
   .wk-row.active .wk-num { background: rgba(255,255,255,0.25); color: white; }
@@ -165,7 +165,7 @@ tailwind.config = { theme: { extend: {
   .wk-row.future { opacity: 0.3; cursor: default; pointer-events: none; }
   .wk-row.month-highlight { background: rgba(59,130,246,0.08); }
   .wk-num { width: 22px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #475569; background: rgba(0,0,0,0.05); border-radius: 4px; flex-shrink: 0; }
-  .wk-range { font-size: 10px; color: #64748b; white-space: nowrap; }
+  .wk-range { font-size: 10px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .wk-count { font-size: 9px; color: #94a3b8; margin-left: auto; min-width: 16px; text-align: right; font-weight: 600; }
   .wk-count:empty { display: none; }
   .wk-row.active .wk-count { color: rgba(255,255,255,0.7); }
@@ -425,7 +425,20 @@ tailwind.config = { theme: { extend: {
 
 <!-- Main dashboard view -->
 <div id="dashMain">
-<div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
+<div class="max-w-[1400px] mx-auto px-4 pt-5 pb-4 space-y-4">
+
+  <!-- Hero header -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-sm">
+        <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      </div>
+      <div>
+        <h1 class="text-sm font-bold text-gray-800">Dashboard</h1>
+        <p class="text-2xs text-gray-400">Resumen de candidatos y metricas de seleccion</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Week calendar grid -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3">
@@ -633,8 +646,23 @@ tailwind.config = { theme: { extend: {
 <!-- ==================== TAB: DATABASE ==================== -->
 <div id="tab-database" class="tab-section">
 
+<!-- Hero header -->
+<div class="max-w-[1400px] mx-auto px-4 pt-5 pb-3">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center shadow-sm">
+        <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+      </div>
+      <div>
+        <h1 class="text-sm font-bold text-gray-800">Base de Datos</h1>
+        <p class="text-2xs text-gray-400">Sube CVs, gestiona candidatos y explora la carpeta de Drive</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- CV Upload + Drive folder -->
-<div class="max-w-[1400px] mx-auto px-4 pt-4 pb-2">
+<div class="max-w-[1400px] mx-auto px-4 pb-2">
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- Upload drop zone -->
@@ -798,9 +826,18 @@ tailwind.config = { theme: { extend: {
 
 <!-- ==================== TAB: CAMPAIGNS ==================== -->
 <div id="tab-campaigns" class="tab-section">
-<div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
-  <div class="flex items-center justify-between">
-    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Campañas</h2>
+<div class="max-w-[1400px] mx-auto px-4 pt-5 pb-4 space-y-4">
+  <!-- Hero header -->
+  <div class="flex items-center justify-between flex-wrap gap-3">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shadow-sm">
+        <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      </div>
+      <div>
+        <h1 class="text-sm font-bold text-gray-800">Campanas</h1>
+        <p class="text-2xs text-gray-400">Plantillas de WhatsApp y comunicacion con candidatos</p>
+      </div>
+    </div>
     <div class="flex gap-2">
       <button onclick="openAICampaignDraft()" class="bg-violet-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-violet-700 transition flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19 14.5M14.25 3.104c.251.023.501.05.75.082M19 14.5l-2.47 2.47a2.25 2.25 0 01-1.591.659H9.061a2.25 2.25 0 01-1.591-.659L5 14.5m14 0V18a2 2 0 01-2 2H7a2 2 0 01-2-2v-3.5"/></svg>
@@ -876,10 +913,20 @@ tailwind.config = { theme: { extend: {
 
 <!-- ==================== TAB: CONFIGURE ==================== -->
 <div id="tab-configure" class="tab-section">
-<div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
+<div class="max-w-[1400px] mx-auto px-4 pt-5 pb-4 space-y-4">
+  <!-- Hero header -->
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center shadow-sm">
+      <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    </div>
+    <div>
+      <h1 class="text-sm font-bold text-gray-800">Configuracion</h1>
+      <p class="text-2xs text-gray-400">Perfil, preferencias y registro de actividad</p>
+    </div>
+  </div>
   <!-- My Profile -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Mi Perfil</h2>
+    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Mi Perfil</h2>
     <div class="flex flex-col sm:flex-row gap-6">
       <!-- Avatar -->
       <div class="flex flex-col items-center gap-2">
@@ -927,7 +974,7 @@ tailwind.config = { theme: { extend: {
   <!-- User Management -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Gestión de Usuarios</h2>
+      <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider">Gestión de Usuarios</h2>
       <button onclick="openAddUserModal()" id="btnAddUser" class="bg-brand-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-brand-700 transition">+ Nuevo usuario</button>
     </div>
     <div id="cfgUserList" class="divide-y divide-gray-100 text-sm"></div>
@@ -935,7 +982,7 @@ tailwind.config = { theme: { extend: {
   <!-- Audit Log -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Registro de Actividad</h2>
+      <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider">Registro de Actividad</h2>
       <button onclick="clearLogs()" class="text-gray-400 hover:text-red-500 text-xs transition">Limpiar</button>
     </div>
     <div id="cfgLogList" class="max-h-[400px] overflow-y-auto text-xs space-y-1"></div>
@@ -945,10 +992,20 @@ tailwind.config = { theme: { extend: {
 
 <!-- ==================== TAB: MASTER (Conexia only) ==================== -->
 <div id="tab-master" class="tab-section">
-<div class="max-w-[1400px] mx-auto px-4 py-4 space-y-4">
+<div class="max-w-[1400px] mx-auto px-4 pt-5 pb-4 space-y-4">
+  <!-- Hero header -->
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-sm">
+      <svg class="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+    </div>
+    <div>
+      <h1 class="text-sm font-bold text-gray-800">Panel Master</h1>
+      <p class="text-2xs text-gray-400">Administracion de creditos, usuarios y sistema</p>
+    </div>
+  </div>
   <!-- WhatsApp Credits -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">WhatsApp — Créditos y Facturación</h2>
+    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">WhatsApp — Creditos y Facturacion</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
         <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Créditos totales</label>
@@ -984,7 +1041,7 @@ tailwind.config = { theme: { extend: {
   </div>
   <!-- SMTP Config -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Configuración SMTP (Email)</h2>
+    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Configuración SMTP (Email)</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Servidor SMTP</label>
@@ -1010,7 +1067,7 @@ tailwind.config = { theme: { extend: {
   </div>
   <!-- API Keys -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Claves API</h2>
+    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Claves API</h2>
     <div>
       <label class="text-2xs text-gray-400 font-medium uppercase tracking-wider block mb-1">OpenAI API Key</label>
       <input id="masterOpenAIKey" type="password" placeholder="sk-proj-..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
@@ -1019,7 +1076,7 @@ tailwind.config = { theme: { extend: {
   </div>
   <!-- Google Drive Access -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Acceso Carpeta Google Drive</h2>
+    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Acceso Carpeta Google Drive</h2>
     <p class="text-xs text-gray-500 mb-3">Permite que los archivos (PDFs, CVs) se puedan previsualizar en la app sin requerir que el usuario inicie sesión en Google.</p>
     <div class="flex items-center gap-3">
       <button onclick="shareDrivePublic()" id="btnShareDrive" class="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition flex items-center gap-2">
@@ -1038,7 +1095,7 @@ tailwind.config = { theme: { extend: {
   </div>
   <!-- Message Log -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-    <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4">Registro de Mensajes Enviados</h2>
+    <h2 class="text-2xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Registro de Mensajes Enviados</h2>
     <div id="masterMsgLog" class="max-h-[300px] overflow-y-auto text-xs space-y-1">
       <p class="text-gray-300">Sin mensajes</p>
     </div>
