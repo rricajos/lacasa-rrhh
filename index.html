@@ -131,7 +131,7 @@ tailwind.config = { theme: { extend: {
   /* Small loader (14px spinner for inline use) */
   .loader-sm { width: 14px; height: 14px; border-width: 2px; }
   /* Page section container */
-  .page-container { max-width: 800px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+  .page-container { max-width: 900px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
 
   body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; overflow-y: scroll; }
   .loader { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.7s linear infinite; display: inline-block; }
@@ -2217,8 +2217,13 @@ function onDriveFileClick(fileId, name, mimeType) {
     tableWrap.classList.add('ring-2', 'ring-brand-300');
     setTimeout(() => tableWrap.classList.remove('ring-2', 'ring-brand-300'), 1500);
   } else if (fileId) {
-    // Preview inline (PDF, images, docs — Google Drive preview supports many types)
-    openFileViewer(fileId, name);
+    // Try to find matching row by _fileId → open split-view with edit panel
+    const rowIdx = allRows.findIndex(r => r[COL.FILE_ID] === fileId);
+    if (rowIdx >= 0) {
+      showDetail(rowIdx);
+    } else {
+      openFileViewer(fileId, name);
+    }
   }
 }
 
