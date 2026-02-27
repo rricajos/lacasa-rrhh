@@ -336,15 +336,22 @@ tailwind.config = { theme: { extend: {
     justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(109,40,217,0.3);
     transition: transform 0.2s, box-shadow 0.2s; border: none; }
   .ai-fab:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(109,40,217,0.4); }
-  .ai-panel { position: fixed; bottom: 80px; right: 24px; z-index: 35; width: 380px; max-width: calc(100vw - 32px);
-    max-height: 520px; background: white; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  .ai-panel { position: fixed; bottom: 80px; right: 24px; z-index: 35; width: 420px; max-width: calc(100vw - 32px);
+    max-height: 600px; background: white; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
     display: flex; flex-direction: column; overflow: hidden; transform: scale(0.9) translateY(16px);
     opacity: 0; transition: all 0.2s ease-out; pointer-events: none; }
   .ai-panel.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: auto; }
   @media (max-width: 767px) { .ai-fab { bottom: 80px; } .ai-panel { bottom: 136px; right: 12px; width: calc(100vw - 24px); } }
-  .ai-msg { animation: fadeUp 0.2s ease-out; }
+  .ai-msg { animation: fadeUp 0.2s ease-out; position: relative; }
   .ai-msg-user { background: #eff6ff; border-radius: 16px 16px 4px 16px; }
   .ai-msg-ai { background: #f5f3ff; border-radius: 16px 16px 16px 4px; }
+  .ai-msg-ai:hover .ai-copy-btn { opacity: 1; }
+  .ai-copy-btn { position: absolute; top: 4px; right: 4px; opacity: 0; transition: opacity 0.15s; background: rgba(255,255,255,0.8); border: none; border-radius: 6px; padding: 3px; cursor: pointer; color: #9ca3af; }
+  .ai-copy-btn:hover { color: #6d28d9; }
+  .ai-chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 9999px; font-size: 11px; font-weight: 500; border: 1px solid #e9d5ff; color: #7c3aed; background: #faf5ff; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .ai-chip:hover { background: #ede9fe; border-color: #c4b5fd; }
+  .ai-msg-ai ul, .ai-msg-ai ol { margin: 4px 0; padding-left: 18px; }
+  .ai-msg-ai li { margin: 2px 0; }
   .ai-typing span { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #a78bfa;
     animation: aiDot 1.2s infinite; margin: 0 2px; }
   .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
@@ -1639,8 +1646,16 @@ tailwind.config = { theme: { extend: {
       </button>
     </div>
   </div>
-  <div id="aiMessages" class="flex-1 overflow-y-auto p-4 space-y-3" style="min-height:200px;max-height:360px">
-    <div class="ai-msg ai-msg-ai px-3 py-2 text-sm text-gray-700">Hola! Soy el asistente de RRHH. Puedo consultar datos de candidatos, generar informes y filtrar perfiles. Pregunta lo que necesites.</div>
+  <div id="aiMessages" class="flex-1 overflow-y-auto p-4 space-y-3" style="min-height:200px;max-height:440px">
+    <div class="ai-msg ai-msg-ai px-3 py-2 text-sm text-gray-700">
+      Hola! Soy el asistente de RRHH. Pregunta lo que necesites.
+      <div id="aiChips" class="flex flex-wrap gap-1.5 mt-2.5">
+        <button class="ai-chip" onclick="aiQuickAction('Resumen general de candidatos por situacion, posicion y oficina')">Resumen general</button>
+        <button class="ai-chip" onclick="aiQuickAction('Lista los candidatos citados esta semana con su oficina y posicion')">Citados recientes</button>
+        <button class="ai-chip" onclick="aiQuickAction('Que oficinas tienen mas candidatos nuevos sin procesar?')">Oficinas pendientes</button>
+        <button class="ai-chip" onclick="aiQuickAction('Exporta en CSV todos los candidatos seleccionados')">Exportar seleccionados</button>
+      </div>
+    </div>
   </div>
   <div class="border-t px-3 py-2 flex gap-2 items-end">
     <textarea id="aiInput" rows="1" placeholder="Pregunta sobre candidatos..."
@@ -4765,7 +4780,22 @@ function toggleAIPanel() {
 function clearAIChat() {
   aiMessages = [];
   document.getElementById('aiMessages').innerHTML =
-    '<div class="ai-msg ai-msg-ai px-3 py-2 text-sm text-gray-700">Hola! Soy el asistente de RRHH. Puedo consultar datos de candidatos, generar informes y filtrar perfiles. Pregunta lo que necesites.</div>';
+    `<div class="ai-msg ai-msg-ai px-3 py-2 text-sm text-gray-700">Hola! Soy el asistente de RRHH. Pregunta lo que necesites.
+      <div id="aiChips" class="flex flex-wrap gap-1.5 mt-2.5">
+        <button class="ai-chip" onclick="aiQuickAction('Resumen general de candidatos por situacion, posicion y oficina')">Resumen general</button>
+        <button class="ai-chip" onclick="aiQuickAction('Lista los candidatos citados esta semana con su oficina y posicion')">Citados recientes</button>
+        <button class="ai-chip" onclick="aiQuickAction('Que oficinas tienen mas candidatos nuevos sin procesar?')">Oficinas pendientes</button>
+        <button class="ai-chip" onclick="aiQuickAction('Exporta en CSV todos los candidatos seleccionados')">Exportar seleccionados</button>
+      </div>
+    </div>`;
+}
+
+function aiQuickAction(text) {
+  const chips = document.getElementById('aiChips');
+  if (chips) chips.remove();
+  document.getElementById('aiInput').value = text;
+  document.getElementById('aiSendBtn').disabled = false;
+  sendAIMessage();
 }
 
 function buildAIContext() {
@@ -4787,13 +4817,24 @@ function buildAIContext() {
     fuente: row[COL.FUENTE]||'', comentarios: row[COL.COMENTARIOS]||''
   }));
   const truncNote = totalCandidatos > 500 ? `\nNOTA: Solo se muestran los primeros 500 de ${totalCandidatos} candidatos.` : '';
-  return `Eres un asistente de RRHH para La Casa Agency. Tienes acceso a los datos de candidatos.
-RESUMEN: Total ${allRows.length}. Nuevos: ${nuevo}, Citados: ${citado}, Descartados: ${descartado}, Seleccionados: ${seleccionado}${truncNote}
-Posiciones: ${JSON.stringify(posiciones)}
-Oficinas: ${JSON.stringify(oficinas)}
+  return `Eres el asistente de RRHH de La Casa Agency. Eres conciso, profesional y usas datos reales.
+
+DATOS ACTUALES:
+- Total: ${allRows.length} candidatos
+- Nuevos: ${nuevo} | Citados: ${citado} | Descartados: ${descartado} | Seleccionados: ${seleccionado}
+- Posiciones: ${JSON.stringify(posiciones)}
+- Oficinas: ${JSON.stringify(oficinas)}${truncNote}
+
 CANDIDATOS (JSON): ${JSON.stringify(candidatos)}
-Responde en español. Si te piden generar un Excel/CSV, devuelve los datos en tabla markdown y añade [EXPORT_CSV] seguido de los indices de fila en formato JSON array, ej: [EXPORT_CSV] [2,5,8].
-Si te piden filtrar, muestra nombres y filas.`;
+
+REGLAS:
+1. Responde SIEMPRE en español, breve y directo
+2. Usa **negritas** para datos clave y listas con - para enumerar
+3. Si piden exportar CSV: muestra tabla markdown + [EXPORT_CSV] [indices]
+4. Si piden filtrar: muestra nombres, posicion, oficina y situacion
+5. Para analisis: da cifras concretas, porcentajes y comparativas
+6. Puedes sugerir acciones (filtrar, citar, descartar) basadas en los datos
+7. Si no tienes suficiente info, di que datos faltan sin inventar`;
 }
 
 async function sendAIMessage() {
@@ -4852,8 +4893,21 @@ async function sendAIMessage() {
 function appendAIMessage(role, content) {
   const el = document.createElement('div');
   el.className = `ai-msg ${role === 'user' ? 'ai-msg-user' : 'ai-msg-ai'} px-3 py-2 text-sm text-gray-700`;
-  let html = esc(content).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-  if (content.includes('|') && content.includes('---')) html = renderMarkdownTable(content);
+  let html;
+  if (content.includes('|') && content.includes('---')) {
+    html = renderMarkdownTable(content);
+  } else {
+    html = esc(content)
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^[-*]\s+(.+)/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+      .replace(/^\d+\.\s+(.+)/gm, '<li>$1</li>')
+      .replace(/\n/g, '<br>');
+  }
+  if (role === 'assistant') {
+    html += `<button class="ai-copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.dataset.raw);this.innerHTML='&#10003;';setTimeout(()=>this.innerHTML='&#128203;',1000)" title="Copiar">&#128203;</button>`;
+    el.dataset.raw = content;
+  }
   el.innerHTML = html;
   document.getElementById('aiMessages').appendChild(el);
   el.scrollIntoView({ behavior: 'smooth' });
