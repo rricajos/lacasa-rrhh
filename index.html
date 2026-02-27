@@ -1762,6 +1762,7 @@ function switchTab(tab) {
   if (tab === 'master' && !isMaster()) return;
   if (tab === activeTab) return;
   activeTab = tab;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   // Cache DOM refs on first call
   if (!_tabCache.sections) {
     _tabCache.sections = document.querySelectorAll('.tab-section');
