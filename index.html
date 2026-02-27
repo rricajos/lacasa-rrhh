@@ -362,7 +362,7 @@ tailwind.config = { theme: { extend: {
 </div>
 
 <!-- ==================== LOGIN SCREEN ==================== -->
-<div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-blue-50">
+<div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-blue-50" style="opacity:0;transition:opacity 0.2s ease-out">
   <div class="login-card w-full max-w-md mx-4">
     <div class="modal-card overflow-hidden">
       <!-- Header -->
@@ -470,7 +470,7 @@ tailwind.config = { theme: { extend: {
 </div>
 
 <!-- ==================== DASHBOARD (hidden until login) ==================== -->
-<div id="dashboardScreen" class="hidden">
+<div id="dashboardScreen" class="hidden" style="opacity:0;transition:opacity 0.2s ease-out">
 
 <!-- Header -->
 <header class="bg-white border-b border-gray-200">
@@ -1748,18 +1748,31 @@ let editingCampaignId = null;
 let campChannel = 'whatsapp';
 
 // ==================== TAB NAVIGATION ====================
+const _tabCache = {};
+const _tabDirty = { configure: true, database: true, master: true, campaigns: true };
+function markTabDirty(tab) { _tabDirty[tab] = true; }
 function switchTab(tab) {
   if (tab === 'master' && !isMaster()) return;
+  if (tab === activeTab) return;
   activeTab = tab;
-  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  // Cache DOM refs on first call
+  if (!_tabCache.sections) {
+    _tabCache.sections = document.querySelectorAll('.tab-section');
+    _tabCache.navTabs = document.querySelectorAll('.nav-tab');
+  }
+  // Swap active classes (cached NodeLists stay live)
+  _tabCache.sections.forEach(s => s.classList.remove('active'));
+  _tabCache.navTabs.forEach(t => t.classList.remove('active'));
   const el = document.getElementById('tab-' + tab);
   if (el) el.classList.add('active');
   document.querySelectorAll('.nav-tab[data-tab="' + tab + '"]').forEach(t => t.classList.add('active'));
-  if (tab === 'configure') { renderProfileSection(); renderUserList(); renderAuditLog(); }
-  if (tab === 'database') { loadDriveFiles(); }
-  if (tab === 'master' && isMaster()) { renderMasterCredits(); loadSMTPConfig(); document.getElementById('masterOpenAIKey').value = localStorage.getItem('lacasa_master_openai_key') || ''; renderMasterMsgLog(); }
-  if (tab === 'campaigns') renderCampaignList();
+  // Defer heavy renders to next frame — visual swap is instant
+  requestAnimationFrame(() => {
+    if (tab === 'configure' && _tabDirty.configure) { _tabDirty.configure = false; renderProfileSection(); renderUserList(); renderAuditLog(); }
+    if (tab === 'database') { loadDriveFiles(); }
+    if (tab === 'master' && isMaster() && _tabDirty.master) { _tabDirty.master = false; renderMasterCredits(); loadSMTPConfig(); document.getElementById('masterOpenAIKey').value = localStorage.getItem('lacasa_master_openai_key') || ''; renderMasterMsgLog(); }
+    if (tab === 'campaigns' && _tabDirty.campaigns) { _tabDirty.campaigns = false; renderCampaignList(); }
+  });
 }
 
 // ==================== AUTH ====================
@@ -1901,8 +1914,12 @@ function checkSession() {
 }
 
 function showDashboard() {
-  document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('dashboardScreen').classList.remove('hidden');
+  const loginEl = document.getElementById('loginScreen');
+  const dashEl = document.getElementById('dashboardScreen');
+  loginEl.classList.add('hidden');
+  loginEl.style.opacity = '0';
+  dashEl.classList.remove('hidden');
+  requestAnimationFrame(() => dashEl.style.opacity = '1');
   document.body.classList.add('logged-in');
 
   // Show current user
@@ -2504,6 +2521,7 @@ function buildRowFromExtracted(data, fileName) {
 // ==================== LOAD ====================
 async function loadData(silent = false) {
   if (!checkSession()) return;
+  Object.keys(_tabDirty).forEach(k => _tabDirty[k] = true);
   const logo = document.querySelector('.header-logo');
   if (logo) logo.style.opacity = '0.5';
   try {
@@ -5133,8 +5151,10 @@ if (sessionStorage.getItem(SESSION_KEY)) {
     sessionStorage.removeItem('lacasa_keep_session');
     sessionStorage.removeItem('lacasa_current_user');
     currentUser = null;
+    requestAnimationFrame(() => document.getElementById('loginScreen').style.opacity = '1');
   }
 } else {
+  requestAnimationFrame(() => document.getElementById('loginScreen').style.opacity = '1');
   document.getElementById('loginUsername')?.focus();
 }
 </script>
