@@ -1006,9 +1006,8 @@ tailwind.config = { theme: { extend: {
     <div class="flex-1 min-w-[180px]">
       <label class="form-label">Buscar</label>
       <div class="relative">
-        <svg id="searchIcon" class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <div id="searchSpinner" class="loader loader-sm absolute left-2.5 top-1/2 -translate-y-1/2 hidden"></div>
-        <input id="filterSearch" type="text" placeholder="Buscar candidato... (/)" oninput="document.getElementById('searchIcon').classList.add('hidden');document.getElementById('searchSpinner').classList.remove('hidden');clearTimeout(searchDebounce);searchDebounce=setTimeout(()=>{document.getElementById('searchSpinner').classList.add('hidden');document.getElementById('searchIcon').classList.remove('hidden');applyFilters(true)},300)" class="filter-select w-full pl-8 pr-3">
+        <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="filterSearch" type="text" placeholder="Buscar candidato... (/)" oninput="clearTimeout(searchDebounce);searchDebounce=setTimeout(()=>applyFilters(true),300)" class="filter-select w-full pl-8 pr-3">
       </div>
     </div>
     <button onclick="clearFilters()" id="btnClear" class="btn-icon hover:text-gray-600 hover:bg-gray-100 hidden" title="Limpiar filtros">
