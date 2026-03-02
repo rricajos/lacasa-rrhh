@@ -4588,6 +4588,24 @@ function openAddUserModal() {
       apiCall({ action: 'share_drive', email }).catch(e =>
         console.warn('No se pudo compartir carpeta Drive con', email, e.message)
       );
+      // Send welcome email with credentials
+      sendEmail(email, 'Bienvenido al Panel RRHH - La Casa Agency',
+        '<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px">' +
+        '<h2 style="color:#4f46e5;margin-bottom:16px">Bienvenido/a al Panel RRHH</h2>' +
+        '<p>Hola <strong>' + nombre + '</strong>,</p>' +
+        '<p>Se ha creado tu cuenta en el panel de RRHH de La Casa Agency.</p>' +
+        '<div style="background:#f3f4f6;border-radius:12px;padding:20px;margin:16px 0">' +
+        '<p style="margin:0 0 8px"><strong>Email:</strong> ' + email + '</p>' +
+        '<p style="margin:0 0 8px"><strong>Contraseña temporal:</strong> ' + pw + '</p>' +
+        '<p style="margin:0"><strong>Rol:</strong> ' + rol + '</p>' +
+        '</div>' +
+        '<p>Accede desde: <a href="https://rrhh.lacasa-agency.com" style="color:#4f46e5">rrhh.lacasa-agency.com</a></p>' +
+        '<p style="color:#ef4444;font-size:13px">Te recomendamos cambiar la contraseña en tu primer inicio de sesion.</p>' +
+        '<hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0">' +
+        '<p style="color:#9ca3af;font-size:11px">La Casa Agency - Panel RRHH</p>' +
+        '</div>'
+      ).then(() => toast('Email de bienvenida enviado a ' + email, 'success'))
+       .catch(e => toast('Usuario creado pero no se pudo enviar email: ' + e.message, 'info'));
     }
     hideConfirm();
   };
