@@ -4909,17 +4909,23 @@ function loadSMTPConfig() {
   } catch {}
 }
 
+function sendEmail(to, subject, html) {
+  const smtp = JSON.parse(localStorage.getItem('lacasa_master_smtp') || '{}');
+  return apiCall({
+    action: 'send_email', to, subject, html,
+    smtp_host: smtp.host || '', smtp_port: smtp.port || '587',
+    smtp_user: smtp.user || '', smtp_pass: smtp.pass || ''
+  });
+}
+
 async function testSMTP() {
   const cfg = JSON.parse(localStorage.getItem('lacasa_master_smtp') || '{}');
   if (!cfg.user) { toast('Configura SMTP primero', 'info'); return; }
   try {
     toast('Enviando test...', 'info');
-    await apiCall({
-      action: 'send_email',
-      to: cfg.user,
-      subject: 'Test SMTP - La Casa RRHH',
-      html: '<h2>SMTP configurado correctamente</h2><p>Este es un email de prueba del panel de RRHH de La Casa Agency.</p><p>Fecha: ' + new Date().toLocaleString('es-ES') + '</p>'
-    });
+    await sendEmail(cfg.user, 'Test SMTP - La Casa RRHH',
+      '<h2>SMTP configurado correctamente</h2><p>Este es un email de prueba del panel de RRHH de La Casa Agency.</p><p>Fecha: ' + new Date().toLocaleString('es-ES') + '</p>'
+    );
     toast('Email de test enviado a ' + cfg.user, 'success');
   } catch (e) {
     toast('Error SMTP: ' + e.message, 'error');
@@ -4989,11 +4995,8 @@ async function sendResetCode() {
   // Generate 6-digit code
   const code = String(Math.floor(100000 + Math.random() * 900000));
   try {
-    await apiCall({
-      action: 'send_email',
-      to: email,
-      subject: 'Codigo de recuperacion - La Casa RRHH',
-      html: '<div style="font-family:Arial,sans-serif;max-width:400px;margin:0 auto;padding:20px">' +
+    await sendEmail(email, 'Codigo de recuperacion - La Casa RRHH',
+      '<div style="font-family:Arial,sans-serif;max-width:400px;margin:0 auto;padding:20px">' +
         '<h2 style="color:#4f46e5;margin-bottom:16px">Recuperar contraseña</h2>' +
         '<p>Hola <strong>' + (user.nombre || '') + '</strong>,</p>' +
         '<p>Tu codigo de verificacion es:</p>' +
@@ -5004,7 +5007,7 @@ async function sendResetCode() {
         '<hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0">' +
         '<p style="color:#9ca3af;font-size:11px">Si no solicitaste este cambio, ignora este email.</p>' +
         '</div>'
-    });
+    );
     // Store code with 10-minute expiry
     setPendingResetCode({ code, email, expires: Date.now() + 10 * 60 * 1000 });
     // Show step 2
@@ -5533,11 +5536,11 @@ async function executeCampaign(id) {
           fecha: row[COL.FECHA], hora: row[COL.HORA] });
         sent++;
       } else {
-        await apiCall({ action: 'send_email', to: row[COL.CORREO],
-          subject: camp.nombre + ' - La Casa Agency',
-          html: '<p>Hola <strong>' + (row[COL.NOMBRE]||'') + '</strong>,</p>' +
+        await sendEmail(row[COL.CORREO],
+          camp.nombre + ' - La Casa Agency',
+          '<p>Hola <strong>' + (row[COL.NOMBRE]||'') + '</strong>,</p>' +
             '<p>' + (camp.mensaje || 'Le contactamos desde La Casa Agency respecto a su candidatura.') + '</p>' +
-            '<p>Un saludo,<br>La Casa Agency - RRHH</p>' });
+            '<p>Un saludo,<br>La Casa Agency - RRHH</p>' );
         sent++;
       }
       logMessage(row[COL.NOMBRE], camp.canal, camp.nombre, 'sent', camp.id);
