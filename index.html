@@ -4576,6 +4576,7 @@ function openAddUserModal() {
       const pw = document.getElementById('newUserPw').value;
       const rol = document.getElementById('newUserRol').value;
       if (!nombre || !email || !pw) { toast('Rellena todos los campos', 'info'); return; }
+      if (pw.length < 6) { toast('La contraseña debe tener mínimo 6 caracteres', 'info'); return; }
       const users = getUsers();
       if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) { toast('Email ya existe', 'info'); return; }
       users.push({ nombre, email, passwordHash: sha256(pw), rol, activo: true, creado: new Date().toISOString() });
@@ -4990,13 +4991,13 @@ async function sendResetCode() {
     document.getElementById('resetNewPw').value = '';
     document.getElementById('resetConfirmPw').value = '';
     document.getElementById('resetCode').focus();
-    toast('Codigo enviado a ' + email, 'success');
+    toast('Código enviado a ' + email, 'success');
   } catch (e) {
     document.getElementById('forgotErrorText').textContent = 'Error al enviar: ' + e.message;
     document.getElementById('forgotError').classList.remove('hidden');
   }
   btn.disabled = false;
-  btn.textContent = 'Enviar codigo';
+  btn.textContent = 'Enviar código';
 }
 
 function verifyAndResetPassword() {
