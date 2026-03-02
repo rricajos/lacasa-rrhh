@@ -170,20 +170,6 @@ tailwind.config = { theme: { extend: {
   .cv-split-panel.open { transform:translateX(0); transition:transform 0.3s ease-out 0.15s; }
   @media (max-width:1023px) { .cv-split-panel { display:none !important; } }
 
-  /* Organize Tree Panel (Drive folder tree behind Organizar) */
-  .organize-tree-panel { position:fixed; top:0; bottom:0; left:60px; right:36rem; transform:translateX(-100%); transition:transform 0.3s ease-out; z-index:39; background:#f8fafc; border-right:1px solid #e2e8f0; overflow-y:auto; }
-  .organize-tree-panel.open { transform:translateX(0); }
-  @media (max-width:1023px) { .organize-tree-panel { display:none !important; } }
-  .tree-node { padding:3px 8px; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:6px; }
-  .tree-node:hover { background:rgba(0,0,0,0.04); }
-  .tree-node.tree-folder { font-weight:500; color:#374151; }
-  .tree-node.tree-file { color:#6b7280; font-weight:400; }
-  .tree-node .tree-chevron { transition:transform 0.15s ease; width:14px; height:14px; flex-shrink:0; }
-  .tree-node .tree-chevron.expanded { transform:rotate(90deg); }
-  .tree-children { overflow:hidden; }
-  .tree-dup-highlight { background:rgba(239,68,68,0.1) !important; color:#dc2626 !important; font-weight:600; border-radius:6px; }
-  .tree-dup-highlight::after { content:' (duplicado)'; font-size:10px; font-weight:400; opacity:0.7; }
-
   /* Dup Compare Panel (slides from right, behind Organizar) */
   .dup-compare-panel { position:fixed; top:0; bottom:0; right:0; width:80%; max-width:calc(100% - 60px); transform:translateX(100%); transition:transform 0.3s ease-out; z-index:39; background:#fff; box-shadow:-4px 0 24px rgba(0,0,0,0.1); }
   .dup-compare-panel.open { transform:translateX(0); }
@@ -593,12 +579,6 @@ tailwind.config = { theme: { extend: {
   /* Dark mode: General modal-panel & CV split */
   body.dark .modal-panel { background: #1e293b; border-color: #334155; }
   body.dark .cv-split-panel { background: #1e293b !important; }
-  body.dark .organize-tree-panel { background: #0f172a; border-color: #334155; }
-  body.dark .tree-node:hover { background: rgba(255,255,255,0.06); }
-  body.dark .tree-node.tree-folder { color: #e2e8f0; }
-  body.dark .tree-node.tree-file { color: #94a3b8; }
-  body.dark .tree-dup-highlight { background: rgba(239,68,68,0.15) !important; color: #f87171 !important; }
-
   /* Dark mode: Confirm modal text */
   body.dark #confirmMsg { color: #f1f5f9; }
   body.dark #confirmMsg .form-input { background: #0f172a; border-color: #475569; color: #e2e8f0; }
@@ -2010,18 +1990,6 @@ tailwind.config = { theme: { extend: {
 </div>
 
 <!-- ==================== ORGANIZAR PANEL ==================== -->
-<div id="organizeTreePanel" class="organize-tree-panel">
-  <div class="sticky top-0 z-10 glass-blur border-b border-gray-200/50 px-4 py-3 flex items-center justify-between">
-    <div>
-      <h3 class="text-sm font-semibold text-gray-700">Carpeta Google Drive</h3>
-      <p class="text-xs text-gray-400">Archivos de candidatos</p>
-    </div>
-    <button onclick="document.getElementById('organizeTreePanel').classList.remove('open')" class="btn-icon hover:bg-gray-100 w-7 h-7">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-    </button>
-  </div>
-  <div id="organizeTree" class="p-3 text-sm"></div>
-</div>
 <div id="organizarModal" class="fixed inset-0 z-40 hidden">
   <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeOrganizar()"></div>
   <div class="modal-panel absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl overflow-y-auto">
@@ -5266,17 +5234,10 @@ function filterPendingRequired() {
 
 // ==================== ORGANIZAR ====================
 let aoSkipLoosePrompt = false;
-let organizeTreeLoaded = false;
 async function openOrganizar(skipPrompt) {
   const m = document.getElementById('organizarModal');
   m.classList.remove('hidden'); m.style.display = 'flex';
   requestAnimationFrame(() => m.querySelector('.modal-panel').classList.add('open'));
-  // Open tree panel on desktop
-  if (window.innerWidth >= 1024) {
-    const tp = document.getElementById('organizeTreePanel');
-    tp.classList.add('open');
-    if (!organizeTreeLoaded) loadOrganizeTree();
-  }
   aoScanUnorganized();
   if (!skipPrompt && !aoSkipLoosePrompt && aoUnorganized.length > 0) {
     aoSkipLoosePrompt = true;
@@ -5289,123 +5250,11 @@ function closeOrganizar() {
   const mp = m.querySelector('.modal-panel');
   mp.classList.remove('open');
   aoSkipLoosePrompt = false;
-  document.getElementById('organizeTreePanel').classList.remove('open');
   document.getElementById('dupComparePanel').classList.remove('open');
   setTimeout(() => { m.style.display = 'none'; m.classList.add('hidden'); }, 250);
 }
 
-// ---- Drive Tree ----
-async function loadOrganizeTree() {
-  const container = document.getElementById('organizeTree');
-  container.innerHTML = '<div class="flex items-center gap-2 text-gray-400 text-xs py-4"><span class="loader inline-block w-4 h-4"></span> Cargando árbol...</div>';
-  try {
-    const data = await apiCall({ action: 'list_drive' });
-    const files = Array.isArray(data) ? data : (data.files || []);
-    files.sort((a, b) => {
-      const aF = (a.mimeType || '') === 'application/vnd.google-apps.folder' ? 0 : 1;
-      const bF = (b.mimeType || '') === 'application/vnd.google-apps.folder' ? 0 : 1;
-      return aF !== bF ? aF - bF : (a.name || '').localeCompare(b.name || '');
-    });
-    container.innerHTML = '';
-    renderTreeNodes(files, container, 0);
-    organizeTreeLoaded = true;
-    highlightDupsInTree();
-  } catch (e) {
-    container.innerHTML = '<p class="text-xs text-gray-400 py-4">No se pudo cargar el árbol<br><button onclick="organizeTreeLoaded=false;loadOrganizeTree()" class="text-brand-500 hover:text-brand-700 text-xs mt-1 font-medium">Reintentar</button></p>';
-  }
-}
 
-function renderTreeNodes(files, container, depth) {
-  const chevronSvg = '<svg class="tree-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
-  const folderIcon = '<svg class="w-4 h-4 flex-shrink-0 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>';
-  const fileIcon = '<svg class="w-4 h-4 flex-shrink-0 text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>';
-
-  files.forEach(f => {
-    const name = f.name || f.fileName || 'archivo';
-    const mime = f.mimeType || '';
-    const isFolder = mime === 'application/vnd.google-apps.folder';
-
-    const node = document.createElement('div');
-    if (isFolder) {
-      node.className = 'tree-node tree-folder';
-      node.style.paddingLeft = (depth * 16 + 4) + 'px';
-      node.innerHTML = `${chevronSvg}${folderIcon}<span class="truncate">${escHtml(name)}</span>`;
-      container.appendChild(node);
-
-      const children = document.createElement('div');
-      children.className = 'tree-children';
-      children.style.display = 'none';
-      children.dataset.folderId = f.id || '';
-      children.dataset.loaded = 'false';
-      container.appendChild(children);
-
-      node.onclick = () => expandTreeFolder(f.id, children, node);
-    } else {
-      node.className = 'tree-node tree-file';
-      node.style.paddingLeft = (depth * 16 + 22) + 'px';
-      node.innerHTML = `${fileIcon}<span class="truncate">${escHtml(name)}</span>`;
-      if (f.id) node.dataset.fileId = f.id;
-      container.appendChild(node);
-    }
-  });
-}
-
-async function expandTreeFolder(folderId, childContainer, folderNode) {
-  const chevron = folderNode.querySelector('.tree-chevron');
-  if (childContainer.dataset.loaded === 'true') {
-    const visible = childContainer.style.display !== 'none';
-    childContainer.style.display = visible ? 'none' : '';
-    chevron?.classList.toggle('expanded', !visible);
-    return;
-  }
-  chevron?.classList.add('expanded');
-  childContainer.style.display = '';
-  childContainer.innerHTML = '<div class="text-xs text-gray-400 pl-8 py-1"><span class="loader inline-block w-3 h-3"></span></div>';
-  try {
-    const data = await apiCall({ action: 'list_drive', folderId });
-    const files = Array.isArray(data) ? data : (data.files || []);
-    files.sort((a, b) => {
-      const aF = (a.mimeType || '') === 'application/vnd.google-apps.folder' ? 0 : 1;
-      const bF = (b.mimeType || '') === 'application/vnd.google-apps.folder' ? 0 : 1;
-      return aF !== bF ? aF - bF : (a.name || '').localeCompare(b.name || '');
-    });
-    childContainer.innerHTML = '';
-    const depth = (function getDepth(el) { let d = 0; while (el && el.id !== 'organizeTree') { if (el.classList?.contains('tree-children')) d++; el = el.parentElement; } return d; })(childContainer);
-    renderTreeNodes(files, childContainer, depth);
-    childContainer.dataset.loaded = 'true';
-    highlightDupsInTree();
-  } catch (e) {
-    childContainer.innerHTML = '<p class="text-xs text-red-400 pl-8 py-1">Error al cargar</p>';
-  }
-}
-
-function highlightDupsInTree() {
-  const treeEl = document.getElementById('organizeTree');
-  if (!treeEl) return;
-  // Collect FILE_IDs of selected duplicates
-  const dupFileIds = new Set();
-  aoSelectedDups.forEach(i => {
-    const d = aoDuplicates[i];
-    if (!d) return;
-    const fidA = allRows[d.a.idx]?.[COL.FILE_ID];
-    const fidB = allRows[d.b.idx]?.[COL.FILE_ID];
-    if (fidA) dupFileIds.add(fidA);
-    if (fidB) dupFileIds.add(fidB);
-  });
-  // Clear all highlights
-  treeEl.querySelectorAll('.tree-dup-highlight').forEach(el => el.classList.remove('tree-dup-highlight'));
-  if (!dupFileIds.size) return;
-  // Apply highlights
-  let firstHighlight = null;
-  treeEl.querySelectorAll('.tree-file[data-file-id]').forEach(el => {
-    if (dupFileIds.has(el.dataset.fileId)) {
-      el.classList.add('tree-dup-highlight');
-      if (!firstHighlight) firstHighlight = el;
-    }
-  });
-  // Auto-scroll to first highlighted
-  if (firstHighlight) firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
 
 function aoScanUnorganized() {
   aoUnorganized = [];
@@ -5540,7 +5389,7 @@ async function aoDuplicateScan() {
   btn.disabled = false;
   btn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> Escanear';
   renderAoDuplicates();
-  highlightDupsInTree();
+
   toast(`${aoDuplicates.length} posible(s) duplicado(s) encontrados`, aoDuplicates.length ? 'warning' : 'success');
 }
 function renderAoDuplicates() {
@@ -5570,7 +5419,7 @@ function renderAoDuplicates() {
 function aoToggleDup(i) {
   if (aoSelectedDups.has(i)) aoSelectedDups.delete(i); else aoSelectedDups.add(i);
   renderAoDuplicates();
-  highlightDupsInTree();
+
 }
 async function aoDeleteSelectedDups() {
   if (!aoSelectedDups.size) return;
@@ -5591,7 +5440,7 @@ async function aoDeleteSelectedDups() {
     toast(`${sorted.length} duplicado(s) eliminados`, 'success');
     aoDuplicates = []; aoSelectedDups = new Set();
     renderAoDuplicates();
-    highlightDupsInTree();
+  
     renderTable();
   } catch (e) { toast('Error al eliminar: ' + e.message, 'error'); }
 }
@@ -5661,7 +5510,7 @@ async function aoDiscardOne(which) {
     aoSelectedDups.forEach(i => { if (i < removedIdx) newSelected.add(i); else if (i > removedIdx) newSelected.add(i - 1); });
     aoSelectedDups = newSelected;
     renderAoDuplicates();
-    highlightDupsInTree();
+  
     applyFilters(false);
   } catch (e) { toast('Error: ' + e.message, 'error'); }
 }
@@ -5676,7 +5525,7 @@ function aoIgnoreDup() {
   aoSelectedDups.forEach(i => { if (i < removedIdx) newSelected.add(i); else if (i > removedIdx) newSelected.add(i - 1); });
   aoSelectedDups = newSelected;
   renderAoDuplicates();
-  highlightDupsInTree();
+
   toast('Par ignorado', 'info');
 }
 
