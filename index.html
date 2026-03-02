@@ -2494,7 +2494,7 @@ async function processSingleCV(file, progressEl, doAIAnalysis = true, showDetail
 
     statusEl.textContent = 'Guardando en hoja de cálculo...';
     try {
-      await apiCall({ action: 'update_cell', range: 'A' + (allRows.length + 2), value: newRow });
+      await apiCall({ action: 'update_cell', range: 'A' + (allRows.length + 2), value: newRow }, { retries: 1, timeout: 20000 });
     } catch { /* continue even if save fails */ }
 
     allRows.unshift(newRow);
@@ -2524,12 +2524,13 @@ async function processSingleCV(file, progressEl, doAIAnalysis = true, showDetail
     updateStats();
     logAction('UPLOAD_CV', `CV ${doAIAnalysis ? 'analizado' : 'subido'}: ${file.name}`, displayName);
 
-    // Single file + AI: open detail panel with animated field fill
-    if (showDetailAfter && doAIAnalysis && extractedData) {
+    // Single file: open detail panel + show CV from local data
+    if (showDetailAfter) {
       const newIdx = allRows.indexOf(newRow);
       if (newIdx >= 0) {
         showDetail(newIdx);
-        await animateModalFields();
+        showCvFromBase64(base64, file.name);
+        if (doAIAnalysis && extractedData) await animateModalFields();
       }
     }
 
@@ -4021,6 +4022,32 @@ function cleanupCvSplitBlob() {
   cvSplitCurrentFileId = null;
 }
 
+function showCvFromBase64(base64Data, fileName) {
+  const panel = document.getElementById('cvSplitPanel');
+  const frame = document.getElementById('cvSplitFrame');
+  const loading = document.getElementById('cvSplitLoading');
+
+  document.getElementById('cvSplitName').textContent = fileName || 'CV';
+  const driveLink = document.getElementById('cvSplitDriveLink');
+  if (driveLink) driveLink.style.display = 'none';
+
+  panel.classList.remove('hidden');
+  loading.classList.add('hidden');
+  frame.classList.remove('hidden');
+
+  cleanupCvSplitBlob();
+  cvSplitCurrentFileId = null;
+  const binary = atob(base64Data);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  cvSplitBlobUrl = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+  frame.src = cvSplitBlobUrl;
+
+  requestAnimationFrame(() => panel.classList.add('open'));
+  const mobileBtn = document.getElementById('modalCvBtn');
+  if (mobileBtn) { mobileBtn.classList.remove('hidden'); mobileBtn.dataset.fileId = ''; mobileBtn.dataset.fileName = fileName || 'CV'; }
+}
+
 async function loadCvSplit(fileId, fileName) {
   const panel = document.getElementById('cvSplitPanel');
   const frame = document.getElementById('cvSplitFrame');
@@ -4028,7 +4055,9 @@ async function loadCvSplit(fileId, fileName) {
 
   // Header
   document.getElementById('cvSplitName').textContent = fileName || 'CV';
-  document.getElementById('cvSplitDriveLink').href = 'https://drive.google.com/file/d/' + fileId + '/view';
+  const driveLink = document.getElementById('cvSplitDriveLink');
+  driveLink.href = 'https://drive.google.com/file/d/' + fileId + '/view';
+  driveLink.style.display = '';
 
   // Show panel + trigger animation
   panel.classList.remove('hidden');
