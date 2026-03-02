@@ -189,10 +189,20 @@ tailwind.config = { theme: { extend: {
   @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
   .donut-ring { transition: stroke-dashoffset 0.6s ease, stroke-width 0.15s; }
   .donut-ring:hover { stroke-width: 3.4; cursor: pointer; }
-  /* Placeholder donuts — sink animation */
-  @keyframes donutSink { 0%{opacity:0.35;transform:translateY(0)} 100%{opacity:0;transform:translateY(18px)} }
+  /* Placeholder donuts — float-up entrance */
+  @keyframes donutFloat {
+    0% { opacity:0; transform:translateY(24px); }
+    60% { opacity:0.55; transform:translateY(-3px); }
+    100% { opacity:0.45; transform:translateY(0); }
+  }
+  @keyframes donutBreath {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(-4px); }
+  }
   .donut-placeholder { position:relative; overflow:hidden; }
-  .donut-placeholder > .donut-inner { filter:saturate(0.4); pointer-events:none; animation:donutSink 2s ease-in forwards; }
+  .donut-placeholder > .donut-inner { filter:saturate(0.35) brightness(1.05); pointer-events:none; animation:donutFloat 0.8s ease-out both, donutBreath 4s ease-in-out 1s infinite; }
+  .donut-placeholder:nth-child(2) > .donut-inner { animation-delay:0.12s, 1.12s; }
+  .donut-placeholder:nth-child(3) > .donut-inner { animation-delay:0.24s, 1.24s; }
   /* Scroll-nav indicator for over-scroll candidate navigation */
   .scroll-nav-hint { text-align:center; padding:10px 0; font-size:11px; font-weight:500; color:#94a3b8; opacity:0; transition:opacity 0.2s, transform 0.2s; pointer-events:none; }
   .scroll-nav-hint.active { opacity:1; color:#3b82f6; }
