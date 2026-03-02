@@ -1637,16 +1637,6 @@ tailwind.config = { theme: { extend: {
         <div class="text-lg font-bold text-amber-900" id="waCostTotal">&euro;0.00</div>
       </div>
 
-      <!-- Second password -->
-      <div>
-        <label class="form-label mb-1.5">Clave de autorización</label>
-        <div class="flex gap-2">
-          <input type="password" id="waPassword" placeholder="Introduce la clave para enviar..." oninput="validateWAPassword()"
-            class="form-input flex-1">
-          <span id="waPasswordStatus" class="flex items-center text-xs text-gray-300"></span>
-        </div>
-      </div>
-
       <!-- Progress bar (hidden until sending) -->
       <div id="waProgress" class="hidden">
         <div class="flex justify-between text-xs text-gray-500 mb-1">
@@ -1782,7 +1772,6 @@ const EDITABLE_FIELDS = ['NOMBRE','OFICINA','RESIDENCIA','FECHA','HORA','CORREO'
 
 // WhatsApp configuration
 const WA_COST_PER_MSG = 0.05; // EUR estimated (Twilio + Meta fee)
-const WA_PASSWORD_HASH = '47dd4f45e1ecda473c41d3d7cdffb89bfd7c5756013ce8ff62237b777f0a64c5'; // Admin#LaCasa2026
 
 const WA_TEMPLATES = {
   citado: {
@@ -1819,7 +1808,6 @@ let lastActivity = Date.now();
 let sessionTimerId = null;
 let keepSessionUntilMidnight = false;
 let waSelectedTemplate = null;
-let waPasswordOk = false;
 let activeTab = 'dashboard';
 let currentUser = null;
 let aiMessages = [];
@@ -2938,14 +2926,7 @@ function saveCrudList(type, list) {
   localStorage.setItem('lacasa_' + type + 's', JSON.stringify(list));
 }
 
-async function promptAdminAuth() {
-  const pw = prompt('Clave de administrador:');
-  if (!pw) return false;
-  return sha256(pw) === WA_PASSWORD_HASH;
-}
-
-async function crudAdd(type) {
-  if (!await promptAdminAuth()) { toast('Clave incorrecta', 'error'); return; }
+function crudAdd(type) {
   const name = prompt(type === 'oficina' ? 'Nombre de la nueva oficina:' : 'Nombre de la nueva posición:');
   if (!name || !name.trim()) return;
   const list = getCrudList(type);
@@ -2954,8 +2935,7 @@ async function crudAdd(type) {
   toast((type === 'oficina' ? 'Oficina' : 'Posición') + ' añadida', 'success');
 }
 
-async function crudRename(type, oldName) {
-  if (!await promptAdminAuth()) { toast('Clave incorrecta', 'error'); return; }
+function crudRename(type, oldName) {
   const newName = prompt('Nuevo nombre para "' + oldName + '":', oldName);
   if (!newName || !newName.trim() || newName.trim() === oldName) return;
   const list = getCrudList(type);
@@ -2966,8 +2946,7 @@ async function crudRename(type, oldName) {
   toast('Renombrado a "' + newName.trim() + '"', 'success');
 }
 
-async function crudDelete(type, name) {
-  if (!await promptAdminAuth()) { toast('Clave incorrecta', 'error'); return; }
+function crudDelete(type, name) {
   const list = getCrudList(type).filter(n => n !== name);
   saveCrudList(type, list);
   updateDashboardPanels();
@@ -4325,7 +4304,6 @@ function toast(msg, type='info') {
 function openWhatsAppModal() {
   if (selectedRows.size === 0) return;
   waSelectedTemplate = null;
-  waPasswordOk = false;
 
   // Build template selector
   const tList = document.getElementById('waTemplateList');
@@ -4361,8 +4339,6 @@ function openWhatsAppModal() {
   document.getElementById('waCostTotal').textContent = '\u20ac' + (validCount * WA_COST_PER_MSG).toFixed(2);
 
   // Reset state
-  document.getElementById('waPassword').value = '';
-  document.getElementById('waPasswordStatus').textContent = '';
   document.getElementById('waSendBtn').disabled = true;
   document.getElementById('waPreviewBox').classList.add('hidden');
   document.getElementById('waProgress').classList.add('hidden');
@@ -4432,37 +4408,20 @@ function selectWATemplate(key) {
   checkWASendReady();
 }
 
-function validateWAPassword() {
-  const pw = document.getElementById('waPassword').value;
-  if (!pw) {
-    waPasswordOk = false;
-    document.getElementById('waPasswordStatus').innerHTML = '';
-    checkWASendReady();
-    return;
-  }
-  const hash = sha256(pw);
-  waPasswordOk = (hash === WA_PASSWORD_HASH);
-  document.getElementById('waPasswordStatus').innerHTML = waPasswordOk
-    ? '<span class="text-emerald-500 font-bold">&#10003;</span>'
-    : '<span class="text-red-400">&#10007;</span>';
-  checkWASendReady();
-}
-
 function checkWASendReady() {
-  const ready = waSelectedTemplate && waPasswordOk;
+  const ready = !!waSelectedTemplate;
   const btn = document.getElementById('waSendBtn');
   btn.disabled = !ready;
-  btn.title = !waSelectedTemplate ? 'Selecciona una plantilla primero' : !waPasswordOk ? 'Introduce la clave de envio' : 'Enviar WhatsApp';
+  btn.title = !waSelectedTemplate ? 'Selecciona una plantilla primero' : 'Enviar WhatsApp';
 }
 
 async function sendWhatsAppBatch() {
-  if (!waSelectedTemplate || !waPasswordOk) return;
+  if (!waSelectedTemplate) return;
   const recipients = getWARecipients().filter(r => r.phone && r.phone.replace(/\D/g, '').length >= 6);
   if (recipients.length === 0) { toast('No hay destinatarios válidos', 'info'); return; }
 
   // Disable UI
   document.getElementById('waSendBtn').disabled = true;
-  document.getElementById('waPassword').disabled = true;
   const progress = document.getElementById('waProgress');
   progress.classList.remove('hidden');
 
