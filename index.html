@@ -1988,9 +1988,15 @@ function doLogout(reason) {
   // Remove master nav if exists
   document.querySelectorAll('.nav-tab[data-tab="master"]').forEach(e => e.remove());
   document.getElementById('currentUserLabel').classList.add('hidden');
+  document.getElementById('headerUserName').textContent = '';
   document.getElementById('headerAvatar').classList.add('hidden');
   applyTheme('default');
   driveFilesLoaded = false;
+  // Reset all tab caches so next login renders fresh data
+  Object.keys(_tabDirty).forEach(k => _tabDirty[k] = true);
+  // Clear AI chat history
+  const aiMsgs = document.getElementById('aiMessages');
+  if (aiMsgs) aiMsgs.innerHTML = '';
 }
 
 function getSessionRemaining() {
