@@ -159,8 +159,6 @@ tailwind.config = { theme: { extend: {
   th.sorted-asc, th.sorted-desc { background: rgba(59,130,246,0.06); }
   .stat-card { transition: all 0.15s; cursor: pointer; min-height: 72px; }
   .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
-  .row-no-cv { background: #fffbeb; }
-  .row-no-cv:hover { background: #fef3c7 !important; }
   .row-hover:hover { background: #f1f5f9; }
   .row-flash { animation: flashGreen 0.8s ease-out; }
   @keyframes flashGreen { 0% { background: #d1fae5; } 100% { background: transparent; } }
@@ -1100,7 +1098,8 @@ tailwind.config = { theme: { extend: {
         <thead class="bg-gray-50/80 text-gray-500 text-xs uppercase tracking-wider">
           <tr>
             <th class="px-3 py-2.5 text-left">Nombre</th>
-            <th class="px-3 py-2.5 text-left hidden sm:table-cell">Teléfono</th>
+            <th class="px-3 py-2.5 text-center w-10 hidden sm:table-cell">CV</th>
+            <th class="px-3 py-2.5 text-center w-10 hidden sm:table-cell">Info</th>
             <th class="px-3 py-2.5 text-left">Situación</th>
             <th class="px-3 py-2.5 text-left hidden md:table-cell">Posición</th>
             <th class="px-3 py-2.5 text-left hidden md:table-cell">Oficina</th>
@@ -1289,8 +1288,8 @@ tailwind.config = { theme: { extend: {
             <th class="px-3 py-2.5 text-left w-10 sortable" data-col="ROW" onclick="sortBy(this)"># <span class="sort-icon">&#9650;</span></th>
             <th class="px-3 py-2.5 text-left sortable" data-col="NOMBRE" onclick="sortBy(this)">Nombre <span class="sort-icon">&#9650;</span></th>
             <th class="px-3 py-2.5 text-left sortable hidden sm:table-cell" data-col="POSICION" onclick="sortBy(this)">Posición <span class="sort-icon">&#9650;</span></th>
-            <th class="px-3 py-2.5 text-left hidden md:table-cell">Teléfono</th>
-            <th class="px-3 py-2.5 text-left hidden lg:table-cell">Email</th>
+            <th class="px-3 py-2.5 text-center w-10">CV</th>
+            <th class="px-3 py-2.5 text-center w-10">Info</th>
             <th class="px-3 py-2.5 text-left sortable" data-col="SITUACION" onclick="sortBy(this)">Situación <span class="sort-icon">&#9650;</span></th>
             <th class="px-3 py-2.5 text-left sortable hidden lg:table-cell" data-col="OFICINA" onclick="sortBy(this)">Oficina <span class="sort-icon">&#9650;</span></th>
             <th class="px-3 py-2.5 text-left sortable hidden xl:table-cell" data-col="MES" onclick="sortBy(this)">Mes <span class="sort-icon">&#9650;</span></th>
@@ -3915,21 +3914,20 @@ function renderDrillDown() {
   // Table
   const tbody = document.getElementById('drillTableBody');
   if (rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-400 text-sm">Sin resultados</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-400 text-sm">Sin resultados</td></tr>';
   } else {
     tbody.innerHTML = rows.map(row => {
       const gi = allRows.indexOf(row);
       const sr = gi + 2;
       const sit = (row[COL.SITUACION] || 'Nuevo').trim();
-      const phone = maskPhone((row[COL.TELEFONO]||'').trim());
       const fecha = (row[COL.FECHA]||'').trim();
       const dHasCV = !!(row[COL.FILE_ID]);
-      const dCvDot = dHasCV
-        ? '<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 flex-shrink-0" title="CV cargado"></span>'
-        : '<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-300 mr-1.5 flex-shrink-0" title="Sin CV"></span>';
-      return `<tr class="border-t border-gray-50 row-hover cursor-pointer${dHasCV?'':' row-no-cv'}" onclick="showDetail(${gi})">
-        <td class="px-3 py-2 font-medium text-gray-800"><div class="flex items-center">${dCvDot}${esc(row[COL.NOMBRE]||'-')}</div></td>
-        <td class="px-3 py-2 text-gray-500 hidden sm:table-cell"><span class="masked">${esc(phone||'-')}</span></td>
+      const dReqFields = getRequiredFields();
+      const dHasInfo = dReqFields.length === 0 || dReqFields.every(f => (row[COL[f]]||'').trim());
+      return `<tr class="border-t border-gray-50 row-hover cursor-pointer" onclick="showDetail(${gi})">
+        <td class="px-3 py-2 font-medium text-gray-800">${esc(row[COL.NOMBRE]||'-')}</td>
+        <td class="px-3 py-2 text-center hidden sm:table-cell"><span class="inline-block w-2.5 h-2.5 rounded-full ${dHasCV?'bg-emerald-400':'bg-amber-400'}" title="${dHasCV?'CV cargado':'Sin CV'}"></span></td>
+        <td class="px-3 py-2 text-center hidden sm:table-cell"><span class="inline-block w-2.5 h-2.5 rounded-full ${dHasInfo?'bg-emerald-400':'bg-red-400'}" title="${dHasInfo?'Datos completos':'Datos pendientes'}"></span></td>
         <td class="px-3 py-2" onclick="event.stopPropagation()">
           <select class="sit-select ${getSitClass(sit)}" data-row="${sr}" data-original="${esc(sit)}" onchange="updateSituacionDrill(this)">
             ${['Nuevo','Citado','Descartado','Seleccionado'].map(o =>
@@ -4157,28 +4155,20 @@ function renderTable() {
       <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
       <p class="text-sm">${msg}</p>${hint}</td></tr>`;
   } else {
+    const reqFields = getRequiredFields();
     tbody.innerHTML = page.map(row => {
       const gi=allRows.indexOf(row), sr=gi+2;
       const sit=(row[COL.SITUACION]||'Nuevo').trim();
       const ck=selectedRows.has(sr)?'checked':'';
-      const phone=(row[COL.TELEFONO]||'').trim();
-      const email=(row[COL.CORREO]||'').trim();
-      // Masked in table view
-      const maskedPhone = maskPhone(phone);
-      const maskedEmail = maskEmail(email);
-      const phoneHtml=phone?`<span class="text-gray-600 masked" title="Ver en detalle">${highlight(maskedPhone)}</span>`:'<span class="text-gray-300">-</span>';
-      const emailHtml=email?`<span class="text-gray-600 masked truncate block max-w-[140px]" title="Ver en detalle">${highlight(maskedEmail)}</span>`:'<span class="text-gray-300">-</span>';
       const hasCV = !!(row[COL.FILE_ID]);
-      const cvDot = hasCV
-        ? '<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 flex-shrink-0" title="CV cargado"></span>'
-        : '<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-300 mr-1.5 flex-shrink-0" title="Sin CV"></span>';
-      return `<tr class="border-t border-gray-50 row-hover${hasCV?'':' row-no-cv'} sm:cursor-default cursor-pointer" id="row-${sr}" onclick="if(window.innerWidth<640)showDetail(${gi})">
+      const hasInfo = reqFields.length === 0 || reqFields.every(f => (row[COL[f]]||'').trim());
+      return `<tr class="border-t border-gray-50 row-hover sm:cursor-default cursor-pointer" id="row-${sr}" onclick="if(window.innerWidth<640)showDetail(${gi})">
         <td class="px-3 py-2"><input type="checkbox" value="${sr}" ${ck} onchange="toggleRow(this)" class="rounded"></td>
         <td class="px-3 py-2 text-gray-300 text-xs">${sr}</td>
-        <td class="px-3 py-2 font-medium text-gray-800"><div class="flex items-center">${cvDot}${highlight(row[COL.NOMBRE]||'')}</div><p class="text-xs text-gray-400 truncate sm:hidden mt-0.5 pl-3">${esc(row[COL.POSICION]||'')}${row[COL.OFICINA]?' &middot; '+esc(row[COL.OFICINA]):''}</p></td>
+        <td class="px-3 py-2 font-medium text-gray-800"><div class="flex items-center">${highlight(row[COL.NOMBRE]||'')}</div><p class="text-xs text-gray-400 truncate sm:hidden mt-0.5">${esc(row[COL.POSICION]||'')}${row[COL.OFICINA]?' &middot; '+esc(row[COL.OFICINA]):''}</p></td>
         <td class="px-3 py-2 text-gray-500 hidden sm:table-cell text-xs">${highlight(row[COL.POSICION]||'')}</td>
-        <td class="px-3 py-2 hidden md:table-cell">${phoneHtml}</td>
-        <td class="px-3 py-2 hidden lg:table-cell">${emailHtml}</td>
+        <td class="px-3 py-2 text-center"><span class="inline-block w-2.5 h-2.5 rounded-full ${hasCV?'bg-emerald-400':'bg-amber-400'}" title="${hasCV?'CV cargado':'Sin CV'}"></span></td>
+        <td class="px-3 py-2 text-center"><span class="inline-block w-2.5 h-2.5 rounded-full ${hasInfo?'bg-emerald-400':'bg-red-400'}" title="${hasInfo?'Datos completos':'Datos pendientes'}"></span></td>
         <td class="px-3 py-2">
           <select class="sit-select ${getSitClass(sit)}" data-row="${sr}" data-original="${esc(sit)}" onchange="updateSituacion(this)">
             ${['Nuevo','Citado','Descartado','Seleccionado'].map(o=>
