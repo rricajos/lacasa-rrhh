@@ -3637,6 +3637,7 @@ function dashDrillDown(type, value) {
   detailEl.style.animation = 'none';
   detailEl.offsetHeight;
   detailEl.style.animation = 'fadeUp 0.25s ease-out';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function applyDrillFilters() {
@@ -3874,6 +3875,7 @@ function dashDrillBack() {
   document.getElementById('dashDetail').classList.add('hidden');
   document.getElementById('dashMain').classList.remove('hidden');
   drillBaseRows = [];
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function openDrillWhatsApp() {
