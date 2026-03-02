@@ -356,16 +356,16 @@ tailwind.config = { theme: { extend: {
   body.theme-violet .header-nav .nav-tab.active { background: #f5f3ff; }
   /* Floating orbs background */
   .bg-orbs { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
-  .bg-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0; transition: left 1.4s cubic-bezier(0.4,0,0.2,1), top 1.4s cubic-bezier(0.4,0,0.2,1), opacity 0.8s ease, background 0.6s ease; }
+  .bg-orb { position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0; transition: left 1.4s cubic-bezier(0.4,0,0.2,1), top 1.4s cubic-bezier(0.4,0,0.2,1), opacity 0.8s ease, background 0.6s ease; }
   .bg-orb.visible { opacity: 1; }
-  .bg-orb:nth-child(1) { width: 500px; height: 500px; animation: orbFloat1 18s ease-in-out infinite; }
-  .bg-orb:nth-child(2) { width: 400px; height: 400px; animation: orbFloat2 22s ease-in-out infinite; }
-  .bg-orb:nth-child(3) { width: 350px; height: 350px; animation: orbFloat3 20s ease-in-out infinite; }
-  .bg-orb:nth-child(4) { width: 280px; height: 280px; animation: orbFloat4 24s ease-in-out infinite; }
-  @keyframes orbFloat1 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(30px,-20px) scale(1.08); } 66% { transform: translate(-20px,25px) scale(0.94); } }
-  @keyframes orbFloat2 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-25px,30px) scale(0.92); } 66% { transform: translate(20px,-15px) scale(1.06); } }
-  @keyframes orbFloat3 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(20px,20px) scale(1.1); } 66% { transform: translate(-30px,-10px) scale(0.9); } }
-  @keyframes orbFloat4 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-15px,-25px) scale(0.95); } 66% { transform: translate(25px,15px) scale(1.07); } }
+  .bg-orb:nth-child(1) { width: 750px; height: 750px; animation: orbFloat1 25s ease-in-out infinite; }
+  .bg-orb:nth-child(2) { width: 650px; height: 650px; animation: orbFloat2 30s ease-in-out infinite; }
+  .bg-orb:nth-child(3) { width: 550px; height: 550px; animation: orbFloat3 28s ease-in-out infinite; }
+  .bg-orb:nth-child(4) { width: 480px; height: 480px; animation: orbFloat4 32s ease-in-out infinite; }
+  @keyframes orbFloat1 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(12px,-8px) scale(1.04); } 66% { transform: translate(-8px,10px) scale(0.97); } }
+  @keyframes orbFloat2 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-10px,12px) scale(0.96); } 66% { transform: translate(8px,-6px) scale(1.03); } }
+  @keyframes orbFloat3 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(8px,8px) scale(1.05); } 66% { transform: translate(-12px,-5px) scale(0.95); } }
+  @keyframes orbFloat4 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-6px,-10px) scale(0.97); } 66% { transform: translate(10px,6px) scale(1.04); } }
   /* AI Chat Widget */
   .ai-fab { position: fixed; bottom: 24px; right: 24px; z-index: 35; width: 48px; height: 48px; border-radius: 50%;
     background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; display: flex; align-items: center;
