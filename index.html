@@ -150,6 +150,7 @@ tailwind.config = { theme: { extend: {
       radial-gradient(400px at 35% 50%, rgba(253,230,138,0.1), transparent),
       #f8fafc;
     background-attachment: fixed;
+    transition: background 0.6s ease;
   }
   .loader { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -351,6 +352,12 @@ tailwind.config = { theme: { extend: {
   body.theme-amber .header-nav .nav-tab.active { background: #fffbeb; }
   body.theme-violet .header-nav .nav-tab.active, body.theme-violet #bottomNav .nav-tab.active { color: #7c3aed; }
   body.theme-violet .header-nav .nav-tab.active { background: #f5f3ff; }
+  /* Theme backgrounds */
+  body.theme-indigo { background: radial-gradient(800px at 8% 15%, rgba(199,210,254,0.35), transparent), radial-gradient(700px at 90% 10%, rgba(165,180,252,0.25), transparent), radial-gradient(600px at 65% 85%, rgba(199,210,254,0.2), transparent), radial-gradient(400px at 35% 50%, rgba(224,231,255,0.15), transparent), #f8fafc; background-attachment: fixed; }
+  body.theme-emerald { background: radial-gradient(800px at 8% 15%, rgba(167,243,208,0.3), transparent), radial-gradient(700px at 90% 10%, rgba(110,231,183,0.22), transparent), radial-gradient(600px at 65% 85%, rgba(167,243,208,0.2), transparent), radial-gradient(400px at 35% 50%, rgba(209,250,229,0.15), transparent), #f8fafc; background-attachment: fixed; }
+  body.theme-rose { background: radial-gradient(800px at 8% 15%, rgba(254,205,211,0.3), transparent), radial-gradient(700px at 90% 10%, rgba(251,182,206,0.22), transparent), radial-gradient(600px at 65% 85%, rgba(254,205,211,0.2), transparent), radial-gradient(400px at 35% 50%, rgba(255,228,230,0.15), transparent), #f8fafc; background-attachment: fixed; }
+  body.theme-amber { background: radial-gradient(800px at 8% 15%, rgba(253,230,138,0.3), transparent), radial-gradient(700px at 90% 10%, rgba(252,211,77,0.22), transparent), radial-gradient(600px at 65% 85%, rgba(253,230,138,0.2), transparent), radial-gradient(400px at 35% 50%, rgba(254,243,199,0.15), transparent), #f8fafc; background-attachment: fixed; }
+  body.theme-violet { background: radial-gradient(800px at 8% 15%, rgba(221,214,254,0.35), transparent), radial-gradient(700px at 90% 10%, rgba(196,181,253,0.25), transparent), radial-gradient(600px at 65% 85%, rgba(221,214,254,0.2), transparent), radial-gradient(400px at 35% 50%, rgba(237,233,254,0.15), transparent), #f8fafc; background-attachment: fixed; }
   /* AI Chat Widget */
   .ai-fab { position: fixed; bottom: 24px; right: 24px; z-index: 35; width: 48px; height: 48px; border-radius: 50%;
     background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; display: flex; align-items: center;
@@ -557,13 +564,14 @@ tailwind.config = { theme: { extend: {
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
         Campañas
       </button>
+      <button id="currentUserLabel" class="nav-tab hidden" onclick="switchTab('configure')" data-tab="configure" title="Mi perfil">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9"/></svg>
+        <span id="headerUserName"></span>
+      </button>
     </nav>
+    <img id="headerAvatar" class="hidden" src="" alt="">
     <!-- Session + logout -->
     <div class="flex items-center gap-1.5 flex-shrink-0">
-      <div id="currentUserLabel" class="hidden flex items-center gap-1.5 cursor-pointer" onclick="switchTab('configure')" title="Mi perfil">
-        <img id="headerAvatar" class="w-6 h-6 rounded-full object-cover hidden" src="" alt="">
-        <span id="headerUserName" class="text-xs text-brand-600 font-medium bg-brand-50 px-2 py-0.5 rounded-full"></span>
-      </div>
       <button onclick="doLogout()" class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-600 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition tabular-nums" title="Cerrar sesión" aria-label="Cerrar sesión">
         <span id="sessionTimer"></span>
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
@@ -1297,7 +1305,7 @@ tailwind.config = { theme: { extend: {
     </div>
   </div>
   <!-- User Management -->
-  <div class="card p-6">
+  <div class="card p-6 role-admin">
     <div class="flex items-center justify-between mb-4">
       <h2 class="section-title">Gestión de Usuarios</h2>
       <button onclick="openAddUserModal()" id="btnAddUser" class="btn btn-sm btn-primary">+ Nuevo usuario</button>
@@ -1305,7 +1313,7 @@ tailwind.config = { theme: { extend: {
     <div id="cfgUserList" class="divide-y divide-gray-100 text-sm"></div>
   </div>
   <!-- Audit Log -->
-  <div class="card p-6">
+  <div class="card p-6 role-admin">
     <div class="flex items-center justify-between mb-4">
       <h2 class="section-title">Registro de Actividad</h2>
       <button onclick="clearLogs()" class="text-gray-400 hover:text-red-500 text-xs transition">Limpiar</button>
@@ -1676,6 +1684,10 @@ tailwind.config = { theme: { extend: {
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
       Campañas
     </button>
+    <button class="nav-tab" onclick="switchTab('configure')" data-tab="configure">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9"/></svg>
+      Mi perfil
+    </button>
   </div>
 </nav>
 
@@ -2021,25 +2033,29 @@ function showDashboard() {
   // Show AI FAB
   document.getElementById('aiFab').classList.remove('hidden');
 
-  // Inject master nav tab if master
+  // Inject master nav tab if master (before the @ profile tab)
   if (isMaster()) {
     const nav = document.querySelector('.header-nav');
+    const profileTab = nav && nav.querySelector('[data-tab="configure"]');
     if (nav && !nav.querySelector('[data-tab="master"]')) {
       const btn = document.createElement('button');
       btn.className = 'nav-tab';
       btn.setAttribute('data-tab', 'master');
       btn.setAttribute('onclick', "switchTab('master')");
       btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Master';
-      nav.appendChild(btn);
+      if (profileTab) nav.insertBefore(btn, profileTab);
+      else nav.appendChild(btn);
     }
     const bnav = document.querySelector('#bottomNav .flex');
+    const bProfileTab = bnav && bnav.querySelector('[data-tab="configure"]');
     if (bnav && !bnav.querySelector('[data-tab="master"]')) {
       const btn = document.createElement('button');
       btn.className = 'nav-tab';
       btn.setAttribute('data-tab', 'master');
       btn.setAttribute('onclick', "switchTab('master')");
       btn.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:24px;height:24px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Master';
-      bnav.appendChild(btn);
+      if (bProfileTab) bnav.insertBefore(btn, bProfileTab);
+      else bnav.appendChild(btn);
     }
   }
 
@@ -4770,13 +4786,7 @@ function applyTheme(name) {
   if (name && name !== 'default') {
     document.body.classList.add('theme-' + name);
   }
-  // Update header user badge color
-  const headerName = document.getElementById('headerUserName');
-  const t = THEMES[name] || THEMES.default;
-  if (headerName) {
-    headerName.style.color = t.nav;
-    headerName.style.background = t.navBg;
-  }
+  // Nav-tab active colors are handled by CSS theme rules
 }
 
 // Page width preference
