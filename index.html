@@ -563,8 +563,65 @@ tailwind.config = { theme: { extend: {
 
   /* Dark mode: Table rows */
   body.dark tr:hover td { background-color: rgba(51,65,85,0.3) !important; }
+  body.dark .row-hover:hover { background: rgba(51,65,85,0.3) !important; }
   body.dark .border-t { border-color: #334155; }
   body.dark .border-b { border-color: #334155; }
+
+  /* Dark mode: Footer background */
+  body.dark footer { background-color: #0f172a !important; }
+
+  /* Dark mode: General modal-panel & CV split */
+  body.dark .modal-panel { background: #1e293b; border-color: #334155; }
+  body.dark .cv-split-panel { background: #1e293b !important; }
+
+  /* Dark mode: Confirm modal text */
+  body.dark #confirmMsg { color: #f1f5f9; }
+  body.dark #confirmMsg .form-input { background: #0f172a; border-color: #475569; color: #e2e8f0; }
+
+  /* Dark mode: Pagination */
+  body.dark .bg-blue-50 { background-color: rgba(59,130,246,0.15) !important; }
+  body.dark .text-blue-600 { color: #60a5fa !important; }
+
+  /* Dark mode: Toast notifications */
+  body.dark .toast-success { background: rgba(16,185,129,0.15); color: #34d399; border-color: rgba(16,185,129,0.3); }
+  body.dark .toast-error { background: rgba(239,68,68,0.15); color: #f87171; border-color: rgba(239,68,68,0.3); }
+  body.dark .toast-info { background: rgba(59,130,246,0.15); color: #60a5fa; border-color: rgba(59,130,246,0.3); }
+
+  /* Dark mode: Mark/highlight */
+  body.dark mark { background: rgba(234,179,8,0.2); color: #fbbf24; }
+
+  /* Dark mode: Subfooter guide section */
+  body.dark .step-card { background: rgba(30,41,59,0.75) !important; border-color: rgba(51,65,85,0.6) !important; }
+  body.dark .tip-card { background: rgba(30,41,59,0.6) !important; }
+
+  /* Dark mode: Dashboard clickable cards */
+  body.dark .dash-clickable { border-color: rgba(51,65,85,0.6) !important; }
+  body.dark .dash-clickable:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+  /* Dark mode: CRUD items */
+  body.dark .crud-item:hover { background: rgba(51,65,85,0.4) !important; }
+  body.dark .crud-btn { color: #64748b; }
+
+  /* Dark mode: CV analyzing */
+  body.dark .cv-analyzing { background: rgba(59,130,246,0.1) !important; }
+
+  /* Dark mode: Select dropdowns in table */
+  body.dark .sit-select { background-color: transparent; }
+  body.dark .sit-nuevo { background-color: rgba(59,130,246,0.15); color: #60a5fa; }
+  body.dark .sit-citado { background-color: rgba(249,115,22,0.15); color: #fb923c; }
+  body.dark .sit-descartado { background-color: rgba(239,68,68,0.15); color: #f87171; }
+  body.dark .sit-seleccionado { background-color: rgba(16,185,129,0.15); color: #34d399; }
+
+  /* Dark mode: Kbd elements */
+  body.dark kbd { background: #334155 !important; border-color: #475569 !important; color: #e2e8f0; }
+
+  /* Dark mode: border-gray-100 in dynamic content */
+  body.dark [class*="border-gray-100"] { border-color: #334155 !important; }
+  body.dark [class*="border-gray-50"] { border-color: rgba(51,65,85,0.4) !important; }
+
+  /* Dark mode: hover backgrounds in dynamic content */
+  body.dark [class*="hover:bg-gray-50"]:hover { background-color: rgba(51,65,85,0.4) !important; }
+  body.dark [class*="hover:bg-brand-50"]:hover { background-color: rgba(59,130,246,0.12) !important; }
 </style>
 </head>
 <body class="min-h-screen">
