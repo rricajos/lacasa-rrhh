@@ -530,7 +530,7 @@ tailwind.config = { theme: { extend: {
       <!-- Header -->
       <div class="bg-brand-600 px-8 py-8 text-center">
         <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 p-2">
-          <img src="lacasa_iso_light.png" alt="La Casa" class="w-full h-full object-contain">
+          <img src="lacasa_iso_dark.png" alt="La Casa" class="w-full h-full object-contain">
         </div>
         <h1 class="text-xl font-bold text-white">La Casa Agency</h1>
         <p class="text-brand-200 text-sm mt-1">Panel de Recursos Humanos</p>
@@ -639,8 +639,8 @@ tailwind.config = { theme: { extend: {
   <div class="page-container py-2 flex items-center justify-between gap-3">
     <!-- Logo — click to reload -->
     <div class="header-logo flex items-center gap-2.5 flex-shrink-0" onclick="loadData()" title="Actualizar datos">
-      <img src="lacasa_iso_dark.png" alt="La Casa" class="w-9 h-9 rounded-lg header-logo-light">
-      <img src="lacasa_iso_light.png" alt="La Casa" class="w-9 h-9 rounded-lg header-logo-dark">
+      <img src="lacasa_iso_light.png" alt="La Casa" class="w-9 h-9 rounded-lg header-logo-light">
+      <img src="lacasa_iso_dark.png" alt="La Casa" class="w-9 h-9 rounded-lg header-logo-dark">
       <div class="hidden sm:block">
         <h1 class="text-base font-bold text-gray-800 leading-tight">La Casa Agency</h1>
         <p id="headerSubtitle" class="text-xs text-gray-400 transition-all duration-300">Panel RRHH</p>
@@ -1496,6 +1496,30 @@ tailwind.config = { theme: { extend: {
       </div>
     </div>
   </div>
+  <!-- Omnia / Chatwoot WhatsApp Config -->
+  <div class="card p-6">
+    <h2 class="section-title mb-4">WhatsApp — Endpoint Omnia (Chatwoot)</h2>
+    <p class="text-xs text-gray-400 mb-4">Configura la conexión con Chatwoot para enviar mensajes de WhatsApp vía Omnia</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="md:col-span-2">
+        <label class="form-label">Endpoint API</label>
+        <input id="omniaEndpoint" type="url" placeholder="https://app.omnia.com/api/v1" class="form-input">
+      </div>
+      <div>
+        <label class="form-label">Inbox ID</label>
+        <input id="omniaInboxId" type="text" placeholder="1" class="form-input">
+      </div>
+      <div>
+        <label class="form-label">API Token</label>
+        <input id="omniaToken" type="password" placeholder="Token de acceso" class="form-input">
+      </div>
+    </div>
+    <div class="flex items-center gap-3 mt-4">
+      <button onclick="saveOmniaConfig()" class="btn btn-md btn-primary">Guardar</button>
+      <button onclick="testOmniaConnection()" class="btn btn-md btn-secondary">Probar conexión</button>
+      <span id="omniaTestResult" class="text-xs"></span>
+    </div>
+  </div>
   <!-- SMTP Config -->
   <div class="card p-6">
     <h2 class="section-title mb-4">Configuración SMTP (Email)</h2>
@@ -1633,8 +1657,8 @@ tailwind.config = { theme: { extend: {
   <div class="footer-animated page-container py-6">
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-4">
-        <img src="lacasa_iso_dark.png" alt="La Casa" class="w-10 h-10 rounded-xl shadow-md header-logo-light">
-        <img src="lacasa_iso_light.png" alt="La Casa" class="w-10 h-10 rounded-xl shadow-md header-logo-dark">
+        <img src="lacasa_iso_light.png" alt="La Casa" class="w-10 h-10 rounded-xl shadow-md header-logo-light">
+        <img src="lacasa_iso_dark.png" alt="La Casa" class="w-10 h-10 rounded-xl shadow-md header-logo-dark">
         <div>
           <p class="text-sm font-semibold text-gray-700">La Casa Agency &mdash; Panel RRHH</p>
           <p class="text-xs text-gray-400">Sistema de gestión de candidatos y selección de personal</p>
@@ -1750,11 +1774,14 @@ tailwind.config = { theme: { extend: {
       </div>
 
       <!-- Cost estimate -->
-      <div id="waCostBox" class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between">
-        <div class="text-sm text-amber-800">
-          <span id="waCostCount">0</span> mensajes &times; <span id="waCostUnit">0.05</span>&euro;
+      <div id="waCostBox" class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+        <div class="flex items-center justify-between">
+          <div class="text-sm text-amber-800">
+            <span id="waCostCount">0</span> mensajes &times; <span id="waCostUnit">0.05</span>&euro;
+          </div>
+          <div class="text-lg font-bold text-amber-900" id="waCostTotal">&euro;0.00</div>
         </div>
-        <div class="text-lg font-bold text-amber-900" id="waCostTotal">&euro;0.00</div>
+        <p id="waCreditInfo" class="text-xs text-gray-500 mt-1 hidden"></p>
       </div>
 
       <!-- Progress bar (hidden until sending) -->
@@ -1895,7 +1922,7 @@ const EDITABLE_FIELDS = ['NOMBRE','OFICINA','RESIDENCIA','FECHA','HORA','CORREO'
   'MOTIVO_DESCARTE','COMENTARIOS','CONFIRMACION','FUENTE'];
 
 // WhatsApp configuration
-const WA_COST_PER_MSG = 0.05; // EUR estimated (Twilio + Meta fee)
+function getWACostPerMsg() { return (getMasterCredits().pricePerMsg || 0.05); }
 
 const WA_TEMPLATES = {
   citado: {
@@ -1969,7 +1996,7 @@ function switchTab(tab) {
   requestAnimationFrame(() => {
     if (tab === 'configure' && _tabDirty.configure) { _tabDirty.configure = false; renderProfileSection(); renderUserList(); renderAuditLog(); }
     if (tab === 'database') { loadDriveFiles(); }
-    if (tab === 'master' && isMaster() && _tabDirty.master) { _tabDirty.master = false; renderMasterCredits(); loadSMTPConfig(); document.getElementById('masterOpenAIKey').value = localStorage.getItem('lacasa_master_openai_key') || ''; renderMasterMsgLog(); }
+    if (tab === 'master' && isMaster() && _tabDirty.master) { _tabDirty.master = false; renderMasterCredits(); loadOmniaConfig(); loadSMTPConfig(); document.getElementById('masterOpenAIKey').value = localStorage.getItem('lacasa_master_openai_key') || ''; renderMasterMsgLog(); }
     if (tab === 'campaigns' && _tabDirty.campaigns) { _tabDirty.campaigns = false; renderCampaignList(); }
   });
 }
@@ -4491,10 +4518,25 @@ function openWhatsAppModal() {
   const validCount = recipients.filter(r => r.phone && r.phone.replace(/\D/g, '').length >= 6).length;
   document.getElementById('waRecipientCount').textContent = `${validCount} válidos de ${recipients.length}`;
 
-  // Update cost
+  // Update cost + credit check
+  const costPerMsg = getWACostPerMsg();
+  const credits = getMasterCredits();
+  const remaining = Math.max(0, (credits.total || 0) - (credits.used || 0));
   document.getElementById('waCostCount').textContent = validCount;
-  document.getElementById('waCostUnit').textContent = WA_COST_PER_MSG.toFixed(2);
-  document.getElementById('waCostTotal').textContent = '\u20ac' + (validCount * WA_COST_PER_MSG).toFixed(2);
+  document.getElementById('waCostUnit').textContent = costPerMsg.toFixed(2);
+  document.getElementById('waCostTotal').textContent = '\u20ac' + (validCount * costPerMsg).toFixed(2);
+
+  // Show remaining credits
+  const creditInfo = document.getElementById('waCreditInfo');
+  if (creditInfo) {
+    if (credits.total > 0) {
+      creditInfo.classList.remove('hidden');
+      creditInfo.textContent = `Créditos: ${remaining} de ${credits.total} restantes`;
+      creditInfo.className = remaining < validCount
+        ? 'text-xs text-red-600 font-medium'
+        : 'text-xs text-gray-500';
+    } else { creditInfo.classList.add('hidden'); }
+  }
 
   // Reset state
   document.getElementById('waSendBtn').disabled = true;
@@ -4578,6 +4620,24 @@ async function sendWhatsAppBatch() {
   const recipients = getWARecipients().filter(r => r.phone && r.phone.replace(/\D/g, '').length >= 6);
   if (recipients.length === 0) { toast('No hay destinatarios válidos', 'info'); return; }
 
+  // Check credits
+  const credits = getMasterCredits();
+  if (credits.total > 0) {
+    const remaining = Math.max(0, (credits.total || 0) - (credits.used || 0));
+    if (remaining < recipients.length) {
+      toast(`Créditos insuficientes: ${remaining} disponibles, ${recipients.length} necesarios`, 'error');
+      return;
+    }
+    if (credits.expiry && new Date(credits.expiry) < new Date()) {
+      toast('Los créditos han expirado. Contacta con el administrador.', 'error');
+      return;
+    }
+  }
+
+  // Check Omnia config
+  const omnia = getOmniaConfig();
+  const useOmnia = !!(omnia.endpoint && omnia.token && omnia.inboxId);
+
   // Disable UI
   document.getElementById('waSendBtn').disabled = true;
   const progress = document.getElementById('waProgress');
@@ -4592,17 +4652,17 @@ async function sendWhatsAppBatch() {
     document.getElementById('waProgressBar').style.width = pct + '%';
 
     try {
-      const result = await apiCall({
-        action: 'send_whatsapp',
-        to: r.phone,
-        template: waSelectedTemplate,
-        nombre: r.nombre,
-        posicion: r.posicion,
-        oficina: r.oficina,
-        fecha: r.fecha,
-        hora: r.hora
-      });
-      // Check for error in response
+      let result;
+      if (useOmnia) {
+        result = await sendWAViaOmnia(omnia, r);
+      } else {
+        result = await apiCall({
+          action: 'send_whatsapp',
+          to: r.phone, template: waSelectedTemplate,
+          nombre: r.nombre, posicion: r.posicion,
+          oficina: r.oficina, fecha: r.fecha, hora: r.hora
+        });
+      }
       if (result.ok === false || result.error) {
         failed++;
         logMessage(r.nombre + ' (' + r.phone + ')', 'whatsapp', waSelectedTemplate, 'failed');
@@ -4633,6 +4693,35 @@ async function sendWhatsAppBatch() {
     selectedRows.clear();
     renderTable();
   }, 1500);
+}
+
+async function sendWAViaOmnia(omnia, r) {
+  const tpl = WA_TEMPLATES[waSelectedTemplate];
+  let msg = tpl.preview
+    .replace('{nombre}', r.nombre || '')
+    .replace('{posicion}', r.posicion || '')
+    .replace('{oficina}', r.oficina || '')
+    .replace('{fecha}', r.fecha || '')
+    .replace('{hora}', r.hora || '');
+
+  // Normalize phone to E.164
+  let phone = r.phone.replace(/\D/g, '');
+  if (phone.startsWith('34') && phone.length === 11) phone = '+' + phone;
+  else if (phone.length === 9) phone = '+34' + phone;
+  else if (!phone.startsWith('+')) phone = '+' + phone;
+
+  const resp = await fetch(`${omnia.endpoint}/accounts/${omnia.accountId || 1}/conversations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'api_access_token': omnia.token },
+    body: JSON.stringify({
+      source_id: phone,
+      inbox_id: parseInt(omnia.inboxId),
+      contact: { name: r.nombre || 'Candidato', phone_number: phone },
+      message: { content: msg }
+    })
+  });
+  if (!resp.ok) throw new Error('Omnia HTTP ' + resp.status);
+  return await resp.json();
 }
 
 // Keyboard
@@ -4987,6 +5076,9 @@ function applyAppearance(mode) {
   });
   // Refresh orb colors for new mode
   applyOrbColors(getUserPref('theme') || 'default');
+  // Update favicon
+  const fav = document.querySelector('link[rel="icon"]');
+  if (fav) fav.href = isDark ? 'lacasa_iso_dark.png' : 'lacasa_iso_light.png';
 }
 
 // Listen for OS theme changes when in auto mode
@@ -5113,6 +5205,54 @@ function incrementCreditsUsed(count) {
   const c = getMasterCredits();
   c.used = (c.used || 0) + count;
   localStorage.setItem('lacasa_master_credits', JSON.stringify(c));
+}
+
+// ==================== OMNIA / CHATWOOT CONFIG ====================
+function getOmniaConfig() {
+  try { return JSON.parse(localStorage.getItem('lacasa_master_omnia') || '{}'); } catch { return {}; }
+}
+
+function saveOmniaConfig() {
+  const cfg = {
+    endpoint: (document.getElementById('omniaEndpoint').value || '').trim().replace(/\/+$/, ''),
+    inboxId: (document.getElementById('omniaInboxId').value || '').trim(),
+    token: (document.getElementById('omniaToken').value || '').trim(),
+    accountId: 1
+  };
+  localStorage.setItem('lacasa_master_omnia', JSON.stringify(cfg));
+  toast('Configuración Omnia guardada', 'success');
+}
+
+function loadOmniaConfig() {
+  const cfg = getOmniaConfig();
+  const ep = document.getElementById('omniaEndpoint');
+  if (!ep) return;
+  ep.value = cfg.endpoint || '';
+  document.getElementById('omniaInboxId').value = cfg.inboxId || '';
+  document.getElementById('omniaToken').value = cfg.token || '';
+}
+
+async function testOmniaConnection() {
+  const cfg = getOmniaConfig();
+  const el = document.getElementById('omniaTestResult');
+  if (!cfg.endpoint || !cfg.token) { el.textContent = 'Configura endpoint y token primero'; el.className = 'text-xs text-red-500'; return; }
+  el.textContent = 'Probando...'; el.className = 'text-xs text-gray-500';
+  try {
+    const resp = await fetch(`${cfg.endpoint}/profile`, {
+      headers: { 'api_access_token': cfg.token }
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      el.textContent = 'Conectado: ' + (data.name || data.email || 'OK');
+      el.className = 'text-xs text-emerald-600 font-medium';
+    } else {
+      el.textContent = 'Error: HTTP ' + resp.status;
+      el.className = 'text-xs text-red-500';
+    }
+  } catch (e) {
+    el.textContent = 'Error de conexión';
+    el.className = 'text-xs text-red-500';
+  }
 }
 
 function saveSMTPConfig() {
