@@ -486,6 +486,62 @@ tailwind.config = { theme: { extend: {
   body.dark #backupDropZone { border-color: #475569; }
   body.dark #backupDropZone:hover { border-color: #f97316; background: rgba(249,115,22,0.05); }
   body.dark #backupPreview { background: rgba(249,115,22,0.08); border-color: #c2410c; }
+
+  /* Dark mode: Week calendar */
+  body.dark .wk-quarter { border-color: #334155; background: rgba(30,41,59,0.6); }
+  body.dark .wk-quarter-head { border-color: #334155; }
+  body.dark .wk-num { color: #94a3b8; background: rgba(255,255,255,0.06); }
+  body.dark .wk-range { color: #94a3b8; }
+  body.dark .wk-count { color: #64748b; }
+  body.dark .wk-row:hover { background: rgba(255,255,255,0.06); }
+  body.dark .wk-row.month-highlight { background: rgba(59,130,246,0.12); }
+  body.dark .wk-row.current { box-shadow: inset 0 0 0 1.5px #3b82f6; }
+  body.dark .wk-filter-chip { background: #1e293b; border-color: #475569; color: #94a3b8; }
+  body.dark .wk-filter-chip:hover { border-color: #64748b; color: #cbd5e1; }
+  body.dark .wk-filter-chip.active { background: #1d4ed8; color: white; border-color: #1d4ed8; }
+  body.dark .wk-qtab { color: #64748b; }
+
+  /* Dark mode: CV drop zone */
+  body.dark .cv-drop { border-color: #475569; }
+  body.dark .cv-drop:hover, body.dark .cv-drop.dragover { border-color: #3b82f6; background: rgba(59,130,246,0.08); }
+
+  /* Dark mode: SVG donut charts */
+  body.dark svg text[fill="#1e293b"] { fill: #e2e8f0 !important; }
+  body.dark svg circle[stroke="#f1f5f9"] { stroke: #334155 !important; }
+  body.dark svg circle[stroke="#e2e8f0"] { stroke: #334155 !important; }
+
+  /* Dark mode: Stat cards */
+  body.dark .stat-card { background: rgba(30,41,59,0.75) !important; border-color: rgba(51,65,85,0.6) !important; }
+  body.dark .stat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+
+  /* Dark mode: Activity badge colors */
+  body.dark .bg-emerald-50\/70, body.dark [class*="bg-emerald-50"] { background-color: rgba(16,185,129,0.12) !important; }
+  body.dark .bg-amber-50\/70, body.dark [class*="bg-amber-50"] { background-color: rgba(245,158,11,0.12) !important; }
+  body.dark .bg-red-50\/70, body.dark [class*="bg-red-50"] { background-color: rgba(239,68,68,0.1) !important; }
+  body.dark .bg-brand-50\/70 { background-color: rgba(59,130,246,0.12) !important; }
+  body.dark [class*="border-emerald-100"], body.dark [class*="border-emerald-200"] { border-color: rgba(16,185,129,0.2) !important; }
+  body.dark [class*="border-amber-100"], body.dark [class*="border-amber-200"] { border-color: rgba(245,158,11,0.2) !important; }
+  body.dark [class*="border-red-100"], body.dark [class*="border-red-200"] { border-color: rgba(239,68,68,0.2) !important; }
+  body.dark [class*="border-brand-100"] { border-color: rgba(59,130,246,0.2) !important; }
+
+  /* Dark mode: Login card */
+  body.dark .login-card .modal-card { background: #1e293b; }
+  body.dark .login-card .form-label, body.dark .login-card label { color: #94a3b8; }
+
+  /* Dark mode: Dashboard section titles */
+  body.dark .hero-subtitle { color: #64748b; }
+  body.dark .text-slate-500 { color: #94a3b8 !important; }
+  body.dark .bg-white\/90 { background-color: rgba(30,41,59,0.75) !important; }
+  body.dark .border-gray-200\/60 { border-color: rgba(51,65,85,0.6) !important; }
+
+  /* Dark mode: Metric donut text */
+  body.dark .text-slate-800 { color: #f1f5f9 !important; }
+  body.dark .text-slate-400, body.dark .text-slate-300 { color: #64748b !important; }
+
+  /* Dark mode: Footer */
+  body.dark footer { border-color: #1e293b !important; }
+  body.dark footer a { color: #64748b; }
+  body.dark footer a:hover { color: #94a3b8; }
 </style>
 </head>
 <body class="min-h-screen">
@@ -4966,11 +5022,14 @@ function openAutoOrganizar() {
   if (!hasRole('admin')) { toast('Sin permisos', 'error'); return; }
   const m = document.getElementById('autoOrganizarModal');
   m.classList.remove('hidden'); m.style.display = 'flex';
+  requestAnimationFrame(() => m.querySelector('.modal-panel').classList.add('open'));
   aoScanUnorganized();
 }
 function closeAutoOrganizar() {
   const m = document.getElementById('autoOrganizarModal');
-  m.style.display = 'none'; m.classList.add('hidden');
+  const mp = m.querySelector('.modal-panel');
+  mp.classList.remove('open');
+  setTimeout(() => { m.style.display = 'none'; m.classList.add('hidden'); }, 250);
 }
 function aoScanUnorganized() {
   aoUnorganized = [];
@@ -5159,12 +5218,14 @@ function openBackupPanel() {
   if (!hasRole('admin')) { toast('Sin permisos', 'error'); return; }
   const m = document.getElementById('backupModal');
   m.classList.remove('hidden'); m.style.display = 'flex';
+  requestAnimationFrame(() => m.querySelector('.modal-panel').classList.add('open'));
   renderBackupHistory();
 }
 function closeBackupPanel() {
   const m = document.getElementById('backupModal');
-  m.style.display = 'none'; m.classList.add('hidden');
-  cancelRestore();
+  const mp = m.querySelector('.modal-panel');
+  mp.classList.remove('open');
+  setTimeout(() => { m.style.display = 'none'; m.classList.add('hidden'); cancelRestore(); }, 250);
 }
 function backupDownloadJSON() {
   const data = {
