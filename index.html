@@ -732,9 +732,9 @@ tailwind.config = { theme: { extend: {
   <div class="page-container py-2 flex items-center justify-between gap-3">
     <!-- Logo — click to reload -->
     <div class="header-logo flex items-center gap-2.5 flex-shrink-0" onclick="loadData()" title="Actualizar datos">
-      <div class="hidden sm:block">
-        <h1 class="text-base font-bold text-gray-800 leading-tight">La Casa Agency</h1>
-        <p id="headerSubtitle" class="text-xs text-gray-400 transition-all duration-300">Panel RRHH</p>
+      <div>
+        <h1 class="text-sm sm:text-base font-bold text-gray-800 leading-tight">La Casa Agency</h1>
+        <p id="headerSubtitle" class="text-[10px] sm:text-xs text-gray-400 transition-all duration-300">Panel de recursos humanos</p>
       </div>
     </div>
     <!-- Nav tabs (desktop inline) -->
@@ -1694,8 +1694,11 @@ tailwind.config = { theme: { extend: {
 </div><!-- end tab-master -->
 
 <!-- ==================== SUBFOOTER: APP GUIDE ==================== -->
-<div id="appSubfooter" class="hidden border-t border-gray-100 bg-gradient-to-b from-white to-gray-50/80 mt-8">
-  <div class="page-container py-14">
+<div id="appSubfooter" class="hidden border-t border-gray-100 bg-gradient-to-b from-white to-gray-50/80">
+  <div class="page-container py-14 relative">
+    <button onclick="document.getElementById('appSubfooter').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full text-gray-300 hover:text-gray-500 hover:bg-gray-100 transition-colors" title="Cerrar guía">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
     <div class="text-center mb-10 hero-text">
       <p class="text-sm font-bold text-gray-800 uppercase tracking-wider">Cómo funciona el Panel RRHH</p>
       <p class="text-xs text-gray-400 mt-2">Guía rápida para sacar el máximo partido a la herramienta</p>
@@ -1762,7 +1765,7 @@ tailwind.config = { theme: { extend: {
 </div>
 
 <!-- ==================== FOOTER ==================== -->
-<footer id="appFooter" class="hidden border-t border-gray-200 bg-white">
+<footer id="appFooter" class="hidden border-t border-gray-200 bg-white pb-20 md:pb-0">
   <div class="footer-animated page-container py-6">
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-4">
