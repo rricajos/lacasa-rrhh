@@ -171,9 +171,16 @@ tailwind.config = { theme: { extend: {
   @media (max-width:1023px) { .cv-split-panel { display:none !important; } }
 
   /* Dup Compare Panel (slides from right, behind Organizar) */
-  .dup-compare-panel { position:fixed; top:0; bottom:0; right:0; width:80%; max-width:calc(100% - 60px); transform:translateX(100%); transition:transform 0.3s ease-out; z-index:45; background:#fff; box-shadow:-4px 0 24px rgba(0,0,0,0.15); }
+  .dup-compare-panel { position:fixed; top:0; bottom:0; right:0; width:90%; max-width:calc(100% - 60px); transform:translateX(100%); transition:transform 0.3s ease-out; z-index:45; background:#fff; box-shadow:-4px 0 24px rgba(0,0,0,0.15); }
   .dup-compare-panel.open { transform:translateX(0); }
-  @media (max-width:767px) { .dup-compare-panel { width:100%; } }
+  @media (max-width:767px) { .dup-compare-panel { width:100%; max-width:100%; } }
+  .dup-compare-body { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:1px; background:#d1d5db; overflow:hidden; }
+  .dup-compare-col { background:#fff; display:flex; flex-direction:column; min-height:0; position:relative; padding-bottom:56px; }
+  @media (max-width:767px) {
+    .dup-compare-body { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; gap:0; }
+    .dup-compare-col { min-width:92vw; scroll-snap-align:start; flex-shrink:0; border-right:1px solid #e5e7eb; }
+  }
+  .dup-discard-btn { position:absolute; bottom:0; left:0; right:0; padding:8px 12px; display:flex; justify-content:center; background:linear-gradient(transparent, #fff 30%); z-index:2; }
   .sit-select { appearance: none; padding: 3px 22px 3px 8px; border-radius: 9999px; border: none; font-size: 11px; font-weight: 600; cursor: pointer; text-transform: uppercase; background-repeat: no-repeat; background-position: right 6px center; background-size: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); }
   .sit-nuevo { background-color: #dbeafe; color: #1e40af; }
   .sit-citado { background-color: #ffedd5; color: #9a3412; }
@@ -630,9 +637,10 @@ tailwind.config = { theme: { extend: {
 
   /* Dark mode: CV Comparison modal */
   body.dark .dup-compare-panel { background: #1e293b; box-shadow: -4px 0 24px rgba(0,0,0,0.3); }
-  body.dark .dup-compare-panel .bg-gray-300 { background-color: #0f172a !important; }
+  body.dark .dup-compare-body { background: #0f172a; }
+  body.dark .dup-compare-col { background: #1e293b; border-color: #334155; }
   body.dark .dup-compare-panel .glass-blur { background: rgba(30,41,59,0.95) !important; border-color: #334155 !important; }
-  body.dark .dup-compare-panel .bg-white { background: #1e293b !important; }
+  body.dark .dup-discard-btn { background: linear-gradient(transparent, #1e293b 30%); }
   body.dark #dupInfoA, body.dark #dupInfoB { border-color: #334155 !important; }
   body.dark #dupNoCvA, body.dark #dupNoCvB { color: #64748b; }
 </style>
@@ -2050,38 +2058,38 @@ tailwind.config = { theme: { extend: {
 <!-- ==================== CV COMPARISON MODAL ==================== -->
 <div id="dupComparePanel" class="dup-compare-panel">
   <div class="flex flex-col h-full">
-    <div class="flex items-center justify-between px-4 sm:px-6 py-3 glass-blur border-b border-gray-200 sticky top-0 z-10">
-      <div class="flex items-center gap-3">
-        <button onclick="closeDupCompare()" class="btn btn-sm bg-gray-100 text-gray-700 hover:bg-gray-200">
+    <div class="flex items-center justify-between px-3 sm:px-6 py-2.5 glass-blur border-b border-gray-200 sticky top-0 z-10">
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+        <button onclick="closeDupCompare()" class="btn btn-sm bg-gray-100 text-gray-700 hover:bg-gray-200 flex-shrink-0">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-          Volver
+          <span class="hidden sm:inline">Volver</span>
         </button>
-        <h2 class="font-bold text-gray-900 text-sm sm:text-base">Comparar duplicados</h2>
-        <span id="dupCompareScore" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700"></span>
+        <h2 class="font-bold text-gray-900 text-xs sm:text-base truncate">Comparar duplicados</h2>
+        <span id="dupCompareScore" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700 flex-shrink-0"></span>
       </div>
-      <button onclick="aoIgnoreDup()" class="btn btn-sm bg-gray-200 text-gray-700 hover:bg-gray-300">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/></svg>
-        Ignorar
+      <button onclick="aoIgnoreDup()" class="btn btn-sm bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 flex-shrink-0">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        Saltar
       </button>
     </div>
-    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-px bg-gray-300 overflow-auto md:overflow-hidden">
-      <div class="bg-white flex flex-col min-h-[50vh] md:min-h-0">
+    <div id="dupCompareBody" class="dup-compare-body">
+      <div class="dup-compare-col">
         <div class="p-3 sm:p-4 border-b border-gray-200" id="dupInfoA"></div>
         <div id="dupNoCvA" class="flex-1 flex items-center justify-center text-gray-400 text-sm hidden">Sin CV cargado</div>
         <iframe id="dupFrameA" class="flex-1 w-full" style="border:none;min-height:40vh" src="about:blank"></iframe>
-        <div class="p-2 sm:p-3 border-t border-gray-200 flex justify-center">
-          <button onclick="aoDiscardOne('a')" id="dupDiscardA" class="btn btn-sm bg-red-500 text-white hover:bg-red-600">
+        <div class="dup-discard-btn">
+          <button onclick="aoDiscardOne('a')" id="dupDiscardA" class="btn btn-sm bg-red-500 text-white hover:bg-red-600 shadow-lg">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             Descartar este
           </button>
         </div>
       </div>
-      <div class="bg-white flex flex-col min-h-[50vh] md:min-h-0">
+      <div class="dup-compare-col">
         <div class="p-3 sm:p-4 border-b border-gray-200" id="dupInfoB"></div>
         <div id="dupNoCvB" class="flex-1 flex items-center justify-center text-gray-400 text-sm hidden">Sin CV cargado</div>
         <iframe id="dupFrameB" class="flex-1 w-full" style="border:none;min-height:40vh" src="about:blank"></iframe>
-        <div class="p-2 sm:p-3 border-t border-gray-200 flex justify-center">
-          <button onclick="aoDiscardOne('b')" id="dupDiscardB" class="btn btn-sm bg-red-500 text-white hover:bg-red-600">
+        <div class="dup-discard-btn">
+          <button onclick="aoDiscardOne('b')" id="dupDiscardB" class="btn btn-sm bg-red-500 text-white hover:bg-red-600 shadow-lg">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             Descartar este
           </button>
@@ -5456,7 +5464,14 @@ async function aoCompareDups(pairIdx) {
   const rowA = allRows[d.a.idx], rowB = allRows[d.b.idx];
   // Open compare panel (slides behind Organizar)
   const m = document.getElementById('dupComparePanel');
-  requestAnimationFrame(() => m.classList.add('open'));
+  requestAnimationFrame(() => {
+    m.classList.add('open');
+    // On mobile: scroll to center so both profiles are partially visible
+    if (window.innerWidth < 768) {
+      const body = document.getElementById('dupCompareBody');
+      setTimeout(() => { body.scrollLeft = 0; }, 350);
+    }
+  });
   document.getElementById('dupCompareScore').textContent = (d.score * 100).toFixed(0) + '% similitud';
   // Fill info panels
   const infoHtml = (row, label) => `
