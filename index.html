@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Casa Agency - Panel RRHH</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+<link rel="icon" href="lacasa_iso_dark.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -393,6 +393,85 @@ tailwind.config = { theme: { extend: {
   .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
   .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
   @keyframes aiDot { 0%,80%,100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+
+  /* Mode switch buttons */
+  .mode-btn { border-color: #e5e7eb; color: #6b7280; background: transparent; cursor: pointer; }
+  .mode-btn:hover { background: #f1f5f9; color: #374151; }
+  .mode-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+  body.dark .mode-btn { border-color: #475569; color: #94a3b8; }
+  body.dark .mode-btn:hover { background: #334155; color: #e2e8f0; }
+  body.dark .mode-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+  /* ==================== DARK MODE ==================== */
+  body.dark { background: #0f172a; color: #e2e8f0; }
+  body.dark .card { background: rgba(30,41,59,0.75); border-color: rgba(51,65,85,0.6); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  body.dark .glass-blur { background: rgba(15,23,42,0.88); }
+  body.dark .modal-card { background: #1e293b; border-color: #334155; }
+  body.dark .modal-backdrop { background: rgba(0,0,0,0.6); }
+  body.dark .form-input, body.dark .form-input-lg { background: #1e293b; border-color: #475569; color: #e2e8f0; }
+  body.dark .form-input::placeholder, body.dark .form-input-lg::placeholder { color: #64748b; }
+  body.dark .form-input:focus, body.dark .form-input-lg:focus { border-color: #3b82f6; background: #0f172a; }
+  body.dark .filter-select { background-color: #1e293b; border-color: #475569; color: #e2e8f0; }
+  body.dark .filter-select:hover { background-color: #334155; border-color: #64748b; }
+  body.dark .filter-select:focus { background-color: #0f172a; }
+  body.dark .btn-secondary { border-color: #475569; color: #cbd5e1; }
+  body.dark .btn-secondary:hover { background: #334155; }
+  body.dark .btn-icon { color: #94a3b8; }
+  body.dark .btn-icon:hover { background: #334155; color: #e2e8f0; }
+  body.dark .section-title { color: #94a3b8; }
+  body.dark .section-label, body.dark .form-label { color: #64748b; }
+  body.dark .hero-icon { background: rgba(30,41,59,0.8) !important; }
+  body.dark .hero-icon:hover { background: rgba(51,65,85,0.8) !important; }
+  body.dark .hero-title { color: #f1f5f9; }
+  body.dark .loader { border-color: #334155; border-top-color: #3b82f6; }
+  body.dark .header-nav .nav-tab { color: #64748b; }
+  body.dark .header-nav .nav-tab:hover { color: #94a3b8; background: #1e293b; }
+  body.dark .header-nav .nav-tab.active { color: #60a5fa; background: rgba(59,130,246,0.12); }
+  body.dark #bottomNav { background: rgba(15,23,42,0.92); border-color: #1e293b; }
+  body.dark #bottomNav .nav-tab { color: #64748b; }
+  body.dark #bottomNav .nav-tab.active { color: #60a5fa; }
+  body.dark .ai-fab { box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  body.dark .ai-panel { background: #1e293b; box-shadow: 0 8px 32px rgba(0,0,0,0.4); border-color: #334155; }
+  body.dark .theme-swatch { border-color: transparent; }
+  body.dark .theme-swatch.active { border-color: #e2e8f0; }
+  /* Dark Tailwind overrides */
+  body.dark .bg-white { background-color: #1e293b !important; }
+  body.dark .bg-gray-50 { background-color: #1e293b !important; }
+  body.dark .bg-gray-100 { background-color: #334155 !important; }
+  body.dark .border-gray-100, body.dark .border-gray-200, body.dark .border-gray-200\/50 { border-color: #334155 !important; }
+  body.dark .text-gray-800, body.dark .text-gray-900 { color: #f1f5f9 !important; }
+  body.dark .text-gray-700 { color: #e2e8f0 !important; }
+  body.dark .text-gray-600 { color: #cbd5e1 !important; }
+  body.dark .text-gray-500 { color: #94a3b8 !important; }
+  body.dark .text-gray-400 { color: #64748b !important; }
+  body.dark .text-gray-300 { color: #64748b !important; }
+  body.dark .bg-gradient-to-b { background-image: none !important; background-color: #0f172a !important; }
+  body.dark .divide-gray-100 > :not(:last-child) { border-color: #334155; }
+  body.dark .hover\:bg-gray-100:hover { background-color: #334155 !important; }
+  body.dark .hover\:bg-gray-50:hover { background-color: #1e293b !important; }
+  body.dark .hover\:bg-red-50:hover { background-color: rgba(239,68,68,0.12) !important; }
+  body.dark .bg-brand-50 { background-color: rgba(59,130,246,0.12) !important; }
+  body.dark .bg-brand-100 { background-color: rgba(59,130,246,0.18) !important; }
+  body.dark .bg-emerald-50 { background-color: rgba(16,185,129,0.12) !important; }
+  body.dark .bg-orange-50 { background-color: rgba(249,115,22,0.12) !important; }
+  body.dark .bg-red-50 { background-color: rgba(239,68,68,0.1) !important; }
+  body.dark .bg-violet-50 { background-color: rgba(139,92,246,0.12) !important; }
+  body.dark .shadow-sm { box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important; }
+  /* Dark mode header logo switch */
+  body.dark .header-logo-dark { display: block !important; }
+  body.dark .header-logo-light { display: none !important; }
+  body:not(.dark) .header-logo-dark { display: none !important; }
+  body:not(.dark) .header-logo-light { display: block !important; }
+  /* Dark theme color overrides for nav */
+  body.dark.theme-indigo .header-nav .nav-tab.active, body.dark.theme-indigo #bottomNav .nav-tab.active { color: #818cf8; }
+  body.dark.theme-indigo .header-nav .nav-tab.active { background: rgba(79,70,229,0.15); }
+  body.dark.theme-emerald .header-nav .nav-tab.active, body.dark.theme-emerald #bottomNav .nav-tab.active { color: #34d399; }
+  body.dark.theme-emerald .header-nav .nav-tab.active { background: rgba(5,150,105,0.15); }
+  body.dark.theme-rose .header-nav .nav-tab.active, body.dark.theme-rose #bottomNav .nav-tab.active { color: #fb7185; }
+  body.dark.theme-rose .header-nav .nav-tab.active { background: rgba(225,29,72,0.15); }
+  body.dark.theme-amber .header-nav .nav-tab.active, body.dark.theme-amber #bottomNav .nav-tab.active { color: #fbbf24; }
+  body.dark.theme-amber .header-nav .nav-tab.active { background: rgba(217,119,6,0.15); }
+  body.dark.theme-violet .header-nav .nav-tab.active, body.dark.theme-violet #bottomNav .nav-tab.active { color: #a78bfa; }
+  body.dark.theme-violet .header-nav .nav-tab.active { background: rgba(124,58,237,0.15); }
 </style>
 </head>
 <body class="min-h-screen">
@@ -450,8 +529,8 @@ tailwind.config = { theme: { extend: {
     <div class="modal-card overflow-hidden border-0">
       <!-- Header -->
       <div class="bg-brand-600 px-8 py-8 text-center">
-        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <span class="text-3xl font-bold text-white">LC</span>
+        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 p-2">
+          <img src="lacasa_iso_light.png" alt="La Casa" class="w-full h-full object-contain">
         </div>
         <h1 class="text-xl font-bold text-white">La Casa Agency</h1>
         <p class="text-brand-200 text-sm mt-1">Panel de Recursos Humanos</p>
@@ -560,7 +639,8 @@ tailwind.config = { theme: { extend: {
   <div class="page-container py-2 flex items-center justify-between gap-3">
     <!-- Logo — click to reload -->
     <div class="header-logo flex items-center gap-2.5 flex-shrink-0" onclick="loadData()" title="Actualizar datos">
-      <div class="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">LC</div>
+      <img src="lacasa_iso_dark.png" alt="La Casa" class="w-9 h-9 rounded-lg header-logo-light">
+      <img src="lacasa_iso_light.png" alt="La Casa" class="w-9 h-9 rounded-lg header-logo-dark">
       <div class="hidden sm:block">
         <h1 class="text-base font-bold text-gray-800 leading-tight">La Casa Agency</h1>
         <p id="headerSubtitle" class="text-xs text-gray-400 transition-all duration-300">Panel RRHH</p>
@@ -1290,7 +1370,24 @@ tailwind.config = { theme: { extend: {
     <!-- Preferences -->
     <div class="card p-5 space-y-5">
       <div>
-        <p class="section-title mb-2.5">Tema</p>
+        <p class="section-title mb-2.5">Apariencia</p>
+        <div class="flex gap-1.5" id="modeSwitch">
+          <button onclick="setAppearance('auto')" data-mode="auto" class="mode-btn flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-all" title="Seguir navegador">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            Auto
+          </button>
+          <button onclick="setAppearance('light')" data-mode="light" class="mode-btn flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-all" title="Modo claro">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            Claro
+          </button>
+          <button onclick="setAppearance('dark')" data-mode="dark" class="mode-btn flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-all" title="Modo oscuro">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+            Oscuro
+          </button>
+        </div>
+      </div>
+      <div>
+        <p class="section-title mb-2.5">Color</p>
         <div class="flex flex-wrap gap-2.5" id="themeSwatches">
           <div class="theme-swatch" style="background:#2563eb" onclick="setTheme('default')" title="Azul (defecto)"></div>
           <div class="theme-swatch" style="background:#4f46e5" onclick="setTheme('indigo')" title="Indigo"></div>
@@ -1536,9 +1633,8 @@ tailwind.config = { theme: { extend: {
   <div class="footer-animated page-container py-6">
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-4">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 to-brand-700 flex items-center justify-center shadow-md">
-          <span class="text-white text-xs font-bold">LC</span>
-        </div>
+        <img src="lacasa_iso_dark.png" alt="La Casa" class="w-10 h-10 rounded-xl shadow-md header-logo-light">
+        <img src="lacasa_iso_light.png" alt="La Casa" class="w-10 h-10 rounded-xl shadow-md header-logo-dark">
         <div>
           <p class="text-sm font-semibold text-gray-700">La Casa Agency &mdash; Panel RRHH</p>
           <p class="text-xs text-gray-400">Sistema de gestión de candidatos y selección de personal</p>
@@ -2007,6 +2103,7 @@ function doLogout(reason) {
   document.getElementById('headerUserName').textContent = '';
   document.getElementById('headerAvatar').classList.add('hidden');
   applyTheme('default');
+  applyAppearance('auto');
   driveFilesLoaded = false;
   // Reset all tab caches so next login renders fresh data
   Object.keys(_tabDirty).forEach(k => _tabDirty[k] = true);
@@ -2050,6 +2147,7 @@ function showDashboard() {
     document.getElementById('currentUserLabel').classList.remove('hidden');
     loadProfileAvatar();
     applyTheme(getUserPref('theme') || 'default');
+    applyAppearance(getUserPref('appearance') || 'auto');
     applyPageWidth(localStorage.getItem('lacasa_page_width') || '900');
     repositionOrbs();
   }
@@ -4797,17 +4895,23 @@ function loadProfileAvatar() {
 
 const THEMES = {
   default: { nav: '#2563eb', navBg: '#eff6ff', accent: '#2563eb',
-    orbs: ['rgba(191,219,254,0.35)','rgba(147,197,253,0.25)','rgba(196,181,253,0.2)','rgba(165,243,252,0.15)'] },
+    orbs: ['rgba(191,219,254,0.35)','rgba(147,197,253,0.25)','rgba(196,181,253,0.2)','rgba(165,243,252,0.15)'],
+    orbsDark: ['rgba(37,99,235,0.12)','rgba(59,130,246,0.08)','rgba(96,165,250,0.06)','rgba(37,99,235,0.05)'] },
   indigo: { nav: '#4f46e5', navBg: '#eef2ff', accent: '#4f46e5',
-    orbs: ['rgba(199,210,254,0.38)','rgba(165,180,252,0.28)','rgba(129,140,248,0.18)','rgba(224,231,255,0.2)'] },
+    orbs: ['rgba(199,210,254,0.38)','rgba(165,180,252,0.28)','rgba(129,140,248,0.18)','rgba(224,231,255,0.2)'],
+    orbsDark: ['rgba(79,70,229,0.14)','rgba(99,102,241,0.09)','rgba(129,140,248,0.06)','rgba(79,70,229,0.05)'] },
   emerald: { nav: '#059669', navBg: '#ecfdf5', accent: '#059669',
-    orbs: ['rgba(167,243,208,0.35)','rgba(110,231,183,0.25)','rgba(52,211,153,0.15)','rgba(209,250,229,0.2)'] },
+    orbs: ['rgba(167,243,208,0.35)','rgba(110,231,183,0.25)','rgba(52,211,153,0.15)','rgba(209,250,229,0.2)'],
+    orbsDark: ['rgba(5,150,105,0.14)','rgba(16,185,129,0.09)','rgba(52,211,153,0.06)','rgba(5,150,105,0.05)'] },
   rose: { nav: '#e11d48', navBg: '#fff1f2', accent: '#e11d48',
-    orbs: ['rgba(254,205,211,0.35)','rgba(251,182,206,0.25)','rgba(244,114,182,0.12)','rgba(255,228,230,0.2)'] },
+    orbs: ['rgba(254,205,211,0.35)','rgba(251,182,206,0.25)','rgba(244,114,182,0.12)','rgba(255,228,230,0.2)'],
+    orbsDark: ['rgba(225,29,72,0.12)','rgba(244,63,94,0.08)','rgba(251,113,133,0.05)','rgba(225,29,72,0.04)'] },
   amber: { nav: '#d97706', navBg: '#fffbeb', accent: '#d97706',
-    orbs: ['rgba(253,230,138,0.35)','rgba(252,211,77,0.25)','rgba(251,191,36,0.12)','rgba(254,243,199,0.2)'] },
+    orbs: ['rgba(253,230,138,0.35)','rgba(252,211,77,0.25)','rgba(251,191,36,0.12)','rgba(254,243,199,0.2)'],
+    orbsDark: ['rgba(217,119,6,0.14)','rgba(245,158,11,0.09)','rgba(251,191,36,0.05)','rgba(217,119,6,0.04)'] },
   violet: { nav: '#7c3aed', navBg: '#f5f3ff', accent: '#7c3aed',
-    orbs: ['rgba(221,214,254,0.38)','rgba(196,181,253,0.28)','rgba(167,139,250,0.15)','rgba(237,233,254,0.2)'] }
+    orbs: ['rgba(221,214,254,0.38)','rgba(196,181,253,0.28)','rgba(167,139,250,0.15)','rgba(237,233,254,0.2)'],
+    orbsDark: ['rgba(124,58,237,0.14)','rgba(139,92,246,0.09)','rgba(167,139,250,0.06)','rgba(124,58,237,0.05)'] }
 };
 
 // ==================== FLOATING ORBS ====================
@@ -4837,8 +4941,10 @@ function repositionOrbs() {
 
 function applyOrbColors(themeName) {
   const t = THEMES[themeName] || THEMES.default;
+  const isDark = document.body.classList.contains('dark');
+  const colors = isDark ? t.orbsDark : t.orbs;
   const orbs = document.querySelectorAll('.bg-orb');
-  orbs.forEach((orb, i) => { orb.style.background = t.orbs[i] || t.orbs[0]; });
+  orbs.forEach((orb, i) => { orb.style.background = colors[i] || colors[0]; });
 }
 
 function setTheme(name) {
@@ -4861,6 +4967,33 @@ function applyTheme(name) {
   // Update orb colors to match theme
   applyOrbColors(name || 'default');
 }
+
+// ==================== APPEARANCE (light/dark/auto) ====================
+let _darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function setAppearance(mode) {
+  setUserPref('appearance', mode);
+  applyAppearance(mode);
+  toast(mode === 'auto' ? 'Apariencia: automática' : mode === 'dark' ? 'Modo oscuro' : 'Modo claro', 'success');
+}
+
+function applyAppearance(mode) {
+  if (!mode) mode = 'auto';
+  const isDark = mode === 'dark' || (mode === 'auto' && _darkMediaQuery.matches);
+  document.body.classList.toggle('dark', isDark);
+  // Update mode buttons
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-mode') === mode);
+  });
+  // Refresh orb colors for new mode
+  applyOrbColors(getUserPref('theme') || 'default');
+}
+
+// Listen for OS theme changes when in auto mode
+_darkMediaQuery.addEventListener('change', () => {
+  const mode = getUserPref('appearance') || 'auto';
+  if (mode === 'auto') applyAppearance('auto');
+});
 
 // Page width preference
 function setPageWidth(val) {
