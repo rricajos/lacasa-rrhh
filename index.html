@@ -144,14 +144,8 @@ tailwind.config = { theme: { extend: {
   .filter-select-compact { min-width: auto; width: auto; }
 
   body { font-family: 'Inter', system-ui, sans-serif; overflow-y: scroll;
-    background:
-      radial-gradient(800px at 8% 15%, rgba(191,219,254,0.3), transparent),
-      radial-gradient(700px at 90% 10%, rgba(196,181,253,0.22), transparent),
-      radial-gradient(600px at 65% 85%, rgba(165,243,252,0.2), transparent),
-      radial-gradient(400px at 35% 50%, rgba(253,230,138,0.1), transparent),
-      #f8fafc;
-    background-attachment: fixed;
-    transition: background 0.6s ease;
+    background: #f8fafc;
+    transition: background-color 0.6s ease;
   }
   .loader { border: 3px solid #e2e8f0; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -360,12 +354,14 @@ tailwind.config = { theme: { extend: {
   body.theme-amber .header-nav .nav-tab.active { background: #fffbeb; }
   body.theme-violet .header-nav .nav-tab.active, body.theme-violet #bottomNav .nav-tab.active { color: #7c3aed; }
   body.theme-violet .header-nav .nav-tab.active { background: #f5f3ff; }
-  /* Theme backgrounds */
-  body.theme-indigo { background: radial-gradient(800px at 8% 15%, rgba(199,210,254,0.35), transparent), radial-gradient(700px at 90% 10%, rgba(165,180,252,0.25), transparent), radial-gradient(600px at 65% 85%, rgba(199,210,254,0.2), transparent), radial-gradient(400px at 35% 50%, rgba(224,231,255,0.15), transparent), #f8fafc; background-attachment: fixed; }
-  body.theme-emerald { background: radial-gradient(800px at 8% 15%, rgba(167,243,208,0.3), transparent), radial-gradient(700px at 90% 10%, rgba(110,231,183,0.22), transparent), radial-gradient(600px at 65% 85%, rgba(167,243,208,0.2), transparent), radial-gradient(400px at 35% 50%, rgba(209,250,229,0.15), transparent), #f8fafc; background-attachment: fixed; }
-  body.theme-rose { background: radial-gradient(800px at 8% 15%, rgba(254,205,211,0.3), transparent), radial-gradient(700px at 90% 10%, rgba(251,182,206,0.22), transparent), radial-gradient(600px at 65% 85%, rgba(254,205,211,0.2), transparent), radial-gradient(400px at 35% 50%, rgba(255,228,230,0.15), transparent), #f8fafc; background-attachment: fixed; }
-  body.theme-amber { background: radial-gradient(800px at 8% 15%, rgba(253,230,138,0.3), transparent), radial-gradient(700px at 90% 10%, rgba(252,211,77,0.22), transparent), radial-gradient(600px at 65% 85%, rgba(253,230,138,0.2), transparent), radial-gradient(400px at 35% 50%, rgba(254,243,199,0.15), transparent), #f8fafc; background-attachment: fixed; }
-  body.theme-violet { background: radial-gradient(800px at 8% 15%, rgba(221,214,254,0.35), transparent), radial-gradient(700px at 90% 10%, rgba(196,181,253,0.25), transparent), radial-gradient(600px at 65% 85%, rgba(221,214,254,0.2), transparent), radial-gradient(400px at 35% 50%, rgba(237,233,254,0.15), transparent), #f8fafc; background-attachment: fixed; }
+  /* Floating orbs background */
+  .bg-orbs { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .bg-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0; transition: left 1.2s cubic-bezier(0.4,0,0.2,1), top 1.2s cubic-bezier(0.4,0,0.2,1), opacity 0.8s ease, background 0.6s ease; will-change: transform; }
+  .bg-orb.visible { opacity: 1; }
+  .bg-orb:nth-child(1) { width: 500px; height: 500px; }
+  .bg-orb:nth-child(2) { width: 400px; height: 400px; }
+  .bg-orb:nth-child(3) { width: 350px; height: 350px; }
+  .bg-orb:nth-child(4) { width: 280px; height: 280px; }
   /* AI Chat Widget */
   .ai-fab { position: fixed; bottom: 24px; right: 24px; z-index: 35; width: 48px; height: 48px; border-radius: 50%;
     background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; display: flex; align-items: center;
@@ -396,6 +392,14 @@ tailwind.config = { theme: { extend: {
 </style>
 </head>
 <body class="min-h-screen">
+
+<!-- Floating background orbs -->
+<div class="bg-orbs" id="bgOrbs">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+</div>
 
 <!-- Toast container -->
 <div id="toastContainer" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-[60] flex flex-col-reverse items-center gap-2 pointer-events-none" style="max-width:calc(100vw - 2rem)"></div>
@@ -1266,17 +1270,15 @@ tailwind.config = { theme: { extend: {
           <span id="profileName" class="font-semibold text-gray-800"></span>
           <span id="profileRolBadge" class="px-2 py-0.5 rounded-full text-xs font-medium"></span>
         </div>
-        <p id="profileEmail" class="text-xs text-gray-400"></p>
-        <!-- Change password -->
-        <details class="mt-2">
-          <summary class="text-xs font-medium text-brand-600 cursor-pointer hover:text-brand-800 select-none">Cambiar contraseña</summary>
-          <div class="mt-2 space-y-2 max-w-xs">
-            <input id="pwOld" type="password" placeholder="Contraseña actual" class="form-input">
-            <input id="pwNew" type="password" placeholder="Nueva contraseña" class="form-input">
-            <input id="pwConfirm" type="password" placeholder="Confirmar nueva" class="form-input">
-            <button onclick="changePassword()" class="btn btn-sm btn-primary">Guardar</button>
-          </div>
-        </details>
+        <p id="profileEmail" class="text-xs text-gray-400 mb-3"></p>
+        <!-- Change password — always visible -->
+        <p class="section-title mb-2">Cambiar contraseña</p>
+        <div class="space-y-2 max-w-xs">
+          <input id="pwOld" type="password" placeholder="Contraseña actual" class="form-input">
+          <input id="pwNew" type="password" placeholder="Nueva contraseña" class="form-input">
+          <input id="pwConfirm" type="password" placeholder="Confirmar nueva" class="form-input">
+          <button onclick="changePassword()" class="btn btn-sm btn-primary">Guardar</button>
+        </div>
       </div>
       <!-- Theme + Layout -->
       <div class="flex flex-col gap-4">
@@ -1849,6 +1851,7 @@ function switchTab(tab) {
   if (tab === activeTab) return;
   activeTab = tab;
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  repositionOrbs();
   // Cache DOM refs on first call
   if (!_tabCache.sections) {
     _tabCache.sections = document.querySelectorAll('.tab-section');
@@ -2042,6 +2045,7 @@ function showDashboard() {
     loadProfileAvatar();
     applyTheme(getUserPref('theme') || 'default');
     applyPageWidth(localStorage.getItem('lacasa_page_width') || '900');
+    repositionOrbs();
   }
 
   // Show AI FAB
@@ -4786,13 +4790,50 @@ function loadProfileAvatar() {
 }
 
 const THEMES = {
-  default: { nav: '#2563eb', navBg: '#eff6ff', accent: '#2563eb' },
-  indigo: { nav: '#4f46e5', navBg: '#eef2ff', accent: '#4f46e5' },
-  emerald: { nav: '#059669', navBg: '#ecfdf5', accent: '#059669' },
-  rose: { nav: '#e11d48', navBg: '#fff1f2', accent: '#e11d48' },
-  amber: { nav: '#d97706', navBg: '#fffbeb', accent: '#d97706' },
-  violet: { nav: '#7c3aed', navBg: '#f5f3ff', accent: '#7c3aed' }
+  default: { nav: '#2563eb', navBg: '#eff6ff', accent: '#2563eb',
+    orbs: ['rgba(191,219,254,0.35)','rgba(147,197,253,0.25)','rgba(196,181,253,0.2)','rgba(165,243,252,0.15)'] },
+  indigo: { nav: '#4f46e5', navBg: '#eef2ff', accent: '#4f46e5',
+    orbs: ['rgba(199,210,254,0.38)','rgba(165,180,252,0.28)','rgba(129,140,248,0.18)','rgba(224,231,255,0.2)'] },
+  emerald: { nav: '#059669', navBg: '#ecfdf5', accent: '#059669',
+    orbs: ['rgba(167,243,208,0.35)','rgba(110,231,183,0.25)','rgba(52,211,153,0.15)','rgba(209,250,229,0.2)'] },
+  rose: { nav: '#e11d48', navBg: '#fff1f2', accent: '#e11d48',
+    orbs: ['rgba(254,205,211,0.35)','rgba(251,182,206,0.25)','rgba(244,114,182,0.12)','rgba(255,228,230,0.2)'] },
+  amber: { nav: '#d97706', navBg: '#fffbeb', accent: '#d97706',
+    orbs: ['rgba(253,230,138,0.35)','rgba(252,211,77,0.25)','rgba(251,191,36,0.12)','rgba(254,243,199,0.2)'] },
+  violet: { nav: '#7c3aed', navBg: '#f5f3ff', accent: '#7c3aed',
+    orbs: ['rgba(221,214,254,0.38)','rgba(196,181,253,0.28)','rgba(167,139,250,0.15)','rgba(237,233,254,0.2)'] }
 };
+
+// ==================== FLOATING ORBS ====================
+const ORB_POSITIONS = [
+  // Each set = [orb1{left,top}, orb2, orb3, orb4] in %
+  [{l:3,t:5},{l:75,t:2},{l:55,t:70},{l:20,t:45}],
+  [{l:60,t:8},{l:5,t:60},{l:80,t:55},{l:35,t:15}],
+  [{l:10,t:20},{l:70,t:65},{l:45,t:5},{l:85,t:30}],
+  [{l:50,t:60},{l:15,t:8},{l:80,t:15},{l:30,t:75}],
+  [{l:75,t:40},{l:8,t:70},{l:40,t:10},{l:65,t:75}],
+];
+let orbPosIdx = 0;
+
+function repositionOrbs() {
+  const orbs = document.querySelectorAll('.bg-orb');
+  if (!orbs.length) return;
+  const positions = ORB_POSITIONS[orbPosIdx % ORB_POSITIONS.length];
+  orbPosIdx++;
+  orbs.forEach((orb, i) => {
+    const p = positions[i] || positions[0];
+    orb.style.left = p.l + '%';
+    orb.style.top = p.t + '%';
+    // Fade in on first call
+    requestAnimationFrame(() => orb.classList.add('visible'));
+  });
+}
+
+function applyOrbColors(themeName) {
+  const t = THEMES[themeName] || THEMES.default;
+  const orbs = document.querySelectorAll('.bg-orb');
+  orbs.forEach((orb, i) => { orb.style.background = t.orbs[i] || t.orbs[0]; });
+}
 
 function setTheme(name) {
   setUserPref('theme', name);
@@ -4811,7 +4852,8 @@ function applyTheme(name) {
   if (name && name !== 'default') {
     document.body.classList.add('theme-' + name);
   }
-  // Nav-tab active colors are handled by CSS theme rules
+  // Update orb colors to match theme
+  applyOrbColors(name || 'default');
 }
 
 // Page width preference
