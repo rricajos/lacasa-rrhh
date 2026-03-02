@@ -4881,8 +4881,12 @@ function sendEmail(to, subject, html) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
-  }).then(resp => {
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  }).then(async resp => {
+    if (!resp.ok) {
+      let detail = '';
+      try { const t = await resp.text(); detail = t.substring(0, 200); } catch {}
+      throw new Error('HTTP ' + resp.status + (detail ? ': ' + detail : ''));
+    }
     return resp.json();
   }).then(data => {
     if (data.error) throw new Error(data.error);
