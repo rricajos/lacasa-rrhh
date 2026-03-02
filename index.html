@@ -169,6 +169,25 @@ tailwind.config = { theme: { extend: {
   .cv-split-panel { left:60px; right:36rem; transform:translateX(100%); transition:transform 0.2s ease-in; }
   .cv-split-panel.open { transform:translateX(0); transition:transform 0.3s ease-out 0.15s; }
   @media (max-width:1023px) { .cv-split-panel { display:none !important; } }
+
+  /* Organize Tree Panel (Drive folder tree behind Organizar) */
+  .organize-tree-panel { position:fixed; top:0; bottom:0; left:60px; right:36rem; transform:translateX(-100%); transition:transform 0.3s ease-out; z-index:39; background:#f8fafc; border-right:1px solid #e2e8f0; overflow-y:auto; }
+  .organize-tree-panel.open { transform:translateX(0); }
+  @media (max-width:1023px) { .organize-tree-panel { display:none !important; } }
+  .tree-node { padding:3px 8px; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:6px; }
+  .tree-node:hover { background:rgba(0,0,0,0.04); }
+  .tree-node.tree-folder { font-weight:500; color:#374151; }
+  .tree-node.tree-file { color:#6b7280; font-weight:400; }
+  .tree-node .tree-chevron { transition:transform 0.15s ease; width:14px; height:14px; flex-shrink:0; }
+  .tree-node .tree-chevron.expanded { transform:rotate(90deg); }
+  .tree-children { overflow:hidden; }
+  .tree-dup-highlight { background:rgba(239,68,68,0.1) !important; color:#dc2626 !important; font-weight:600; border-radius:6px; }
+  .tree-dup-highlight::after { content:' (duplicado)'; font-size:10px; font-weight:400; opacity:0.7; }
+
+  /* Dup Compare Panel (slides from right, behind Organizar) */
+  .dup-compare-panel { position:fixed; top:0; bottom:0; right:0; width:80%; max-width:calc(100% - 60px); transform:translateX(100%); transition:transform 0.3s ease-out; z-index:39; background:#fff; box-shadow:-4px 0 24px rgba(0,0,0,0.1); }
+  .dup-compare-panel.open { transform:translateX(0); }
+  @media (max-width:767px) { .dup-compare-panel { width:100%; } }
   .sit-select { appearance: none; padding: 3px 22px 3px 8px; border-radius: 9999px; border: none; font-size: 11px; font-weight: 600; cursor: pointer; text-transform: uppercase; background-repeat: no-repeat; background-position: right 6px center; background-size: 10px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); }
   .sit-nuevo { background-color: #dbeafe; color: #1e40af; }
   .sit-citado { background-color: #ffedd5; color: #9a3412; }
@@ -472,7 +491,7 @@ tailwind.config = { theme: { extend: {
   body.dark.theme-violet .header-nav .nav-tab.active, body.dark.theme-violet #bottomNav .nav-tab.active { color: #a78bfa; }
   body.dark.theme-violet .header-nav .nav-tab.active { background: rgba(124,58,237,0.15); }
 
-  /* AutoOrganizar */
+  /* Organizar */
   .dup-pair { border-left: 3px solid #f59e0b; padding: 8px 12px; border-radius: 8px; background: #fffbeb; }
   .dup-pair.dup-selected { border-left-color: #ef4444; background: #fef2f2; }
   .dup-pair .dup-score { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 9999px; }
@@ -480,7 +499,7 @@ tailwind.config = { theme: { extend: {
   .dup-pair .dup-score.medium { background: #fef3c7; color: #d97706; }
   body.dark .dup-pair { background: rgba(251,191,36,0.08); border-left-color: #b45309; }
   body.dark .dup-pair.dup-selected { background: rgba(239,68,68,0.1); border-left-color: #ef4444; }
-  body.dark #autoOrganizarModal .modal-panel,
+  body.dark #organizarModal .modal-panel,
   body.dark #backupModal .modal-panel { background: #1e293b; }
   body.dark #backupDropZone { border-color: #475569; }
   body.dark #backupDropZone:hover { border-color: #f97316; background: rgba(249,115,22,0.05); }
@@ -574,6 +593,11 @@ tailwind.config = { theme: { extend: {
   /* Dark mode: General modal-panel & CV split */
   body.dark .modal-panel { background: #1e293b; border-color: #334155; }
   body.dark .cv-split-panel { background: #1e293b !important; }
+  body.dark .organize-tree-panel { background: #0f172a; border-color: #334155; }
+  body.dark .tree-node:hover { background: rgba(255,255,255,0.06); }
+  body.dark .tree-node.tree-folder { color: #e2e8f0; }
+  body.dark .tree-node.tree-file { color: #94a3b8; }
+  body.dark .tree-dup-highlight { background: rgba(239,68,68,0.15) !important; color: #f87171 !important; }
 
   /* Dark mode: Confirm modal text */
   body.dark #confirmMsg { color: #f1f5f9; }
@@ -625,8 +649,10 @@ tailwind.config = { theme: { extend: {
   body.dark [class*="hover:bg-brand-50"]:hover { background-color: rgba(59,130,246,0.12) !important; }
 
   /* Dark mode: CV Comparison modal */
-  body.dark #dupCompareModal .bg-gray-300 { background-color: #1e293b !important; }
-  body.dark #dupCompareModal > .relative > div:first-child { background: rgba(30,41,59,0.95) !important; border-color: #334155 !important; }
+  body.dark .dup-compare-panel { background: #1e293b; box-shadow: -4px 0 24px rgba(0,0,0,0.3); }
+  body.dark .dup-compare-panel .bg-gray-300 { background-color: #0f172a !important; }
+  body.dark .dup-compare-panel .glass-blur { background: rgba(30,41,59,0.95) !important; border-color: #334155 !important; }
+  body.dark .dup-compare-panel .bg-white { background: #1e293b !important; }
   body.dark #dupInfoA, body.dark #dupInfoB { border-color: #334155 !important; }
   body.dark #dupNoCvA, body.dark #dupNoCvB { color: #64748b; }
 </style>
@@ -1199,9 +1225,9 @@ tailwind.config = { theme: { extend: {
       </div>
     </div>
     <div class="hero-actions">
-      <button onclick="openAutoOrganizar()" class="btn btn-sm bg-slate-700 text-white hover:bg-slate-800" title="AutoOrganizar">
+      <button onclick="openOrganizar()" class="btn btn-sm bg-slate-700 text-white hover:bg-slate-800" title="Organizar">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-        <span class="hidden sm:inline">AutoOrganizar</span>
+        <span class="hidden sm:inline">Organizar</span>
       </button>
       <button onclick="openBackupPanel()" class="btn btn-sm bg-slate-700 text-white hover:bg-slate-800" title="Copias de seguridad">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -1983,16 +2009,28 @@ tailwind.config = { theme: { extend: {
   </div>
 </div>
 
-<!-- ==================== AUTO-ORGANIZAR PANEL ==================== -->
-<div id="autoOrganizarModal" class="fixed inset-0 z-40 hidden">
-  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAutoOrganizar()"></div>
+<!-- ==================== ORGANIZAR PANEL ==================== -->
+<div id="organizeTreePanel" class="organize-tree-panel">
+  <div class="sticky top-0 z-10 glass-blur border-b border-gray-200/50 px-4 py-3 flex items-center justify-between">
+    <div>
+      <h3 class="text-sm font-semibold text-gray-700">Carpeta Google Drive</h3>
+      <p class="text-xs text-gray-400">Archivos de candidatos</p>
+    </div>
+    <button onclick="document.getElementById('organizeTreePanel').classList.remove('open')" class="btn-icon hover:bg-gray-100 w-7 h-7">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div id="organizeTree" class="p-3 text-sm"></div>
+</div>
+<div id="organizarModal" class="fixed inset-0 z-40 hidden">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeOrganizar()"></div>
   <div class="modal-panel absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl overflow-y-auto">
     <div class="sticky top-0 z-10 glass-blur border-b border-gray-200/50 px-6 py-4 flex items-center justify-between">
       <div>
-        <h2 class="text-lg font-bold text-gray-900">AutoOrganizar</h2>
+        <h2 class="text-lg font-bold text-gray-900">Organizar</h2>
         <p class="text-xs text-gray-500">Organizar CVs sueltos y detectar duplicados</p>
       </div>
-      <button onclick="closeAutoOrganizar()" class="btn-icon hover:bg-gray-100">
+      <button onclick="closeOrganizar()" class="btn-icon hover:bg-gray-100">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
@@ -2042,18 +2080,21 @@ tailwind.config = { theme: { extend: {
 </div>
 
 <!-- ==================== CV COMPARISON MODAL ==================== -->
-<div id="dupCompareModal" class="fixed inset-0 z-50 hidden" style="display:none">
-  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-  <div class="relative z-10 flex flex-col h-full">
-    <div class="flex items-center justify-between px-4 sm:px-6 py-3 bg-white/95 glass-blur border-b border-gray-200">
+<div id="dupComparePanel" class="dup-compare-panel">
+  <div class="flex flex-col h-full">
+    <div class="flex items-center justify-between px-4 sm:px-6 py-3 glass-blur border-b border-gray-200 sticky top-0 z-10">
       <div class="flex items-center gap-3">
         <button onclick="closeDupCompare()" class="btn btn-sm bg-gray-100 text-gray-700 hover:bg-gray-200">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
           Volver
         </button>
         <h2 class="font-bold text-gray-900 text-sm sm:text-base">Comparar duplicados</h2>
+        <span id="dupCompareScore" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700"></span>
       </div>
-      <span id="dupCompareScore" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700"></span>
+      <button onclick="aoIgnoreDup()" class="btn btn-sm bg-gray-200 text-gray-700 hover:bg-gray-300">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/></svg>
+        Ignorar
+      </button>
     </div>
     <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-px bg-gray-300 overflow-auto md:overflow-hidden">
       <div class="bg-white flex flex-col min-h-[50vh] md:min-h-0">
@@ -5223,12 +5264,19 @@ function filterPendingRequired() {
   toast(`Mostrando ${filteredRows.length} candidatos con datos pendientes`, 'info');
 }
 
-// ==================== AUTO-ORGANIZAR ====================
+// ==================== ORGANIZAR ====================
 let aoSkipLoosePrompt = false;
-async function openAutoOrganizar(skipPrompt) {
-  const m = document.getElementById('autoOrganizarModal');
+let organizeTreeLoaded = false;
+async function openOrganizar(skipPrompt) {
+  const m = document.getElementById('organizarModal');
   m.classList.remove('hidden'); m.style.display = 'flex';
   requestAnimationFrame(() => m.querySelector('.modal-panel').classList.add('open'));
+  // Open tree panel on desktop
+  if (window.innerWidth >= 1024) {
+    const tp = document.getElementById('organizeTreePanel');
+    tp.classList.add('open');
+    if (!organizeTreeLoaded) loadOrganizeTree();
+  }
   aoScanUnorganized();
   if (!skipPrompt && !aoSkipLoosePrompt && aoUnorganized.length > 0) {
     aoSkipLoosePrompt = true;
@@ -5236,13 +5284,129 @@ async function openAutoOrganizar(skipPrompt) {
     if (ok) await aoMoveToCurrentWeek();
   }
 }
-function closeAutoOrganizar() {
-  const m = document.getElementById('autoOrganizarModal');
+function closeOrganizar() {
+  const m = document.getElementById('organizarModal');
   const mp = m.querySelector('.modal-panel');
   mp.classList.remove('open');
   aoSkipLoosePrompt = false;
+  document.getElementById('organizeTreePanel').classList.remove('open');
+  document.getElementById('dupComparePanel').classList.remove('open');
   setTimeout(() => { m.style.display = 'none'; m.classList.add('hidden'); }, 250);
 }
+
+// ---- Drive Tree ----
+async function loadOrganizeTree() {
+  const container = document.getElementById('organizeTree');
+  container.innerHTML = '<div class="flex items-center gap-2 text-gray-400 text-xs py-4"><span class="loader inline-block w-4 h-4"></span> Cargando árbol...</div>';
+  try {
+    const data = await apiCall({ action: 'list_drive' });
+    const files = Array.isArray(data) ? data : (data.files || []);
+    files.sort((a, b) => {
+      const aF = (a.mimeType || '') === 'application/vnd.google-apps.folder' ? 0 : 1;
+      const bF = (b.mimeType || '') === 'application/vnd.google-apps.folder' ? 0 : 1;
+      return aF !== bF ? aF - bF : (a.name || '').localeCompare(b.name || '');
+    });
+    container.innerHTML = '';
+    renderTreeNodes(files, container, 0);
+    organizeTreeLoaded = true;
+    highlightDupsInTree();
+  } catch (e) {
+    container.innerHTML = '<p class="text-xs text-gray-400 py-4">No se pudo cargar el árbol<br><button onclick="organizeTreeLoaded=false;loadOrganizeTree()" class="text-brand-500 hover:text-brand-700 text-xs mt-1 font-medium">Reintentar</button></p>';
+  }
+}
+
+function renderTreeNodes(files, container, depth) {
+  const chevronSvg = '<svg class="tree-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
+  const folderIcon = '<svg class="w-4 h-4 flex-shrink-0 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>';
+  const fileIcon = '<svg class="w-4 h-4 flex-shrink-0 text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>';
+
+  files.forEach(f => {
+    const name = f.name || f.fileName || 'archivo';
+    const mime = f.mimeType || '';
+    const isFolder = mime === 'application/vnd.google-apps.folder';
+
+    const node = document.createElement('div');
+    if (isFolder) {
+      node.className = 'tree-node tree-folder';
+      node.style.paddingLeft = (depth * 16 + 4) + 'px';
+      node.innerHTML = `${chevronSvg}${folderIcon}<span class="truncate">${escHtml(name)}</span>`;
+      container.appendChild(node);
+
+      const children = document.createElement('div');
+      children.className = 'tree-children';
+      children.style.display = 'none';
+      children.dataset.folderId = f.id || '';
+      children.dataset.loaded = 'false';
+      container.appendChild(children);
+
+      node.onclick = () => expandTreeFolder(f.id, children, node);
+    } else {
+      node.className = 'tree-node tree-file';
+      node.style.paddingLeft = (depth * 16 + 22) + 'px';
+      node.innerHTML = `${fileIcon}<span class="truncate">${escHtml(name)}</span>`;
+      if (f.id) node.dataset.fileId = f.id;
+      container.appendChild(node);
+    }
+  });
+}
+
+async function expandTreeFolder(folderId, childContainer, folderNode) {
+  const chevron = folderNode.querySelector('.tree-chevron');
+  if (childContainer.dataset.loaded === 'true') {
+    const visible = childContainer.style.display !== 'none';
+    childContainer.style.display = visible ? 'none' : '';
+    chevron?.classList.toggle('expanded', !visible);
+    return;
+  }
+  chevron?.classList.add('expanded');
+  childContainer.style.display = '';
+  childContainer.innerHTML = '<div class="text-xs text-gray-400 pl-8 py-1"><span class="loader inline-block w-3 h-3"></span></div>';
+  try {
+    const data = await apiCall({ action: 'list_drive', folderId });
+    const files = Array.isArray(data) ? data : (data.files || []);
+    files.sort((a, b) => {
+      const aF = (a.mimeType || '') === 'application/vnd.google-apps.folder' ? 0 : 1;
+      const bF = (b.mimeType || '') === 'application/vnd.google-apps.folder' ? 0 : 1;
+      return aF !== bF ? aF - bF : (a.name || '').localeCompare(b.name || '');
+    });
+    childContainer.innerHTML = '';
+    const depth = (function getDepth(el) { let d = 0; while (el && el.id !== 'organizeTree') { if (el.classList?.contains('tree-children')) d++; el = el.parentElement; } return d; })(childContainer);
+    renderTreeNodes(files, childContainer, depth);
+    childContainer.dataset.loaded = 'true';
+    highlightDupsInTree();
+  } catch (e) {
+    childContainer.innerHTML = '<p class="text-xs text-red-400 pl-8 py-1">Error al cargar</p>';
+  }
+}
+
+function highlightDupsInTree() {
+  const treeEl = document.getElementById('organizeTree');
+  if (!treeEl) return;
+  // Collect FILE_IDs of selected duplicates
+  const dupFileIds = new Set();
+  aoSelectedDups.forEach(i => {
+    const d = aoDuplicates[i];
+    if (!d) return;
+    const fidA = allRows[d.a.idx]?.[COL.FILE_ID];
+    const fidB = allRows[d.b.idx]?.[COL.FILE_ID];
+    if (fidA) dupFileIds.add(fidA);
+    if (fidB) dupFileIds.add(fidB);
+  });
+  // Clear all highlights
+  treeEl.querySelectorAll('.tree-dup-highlight').forEach(el => el.classList.remove('tree-dup-highlight'));
+  if (!dupFileIds.size) return;
+  // Apply highlights
+  let firstHighlight = null;
+  treeEl.querySelectorAll('.tree-file[data-file-id]').forEach(el => {
+    if (dupFileIds.has(el.dataset.fileId)) {
+      el.classList.add('tree-dup-highlight');
+      if (!firstHighlight) firstHighlight = el;
+    }
+  });
+  // Auto-scroll to first highlighted
+  if (firstHighlight) firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function aoScanUnorganized() {
   aoUnorganized = [];
   allRows.forEach((r, i) => {
@@ -5376,6 +5540,7 @@ async function aoDuplicateScan() {
   btn.disabled = false;
   btn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> Escanear';
   renderAoDuplicates();
+  highlightDupsInTree();
   toast(`${aoDuplicates.length} posible(s) duplicado(s) encontrados`, aoDuplicates.length ? 'warning' : 'success');
 }
 function renderAoDuplicates() {
@@ -5405,6 +5570,7 @@ function renderAoDuplicates() {
 function aoToggleDup(i) {
   if (aoSelectedDups.has(i)) aoSelectedDups.delete(i); else aoSelectedDups.add(i);
   renderAoDuplicates();
+  highlightDupsInTree();
 }
 async function aoDeleteSelectedDups() {
   if (!aoSelectedDups.size) return;
@@ -5425,6 +5591,7 @@ async function aoDeleteSelectedDups() {
     toast(`${sorted.length} duplicado(s) eliminados`, 'success');
     aoDuplicates = []; aoSelectedDups = new Set();
     renderAoDuplicates();
+    highlightDupsInTree();
     renderTable();
   } catch (e) { toast('Error al eliminar: ' + e.message, 'error'); }
 }
@@ -5438,11 +5605,9 @@ async function aoCompareDups(pairIdx) {
   if (!d) return;
   dupComparePairIdx = pairIdx;
   const rowA = allRows[d.a.idx], rowB = allRows[d.b.idx];
-  // Close AutoOrganizar
-  closeAutoOrganizar();
-  // Open compare modal
-  const m = document.getElementById('dupCompareModal');
-  m.classList.remove('hidden'); m.style.display = 'flex';
+  // Open compare panel (slides behind Organizar)
+  const m = document.getElementById('dupComparePanel');
+  requestAnimationFrame(() => m.classList.add('open'));
   document.getElementById('dupCompareScore').textContent = (d.score * 100).toFixed(0) + '% similitud';
   // Fill info panels
   const infoHtml = (row, label) => `
@@ -5487,19 +5652,37 @@ async function aoDiscardOne(which) {
     await apiCall({ action: 'delete_rows', rows: [sr] });
     allRows.splice(target.idx, 1);
     toast(`"${nombre}" eliminado`, 'success');
+    // Remove this pair from the scanned list and update UI
+    const removedIdx = dupComparePairIdx;
     closeDupCompare();
+    aoDuplicates.splice(removedIdx, 1);
+    // Re-index selected dups
+    const newSelected = new Set();
+    aoSelectedDups.forEach(i => { if (i < removedIdx) newSelected.add(i); else if (i > removedIdx) newSelected.add(i - 1); });
+    aoSelectedDups = newSelected;
+    renderAoDuplicates();
+    highlightDupsInTree();
     applyFilters(false);
-    // Re-open and re-scan (skip loose prompt)
-    setTimeout(async () => {
-      await openAutoOrganizar(true);
-      aoDuplicateScan();
-    }, 300);
   } catch (e) { toast('Error: ' + e.message, 'error'); }
 }
 
+function aoIgnoreDup() {
+  if (dupComparePairIdx < 0) return;
+  const removedIdx = dupComparePairIdx;
+  closeDupCompare();
+  aoDuplicates.splice(removedIdx, 1);
+  // Re-index selected dups
+  const newSelected = new Set();
+  aoSelectedDups.forEach(i => { if (i < removedIdx) newSelected.add(i); else if (i > removedIdx) newSelected.add(i - 1); });
+  aoSelectedDups = newSelected;
+  renderAoDuplicates();
+  highlightDupsInTree();
+  toast('Par ignorado', 'info');
+}
+
 function closeDupCompare() {
-  const m = document.getElementById('dupCompareModal');
-  m.style.display = 'none'; m.classList.add('hidden');
+  const m = document.getElementById('dupComparePanel');
+  m.classList.remove('open');
   document.getElementById('dupFrameA').src = 'about:blank';
   document.getElementById('dupFrameB').src = 'about:blank';
   if (dupBlobA) { URL.revokeObjectURL(dupBlobA); dupBlobA = null; }
@@ -5643,7 +5826,7 @@ function cancelRestore() {
 document.addEventListener('keydown',e=>{
   // Ctrl+K / Cmd+K → focus search (works even when input is focused)
   if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();const s=document.getElementById('filterSearch');if(s){s.focus();s.select();}return;}
-  if(e.key==='Escape'){if(document.getElementById('dupCompareModal').style.display==='flex'){closeDupCompare();return;}if(aiPanelOpen){toggleAIPanel();return;}if(!document.getElementById('autoOrganizarModal').classList.contains('hidden')){closeAutoOrganizar();return;}if(!document.getElementById('backupModal').classList.contains('hidden')){closeBackupPanel();return;}if(document.getElementById('campaignModal').style.display==='flex')closeCampaignModal();else closeModal();}
+  if(e.key==='Escape'){if(document.getElementById('dupComparePanel').classList.contains('open')){closeDupCompare();return;}if(aiPanelOpen){toggleAIPanel();return;}if(!document.getElementById('organizarModal').classList.contains('hidden')){closeOrganizar();return;}if(!document.getElementById('backupModal').classList.contains('hidden')){closeBackupPanel();return;}if(document.getElementById('campaignModal').style.display==='flex')closeCampaignModal();else closeModal();}
   const tag=document.activeElement.tagName;
   if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA')return;
   if(e.key==='/'){e.preventDefault();const s=document.getElementById('filterSearch');if(s){s.focus();s.select();}return;}
