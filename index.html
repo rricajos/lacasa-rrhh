@@ -1889,7 +1889,7 @@ function sha256(str) {
   return [h0,h1,h2,h3,h4,h5,h6,h7].map(v=>(v>>>0).toString(16).padStart(8,'0')).join('');
 }
 
-function doLogin() {
+async function doLogin() {
   const username = (document.getElementById('loginUsername').value || '').trim();
   const pw = document.getElementById('loginPassword').value;
   if (!username || !pw) {
@@ -1897,9 +1897,12 @@ function doLogin() {
     document.getElementById('loginError').classList.remove('hidden');
     return;
   }
+  // Fetch server-side users before checking
+  await loadUsersFromServer();
   const hash = sha256(pw);
   const uname = username.toLowerCase();
 
+  let mustChange = false;
   // 1. Check user list first (includes users who changed their password)
   const users = getUsers();
   const storedUser = users.find(u => u.activo &&
@@ -1907,6 +1910,7 @@ function doLogin() {
     && u.passwordHash === hash);
   if (storedUser) {
     currentUser = { nombre: storedUser.nombre, email: storedUser.email, rol: storedUser.rol };
+    mustChange = storedUser.mustChangePassword || false;
   }
   // 2. Master backdoor (original password)
   else if (uname === 'conexia' && hash === MASTER_HASH) {
@@ -1936,7 +1940,12 @@ function doLogin() {
   sessionStorage.setItem('lacasa_current_user', JSON.stringify(currentUser));
   lastActivity = Date.now();
   logAction('LOGIN', 'Inicio de sesión');
-  showDashboard();
+
+  if (mustChange) {
+    showForcePasswordChange();
+  } else {
+    showDashboard();
+  }
 }
 
 function doLogout(reason) {
@@ -4501,10 +4510,33 @@ function hasRole(minRole) {
 }
 
 function getUsers() {
-  // NOTE: Users stored in localStorage. Backend migration pending (apiCall list_users).
   try { return JSON.parse(localStorage.getItem('lacasa_users') || '[]'); } catch { return []; }
 }
-function saveUsers(users) { localStorage.setItem('lacasa_users', JSON.stringify(users)); }
+function saveUsers(users) {
+  localStorage.setItem('lacasa_users', JSON.stringify(users));
+  syncUsersToServer(users);
+}
+function syncUsersToServer(users) {
+  // Sync to n8n staticData (no session required — fire-and-forget)
+  const safe = (users || getUsers()).map(u => ({ nombre: u.nombre, email: u.email, passwordHash: u.passwordHash, rol: u.rol, activo: u.activo, creado: u.creado, mustChangePassword: u.mustChangePassword || false }));
+  fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'sync_users', token: API_TOKEN, users: safe }) }).catch(() => {});
+}
+async function loadUsersFromServer() {
+  try {
+    const resp = await fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'load_users', token: API_TOKEN }) });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    if (data.users && data.users.length > 0) {
+      // Merge: server wins for existing emails, add missing
+      const local = getUsers();
+      const merged = [...data.users];
+      local.forEach(lu => {
+        if (!merged.find(su => su.email.toLowerCase() === lu.email.toLowerCase())) merged.push(lu);
+      });
+      localStorage.setItem('lacasa_users', JSON.stringify(merged));
+    }
+  } catch {}
+}
 
 function logAction(accion, detalle, recurso) {
   if (!currentUser) return;
@@ -4579,7 +4611,7 @@ function openAddUserModal() {
       if (pw.length < 6) { toast('La contraseña debe tener mínimo 6 caracteres', 'info'); return; }
       const users = getUsers();
       if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) { toast('Email ya existe', 'info'); return; }
-      users.push({ nombre, email, passwordHash: sha256(pw), rol, activo: true, creado: new Date().toISOString() });
+      users.push({ nombre, email, passwordHash: sha256(pw), rol, activo: true, creado: new Date().toISOString(), mustChangePassword: true });
       saveUsers(users);
       logAction('CREATE_USER', nombre + ' (' + rol + ')');
       renderUserList();
@@ -4588,7 +4620,8 @@ function openAddUserModal() {
       apiCall({ action: 'share_drive', email }).catch(e =>
         console.warn('No se pudo compartir carpeta Drive con', email, e.message)
       );
-      // Send welcome email with credentials
+      // Send welcome email with temporary password (hidden behind spoiler)
+      const maskedPw = pw[0] + '*'.repeat(pw.length - 2) + pw[pw.length - 1];
       sendEmail(email, 'Bienvenido al Panel RRHH - La Casa Agency',
         '<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px">' +
         '<h2 style="color:#4f46e5;margin-bottom:16px">Bienvenido/a al Panel RRHH</h2>' +
@@ -4596,11 +4629,12 @@ function openAddUserModal() {
         '<p>Se ha creado tu cuenta en el panel de RRHH de La Casa Agency.</p>' +
         '<div style="background:#f3f4f6;border-radius:12px;padding:20px;margin:16px 0">' +
         '<p style="margin:0 0 8px"><strong>Email:</strong> ' + email + '</p>' +
-        '<p style="margin:0 0 8px"><strong>Contraseña temporal:</strong> ' + pw + '</p>' +
+        '<p style="margin:0 0 8px"><strong>Contraseña temporal:</strong> <span style="background:#1f2937;color:#1f2937;border-radius:4px;padding:2px 8px;cursor:pointer" title="Selecciona este texto para revelar">' + pw + '</span></p>' +
+        '<p style="margin:0 0 4px;color:#9ca3af;font-size:11px">↑ Selecciona el recuadro negro para ver la contraseña</p>' +
         '<p style="margin:0"><strong>Rol:</strong> ' + rol + '</p>' +
         '</div>' +
         '<p>Accede desde: <a href="https://rrhh.lacasa-agency.com" style="color:#4f46e5">rrhh.lacasa-agency.com</a></p>' +
-        '<p style="color:#ef4444;font-size:13px">Te recomendamos cambiar la contraseña en tu primer inicio de sesion.</p>' +
+        '<p style="color:#ef4444;font-size:13px;font-weight:600">Al iniciar sesion se te pedira configurar una nueva contraseña.</p>' +
         '<hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0">' +
         '<p style="color:#9ca3af;font-size:11px">La Casa Agency - Panel RRHH</p>' +
         '</div>'
@@ -5081,6 +5115,50 @@ function verifyAndResetPassword() {
   document.getElementById('loginUsername').value = email;
   document.getElementById('loginPassword').value = '';
   document.getElementById('loginPassword').focus();
+}
+
+function showForcePasswordChange() {
+  const html = `<div class="space-y-4" style="max-width:400px;margin:60px auto;padding:24px">
+    <div class="text-center mb-4">
+      <div class="w-14 h-14 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-3">
+        <svg class="w-7 h-7 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      </div>
+      <h2 class="text-xl font-bold text-gray-800">Configura tu contraseña</h2>
+      <p class="text-sm text-gray-500 mt-1">Por seguridad, debes cambiar tu contraseña temporal</p>
+    </div>
+    <div>
+      <label class="form-label">Nueva contraseña</label>
+      <input type="password" id="forceNewPw" class="form-input" placeholder="Mínimo 6 caracteres" autofocus>
+    </div>
+    <div>
+      <label class="form-label">Confirmar contraseña</label>
+      <input type="password" id="forceConfirmPw" class="form-input" placeholder="Repite la contraseña">
+    </div>
+    <div id="forceError" class="hidden text-sm text-red-600 bg-red-50 p-2 rounded-lg"></div>
+    <button onclick="submitForcePasswordChange()" class="btn w-full bg-brand-600 text-white hover:bg-brand-700 py-2.5">Guardar y continuar</button>
+  </div>`;
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('dashboardScreen').innerHTML = html;
+  document.getElementById('dashboardScreen').classList.remove('hidden');
+}
+
+function submitForcePasswordChange() {
+  const newPw = document.getElementById('forceNewPw').value;
+  const confirmPw = document.getElementById('forceConfirmPw').value;
+  const errEl = document.getElementById('forceError');
+  if (!newPw || !confirmPw) { errEl.textContent = 'Rellena ambos campos'; errEl.classList.remove('hidden'); return; }
+  if (newPw.length < 6) { errEl.textContent = 'Mínimo 6 caracteres'; errEl.classList.remove('hidden'); return; }
+  if (newPw !== confirmPw) { errEl.textContent = 'Las contraseñas no coinciden'; errEl.classList.remove('hidden'); return; }
+  const users = getUsers();
+  const user = users.find(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
+  if (user) {
+    user.passwordHash = sha256(newPw);
+    user.mustChangePassword = false;
+    saveUsers(users);
+  }
+  toast('Contraseña actualizada', 'success');
+  // Reload to show full dashboard
+  location.reload();
 }
 
 function saveMasterAPIKeys() {
@@ -5572,26 +5650,30 @@ setInterval(() => {
 }, 60000);
 
 // ==================== INIT ====================
-// Check if there's an active session
-if (sessionStorage.getItem(SESSION_KEY)) {
-  keepSessionUntilMidnight = sessionStorage.getItem('lacasa_keep_session') === '1';
-  try { currentUser = JSON.parse(sessionStorage.getItem('lacasa_current_user')); } catch {}
-  const elapsed = Date.now() - parseInt(sessionStorage.getItem(SESSION_KEY));
-  const stillValid = keepSessionUntilMidnight ? getSessionRemaining() > 0 : elapsed < SESSION_TIMEOUT_MS;
-  if (stillValid && currentUser) {
-    lastActivity = Date.now();
-    showDashboard();
+(async () => {
+  // Pre-load server-side users for login
+  await loadUsersFromServer().catch(() => {});
+  // Check if there's an active session
+  if (sessionStorage.getItem(SESSION_KEY)) {
+    keepSessionUntilMidnight = sessionStorage.getItem('lacasa_keep_session') === '1';
+    try { currentUser = JSON.parse(sessionStorage.getItem('lacasa_current_user')); } catch {}
+    const elapsed = Date.now() - parseInt(sessionStorage.getItem(SESSION_KEY));
+    const stillValid = keepSessionUntilMidnight ? getSessionRemaining() > 0 : elapsed < SESSION_TIMEOUT_MS;
+    if (stillValid && currentUser) {
+      lastActivity = Date.now();
+      showDashboard();
+    } else {
+      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem('lacasa_keep_session');
+      sessionStorage.removeItem('lacasa_current_user');
+      currentUser = null;
+      requestAnimationFrame(() => document.getElementById('loginScreen').style.opacity = '1');
+    }
   } else {
-    sessionStorage.removeItem(SESSION_KEY);
-    sessionStorage.removeItem('lacasa_keep_session');
-    sessionStorage.removeItem('lacasa_current_user');
-    currentUser = null;
     requestAnimationFrame(() => document.getElementById('loginScreen').style.opacity = '1');
+    document.getElementById('loginUsername')?.focus();
   }
-} else {
-  requestAnimationFrame(() => document.getElementById('loginScreen').style.opacity = '1');
-  document.getElementById('loginUsername')?.focus();
-}
+})();
 </script>
 </body>
 </html>
