@@ -210,8 +210,8 @@ tailwind.config = { theme: { extend: {
     body.logged-in { padding-bottom: 72px; }
   }
   /* Bottom nav mobile: icon above text, full width */
-  #bottomNav .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s; border-radius: 0; flex: 1; white-space: nowrap; }
-  #bottomNav .nav-tab svg { width: 24px; height: 24px; }
+  #bottomNav .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 0; font-size: 10px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s; border-radius: 0; flex: 1; white-space: nowrap; }
+  #bottomNav .nav-tab svg { width: 22px; height: 22px; }
   #bottomNav .nav-tab.active { color: #2563eb; }
   @media (min-width: 768px) {
     #bottomNav { display: none !important; }
@@ -286,7 +286,11 @@ tailwind.config = { theme: { extend: {
   @media (max-width: 639px) {
     .wk-qtabs { display: flex; gap: 4px; margin-bottom: 8px; }
     .wk-desktop-grid { display: none !important; }
-    .wk-mobile-scroll { display: flex !important; }
+    .wk-mobile-scroll { display: block !important; max-height: 260px; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+    .wk-row.future { display: none; }
+    .wk-row { padding: 2px 6px; margin: 0.5px 3px; gap: 4px; }
+    .wk-month { padding: 3px 6px 1px; margin: 1px 3px 0; }
+    .wk-quarter-head { padding: 4px 8px; font-size: 10px; }
   }
   @media (min-width: 640px) {
     .wk-mobile-scroll { display: none !important; }
@@ -536,17 +540,17 @@ tailwind.config = { theme: { extend: {
 
 <!-- Main dashboard view -->
 <div id="dashMain">
-<div class="page-container pt-5 pb-4 space-y-4">
+<div class="page-container pt-3 sm:pt-5 pb-4 space-y-3 sm:space-y-4">
 
   <!-- Hero header -->
   <div class="hero-bar">
     <div class="hero-left">
-      <div class="hero-icon w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+      <div class="hero-icon w-10 h-10 rounded-xl bg-gray-100 hidden sm:flex items-center justify-center">
         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
       </div>
       <div class="hero-text">
         <h1 class="hero-title">Dashboard</h1>
-        <p class="hero-subtitle">Resumen de candidatos y metricas de seleccion</p>
+        <p class="hero-subtitle hidden sm:block">Resumen de candidatos y metricas de seleccion</p>
       </div>
     </div>
     <div class="hero-actions">
@@ -602,13 +606,13 @@ tailwind.config = { theme: { extend: {
   </div>
 
   <!-- Row 2: Reclutamiento (fake — próximamente) -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+  <div class="grid grid-cols-3 gap-2 sm:gap-3">
     <!-- Fake: Anuncios -->
-    <div class="card p-4 donut-placeholder">
-      <span class="badge-soon">Proximamente</span>
+    <div class="card p-2 sm:p-4 donut-placeholder">
+      <span class="badge-soon hidden sm:inline">Proximamente</span>
       <div class="donut-inner flex flex-col items-center">
-        <p class="section-label mb-2">Anuncios</p>
-        <svg viewBox="0 0 36 36" class="w-20 h-20">
+        <p class="section-label mb-1 sm:mb-2 text-2xs sm:text-xs">Anuncios</p>
+        <svg viewBox="0 0 36 36" class="w-12 h-12 sm:w-20 sm:h-20">
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#6366f1" stroke-width="2.8" stroke-dasharray="38 62" stroke-dashoffset="25" stroke-linecap="round"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#8b5cf6" stroke-width="2.8" stroke-dasharray="24 76" stroke-dashoffset="87" stroke-linecap="round"/>
@@ -616,7 +620,7 @@ tailwind.config = { theme: { extend: {
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f97316" stroke-width="2.8" stroke-dasharray="20 80" stroke-dashoffset="45" stroke-linecap="round"/>
           <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700">12</text>
         </svg>
-        <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-xs">
+        <div class="hidden sm:grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-xs">
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#6366f1"></span><span class="text-gray-500">InfoJobs</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#8b5cf6"></span><span class="text-gray-500">Indeed</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#ec4899"></span><span class="text-gray-500">LinkedIn</span></div>
@@ -625,11 +629,11 @@ tailwind.config = { theme: { extend: {
       </div>
     </div>
     <!-- Fake: Retención -->
-    <div class="card p-4 donut-placeholder">
-      <span class="badge-soon">Proximamente</span>
+    <div class="card p-2 sm:p-4 donut-placeholder">
+      <span class="badge-soon hidden sm:inline">Proximamente</span>
       <div class="donut-inner flex flex-col items-center">
-        <p class="section-label mb-2">Retención</p>
-        <svg viewBox="0 0 36 36" class="w-20 h-20">
+        <p class="section-label mb-1 sm:mb-2 text-2xs sm:text-xs">Retención</p>
+        <svg viewBox="0 0 36 36" class="w-12 h-12 sm:w-20 sm:h-20">
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="2.8" stroke-dasharray="72 28" stroke-dashoffset="25" stroke-linecap="round"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f43f5e" stroke-width="2.8" stroke-dasharray="18 82" stroke-dashoffset="53" stroke-linecap="round"/>
@@ -637,7 +641,7 @@ tailwind.config = { theme: { extend: {
           <text x="18" y="17.5" text-anchor="middle" fill="#1e293b" font-size="5" font-weight="700">72%</text>
           <text x="18" y="22" text-anchor="middle" fill="#94a3b8" font-size="3">tasa</text>
         </svg>
-        <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-xs">
+        <div class="hidden sm:grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-xs">
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#10b981"></span><span class="text-gray-500">Activos</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#f43f5e"></span><span class="text-gray-500">Bajas</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#94a3b8"></span><span class="text-gray-500">Periodo prueba</span></div>
@@ -645,11 +649,11 @@ tailwind.config = { theme: { extend: {
       </div>
     </div>
     <!-- Fake: Conversión -->
-    <div class="card p-4 donut-placeholder">
-      <span class="badge-soon">Proximamente</span>
+    <div class="card p-2 sm:p-4 donut-placeholder">
+      <span class="badge-soon hidden sm:inline">Proximamente</span>
       <div class="donut-inner flex flex-col items-center">
-        <p class="section-label mb-2">Conversión</p>
-        <svg viewBox="0 0 36 36" class="w-20 h-20">
+        <p class="section-label mb-1 sm:mb-2 text-2xs sm:text-xs">Conversión</p>
+        <svg viewBox="0 0 36 36" class="w-12 h-12 sm:w-20 sm:h-20">
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f97316" stroke-width="2.8" stroke-dasharray="30 70" stroke-dashoffset="25" stroke-linecap="round"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="2.8" stroke-dasharray="14 86" stroke-dashoffset="95" stroke-linecap="round"/>
@@ -658,7 +662,7 @@ tailwind.config = { theme: { extend: {
           <text x="18" y="17.5" text-anchor="middle" fill="#1e293b" font-size="5" font-weight="700">44%</text>
           <text x="18" y="22" text-anchor="middle" fill="#94a3b8" font-size="3">tasa</text>
         </svg>
-        <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-xs">
+        <div class="hidden sm:grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 text-xs">
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#f97316"></span><span class="text-gray-500">Citados</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#10b981"></span><span class="text-gray-500">Selecc.</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#ef4444"></span><span class="text-gray-500">Descart.</span></div>
@@ -669,20 +673,20 @@ tailwind.config = { theme: { extend: {
   </div>
 
   <!-- Row 3: Comunicación (fake — próximamente) -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
     <!-- Fake: Mails -->
-    <div class="card p-4 donut-placeholder">
-      <span class="badge-soon">Proximamente</span>
+    <div class="card p-2 sm:p-4 donut-placeholder">
+      <span class="badge-soon hidden sm:inline">Proximamente</span>
       <div class="donut-inner flex flex-col items-center">
-        <p class="section-label mb-2">Mails</p>
-        <svg viewBox="0 0 36 36" class="w-20 h-20">
+        <p class="section-label mb-1 sm:mb-2 text-2xs sm:text-xs">Mails</p>
+        <svg viewBox="0 0 36 36" class="w-14 h-14 sm:w-20 sm:h-20">
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" stroke-width="2.8" stroke-dasharray="55 45" stroke-dashoffset="25" stroke-linecap="round"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#06b6d4" stroke-width="2.8" stroke-dasharray="30 70" stroke-dashoffset="70" stroke-linecap="round"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#94a3b8" stroke-width="2.8" stroke-dasharray="15 85" stroke-dashoffset="40" stroke-linecap="round"/>
           <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700">64</text>
         </svg>
-        <div class="grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
+        <div class="hidden sm:grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#3b82f6"></span><span class="text-gray-500">Enviados 64</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#06b6d4"></span><span class="text-gray-500">Abiertos 35</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#94a3b8"></span><span class="text-gray-500">Respondidos 18</span></div>
@@ -690,18 +694,18 @@ tailwind.config = { theme: { extend: {
       </div>
     </div>
     <!-- Fake: WhatsApps -->
-    <div class="card p-4 donut-placeholder">
-      <span class="badge-soon">Proximamente</span>
+    <div class="card p-2 sm:p-4 donut-placeholder">
+      <span class="badge-soon hidden sm:inline">Proximamente</span>
       <div class="donut-inner flex flex-col items-center">
-        <p class="section-label mb-2">WhatsApps</p>
-        <svg viewBox="0 0 36 36" class="w-20 h-20">
+        <p class="section-label mb-1 sm:mb-2 text-2xs sm:text-xs">WhatsApps</p>
+        <svg viewBox="0 0 36 36" class="w-14 h-14 sm:w-20 sm:h-20">
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#22c55e" stroke-width="2.8" stroke-dasharray="58 42" stroke-dashoffset="25" stroke-linecap="round"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#86efac" stroke-width="2.8" stroke-dasharray="32 68" stroke-dashoffset="67" stroke-linecap="round"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#94a3b8" stroke-width="2.8" stroke-dasharray="10 90" stroke-dashoffset="35" stroke-linecap="round"/>
           <text x="18" y="19.5" text-anchor="middle" fill="#1e293b" font-size="5.5" font-weight="700">82</text>
         </svg>
-        <div class="grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
+        <div class="hidden sm:grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#22c55e"></span><span class="text-gray-500">Enviados 82</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#86efac"></span><span class="text-gray-500">Leidos 67</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#94a3b8"></span><span class="text-gray-500">Respondidos 31</span></div>
@@ -709,36 +713,36 @@ tailwind.config = { theme: { extend: {
       </div>
     </div>
     <!-- Fake: Respuesta -->
-    <div class="card p-4 donut-placeholder">
-      <span class="badge-soon">Proximamente</span>
+    <div class="card p-2 sm:p-4 donut-placeholder">
+      <span class="badge-soon hidden sm:inline">Proximamente</span>
       <div class="donut-inner flex flex-col items-center">
-        <p class="section-label mb-2">Respuesta</p>
-        <svg viewBox="0 0 36 36" class="w-20 h-20">
+        <p class="section-label mb-1 sm:mb-2 text-2xs sm:text-xs">Respuesta</p>
+        <svg viewBox="0 0 36 36" class="w-14 h-14 sm:w-20 sm:h-20">
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#8b5cf6" stroke-width="2.8" stroke-dasharray="42 58" stroke-dashoffset="25" stroke-linecap="round"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="2.8" stroke-dasharray="58 42" stroke-dashoffset="83" stroke-linecap="round"/>
           <text x="18" y="17.5" text-anchor="middle" fill="#1e293b" font-size="5" font-weight="700">42%</text>
           <text x="18" y="22" text-anchor="middle" fill="#94a3b8" font-size="3">tasa</text>
         </svg>
-        <div class="grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
+        <div class="hidden sm:grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#8b5cf6"></span><span class="text-gray-500">Respondidos</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#e2e8f0"></span><span class="text-gray-500">Sin respuesta</span></div>
         </div>
       </div>
     </div>
     <!-- Fake: Conversión comms -->
-    <div class="card p-4 donut-placeholder">
-      <span class="badge-soon">Proximamente</span>
+    <div class="card p-2 sm:p-4 donut-placeholder">
+      <span class="badge-soon hidden sm:inline">Proximamente</span>
       <div class="donut-inner flex flex-col items-center">
-        <p class="section-label mb-2">Conversión</p>
-        <svg viewBox="0 0 36 36" class="w-20 h-20">
+        <p class="section-label mb-1 sm:mb-2 text-2xs sm:text-xs">Conversión</p>
+        <svg viewBox="0 0 36 36" class="w-14 h-14 sm:w-20 sm:h-20">
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="2.8"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f97316" stroke-width="2.8" stroke-dasharray="38 62" stroke-dashoffset="25" stroke-linecap="round"/>
           <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="2.8" stroke-dasharray="62 38" stroke-dashoffset="87" stroke-linecap="round"/>
           <text x="18" y="17.5" text-anchor="middle" fill="#1e293b" font-size="5" font-weight="700">38%</text>
           <text x="18" y="22" text-anchor="middle" fill="#94a3b8" font-size="3">lead→resp</text>
         </svg>
-        <div class="grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
+        <div class="hidden sm:grid grid-cols-1 gap-y-0.5 mt-2 text-xs">
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#f97316"></span><span class="text-gray-500">Convertidos</span></div>
           <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:#e2e8f0"></span><span class="text-gray-500">Pendientes</span></div>
         </div>
@@ -2991,6 +2995,10 @@ function buildDashWeeks() {
   }
   if (mScroll) {
     mScroll.innerHTML = buildQuarterHTML(quarters[mobileQuarter], mobileQuarter, '-m', dashCalOpts);
+    requestAnimationFrame(() => {
+      const target = mScroll.querySelector('.wk-row.active') || mScroll.querySelector('.wk-row.current');
+      if (target) target.scrollIntoView({ block: 'center' });
+    });
   }
 }
 
@@ -3202,6 +3210,10 @@ function buildDrillWeeks() {
   }
   if (mScroll) {
     mScroll.innerHTML = buildQuarterHTML(quarters[drillMobileQuarter], drillMobileQuarter, '-drill-m', calOpts);
+    requestAnimationFrame(() => {
+      const target = mScroll.querySelector('.wk-row.active') || mScroll.querySelector('.wk-row.current');
+      if (target) target.scrollIntoView({ block: 'center' });
+    });
   }
 }
 
