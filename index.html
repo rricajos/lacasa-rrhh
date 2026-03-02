@@ -2562,10 +2562,19 @@ function updateDataAge() { /* removed — data age no longer shown in header */ 
 
 // ==================== CONFIRM MODAL ====================
 let confirmKeyHandler = null;
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function setConfirmBtnStyle(text, colorClass) {
+  const btn = document.getElementById('confirmBtn');
+  if (!btn) return;
+  btn.textContent = text || 'Confirmar';
+  btn.className = 'btn btn-md text-white ' + (colorClass || 'bg-red-600 hover:bg-red-700');
+}
 function showConfirm(msg) {
+  if (window.innerWidth < 640) return Promise.resolve(confirm(msg));
   return new Promise(resolve => {
     confirmResolve = resolve;
-    document.getElementById('confirmMsg').textContent = msg;
+    setConfirmBtnStyle('Confirmar', 'bg-red-600 hover:bg-red-700');
+    document.getElementById('confirmMsg').innerHTML = escHtml(msg).replace(/\n/g, '<br>');
     const m = document.getElementById('confirmModal');
     m.style.display = 'flex';
     m.classList.remove('hidden');
@@ -2578,11 +2587,31 @@ function showConfirm(msg) {
     document.addEventListener('keydown', confirmKeyHandler);
   });
 }
+function showInputModal(title, placeholder, defaultVal) {
+  if (window.innerWidth < 640) return Promise.resolve(prompt(title, defaultVal || ''));
+  return new Promise(resolve => {
+    setConfirmBtnStyle('Guardar', 'bg-brand-600 hover:bg-brand-700');
+    document.getElementById('confirmMsg').innerHTML =
+      `<p class="font-semibold text-base mb-3">${escHtml(title)}</p>
+       <input id="inputModalVal" type="text" class="form-input" placeholder="${escHtml(placeholder||'')}" value="${escHtml(defaultVal||'')}">`;
+    const m = document.getElementById('confirmModal');
+    m.style.display = 'flex'; m.classList.remove('hidden');
+    const inp = document.getElementById('inputModalVal');
+    setTimeout(() => { inp.focus(); inp.select(); }, 50);
+    confirmResolve = ok => resolve(ok ? (inp.value||'').trim() || null : null);
+    confirmKeyHandler = e => {
+      if (e.key === 'Enter') { e.preventDefault(); confirmOk(); }
+      else if (e.key === 'Escape') { e.preventDefault(); confirmCancel(); }
+    };
+    document.addEventListener('keydown', confirmKeyHandler);
+  });
+}
 function confirmOk() { if (confirmResolve) confirmResolve(true); confirmResolve=null; hideConfirm(); }
 function confirmCancel() { if (confirmResolve) confirmResolve(false); confirmResolve=null; hideConfirm(); }
 function hideConfirm() {
   const m=document.getElementById('confirmModal'); m.style.display='none'; m.classList.add('hidden');
   if (confirmKeyHandler) { document.removeEventListener('keydown', confirmKeyHandler); confirmKeyHandler = null; }
+  setConfirmBtnStyle('Confirmar', 'bg-red-600 hover:bg-red-700');
 }
 
 // ==================== CV AI PROMPT ====================
@@ -3359,27 +3388,76 @@ function saveCrudList(type, list) {
   localStorage.setItem('lacasa_' + type + 's', JSON.stringify(list));
 }
 
-function crudAdd(type) {
-  const name = prompt(type === 'oficina' ? 'Nombre de la nueva oficina:' : 'Nombre de la nueva posición:');
-  if (!name || !name.trim()) return;
+async function crudAdd(type) {
+  const label = type === 'oficina' ? 'oficina' : 'posición';
+  const name = await showInputModal('Nueva ' + label, 'Nombre de la ' + label + '...', '');
+  if (!name) return;
   const list = getCrudList(type);
-  if (!list.includes(name.trim())) { list.push(name.trim()); saveCrudList(type, list); }
+  if (list.includes(name)) { toast('Ya existe "' + name + '"', 'error'); return; }
+  list.push(name);
+  saveCrudList(type, list);
   updateDashboardPanels();
   toast((type === 'oficina' ? 'Oficina' : 'Posición') + ' añadida', 'success');
 }
 
-function crudRename(type, oldName) {
-  const newName = prompt('Nuevo nombre para "' + oldName + '":', oldName);
-  if (!newName || !newName.trim() || newName.trim() === oldName) return;
+async function crudRename(type, oldName) {
+  const label = type === 'oficina' ? 'oficina' : 'posición';
+  const newName = await showInputModal('Renombrar ' + label, 'Nuevo nombre...', oldName);
+  if (!newName || newName === oldName) return;
   const list = getCrudList(type);
+  if (list.includes(newName)) { toast('Ya existe "' + newName + '"', 'error'); return; }
   const idx = list.indexOf(oldName);
-  if (idx >= 0) list[idx] = newName.trim(); else list.push(newName.trim());
+  if (idx >= 0) list[idx] = newName; else list.push(newName);
   saveCrudList(type, list);
+
+  const colIdx = type === 'oficina' ? COL.OFICINA : COL.POSICION;
+  const colLetter = type === 'oficina' ? COL_LETTER.OFICINA : COL_LETTER.POSICION;
+  const affected = allRows.filter(r => r[colIdx] === oldName);
+
+  if (affected.length > 0) {
+    const ok = await showConfirm('Hay ' + affected.length + ' candidato' + (affected.length > 1 ? 's' : '') + ' con ' + label + ' "' + oldName + '".\n¿Actualizar a "' + newName + '"?');
+    if (ok) {
+      toast('Actualizando candidatos...', 'info');
+      for (const row of affected) {
+        const sheetRow = allRows.indexOf(row) + 2;
+        try {
+          await apiCall({ action: 'update_cell', range: colLetter + sheetRow, value: newName });
+          row[colIdx] = newName;
+        } catch (e) { console.error('Error updating row ' + sheetRow, e); }
+      }
+      applyFilters(false);
+    }
+  }
+
   updateDashboardPanels();
-  toast('Renombrado a "' + newName.trim() + '"', 'success');
+  toast('Renombrado a "' + newName + '"', 'success');
 }
 
-function crudDelete(type, name) {
+async function crudDelete(type, name) {
+  const label = type === 'oficina' ? 'oficina' : 'posición';
+  const colIdx = type === 'oficina' ? COL.OFICINA : COL.POSICION;
+  const colLetter = type === 'oficina' ? COL_LETTER.OFICINA : COL_LETTER.POSICION;
+  const affected = allRows.filter(r => r[colIdx] === name);
+
+  let msg = '¿Eliminar ' + label + ' "' + name + '"?';
+  if (affected.length > 0) {
+    msg += '\n\nHay ' + affected.length + ' candidato' + (affected.length > 1 ? 's' : '') + ' con este dato.\nSe vaciará el campo en todos ellos.';
+  }
+  const ok = await showConfirm(msg);
+  if (!ok) return;
+
+  if (affected.length > 0) {
+    toast('Limpiando candidatos...', 'info');
+    for (const row of affected) {
+      const sheetRow = allRows.indexOf(row) + 2;
+      try {
+        await apiCall({ action: 'update_cell', range: colLetter + sheetRow, value: '' });
+        row[colIdx] = '';
+      } catch (e) { console.error('Error clearing row ' + sheetRow, e); }
+    }
+    applyFilters(false);
+  }
+
   const list = getCrudList(type).filter(n => n !== name);
   saveCrudList(type, list);
   updateDashboardPanels();
