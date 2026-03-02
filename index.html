@@ -3596,16 +3596,20 @@ function dashDrillDown(type, value) {
   drillType = type;
   drillValue = value;
 
+  // Use time-filtered rows from dashboard calendar selection
+  const baseSource = getDashFilteredRows();
+
   if (type === 'reciente' || type === 'situacion') {
-    drillBaseRows = allRows.filter(r => r[COL.NOMBRE]);
+    drillBaseRows = baseSource.filter(r => r[COL.NOMBRE]);
     if (type === 'reciente') drillBaseRows = drillBaseRows.slice().reverse();
   } else {
     const colIdx = type === 'oficina' ? COL.OFICINA : COL.POSICION;
-    drillBaseRows = allRows.filter(row => (row[colIdx] || '').trim() === value);
+    drillBaseRows = baseSource.filter(row => (row[colIdx] || '').trim() === value);
   }
 
   const typeLabels = { oficina: 'Oficina', posicion: 'Posición', situacion: 'Situación', reciente: 'Actividad reciente' };
-  document.getElementById('drillTitle').textContent = type === 'reciente' ? 'Actividad reciente' : typeLabels[type] + ': ' + value;
+  const timeLabel = dashWeekFilter ? ` · ${getWeekLabel(dashWeekFilter)}` : dashMonthFilter >= 0 ? ` · ${WK_MESFULL[dashMonthFilter]}` : '';
+  document.getElementById('drillTitle').textContent = (type === 'reciente' ? 'Actividad reciente' : typeLabels[type] + ': ' + value) + timeLabel;
   const subtitles = { oficina: 'Candidatos filtrados por oficina', posicion: 'Candidatos filtrados por posicion', situacion: 'Candidatos filtrados por estado', reciente: 'Ultimos candidatos registrados' };
   document.getElementById('drillSubtitle').textContent = subtitles[type] || 'Detalle filtrado por grupo';
 
@@ -3621,11 +3625,12 @@ function dashDrillDown(type, value) {
     weekSel.innerHTML += `<option value="${wk}">${getWeekLabel(wk)} (${weekMap[wk]})</option>`;
   });
 
+  // Carry over dashboard time filter to drill-down
+  drillCalWeekFilter = dashWeekFilter;
+  drillCalMonthFilter = dashMonthFilter;
+
   // Pre-select situacion filter if entering via stat card
   document.getElementById('drillFilterSit').value = type === 'situacion' ? value : '';
-  weekSel.value = '';
-  drillCalWeekFilter = '';
-  drillCalMonthFilter = -1;
   document.getElementById('btnDrillClear').classList.toggle('hidden', type !== 'situacion');
 
   buildDrillWeeks();
