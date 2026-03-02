@@ -4911,10 +4911,22 @@ function loadSMTPConfig() {
 
 function sendEmail(to, subject, html) {
   const smtp = JSON.parse(localStorage.getItem('lacasa_master_smtp') || '{}');
-  return apiCall({
-    action: 'send_email', to, subject, html,
+  const body = {
+    action: 'send_email', to, subject, html, token: API_TOKEN,
     smtp_host: smtp.host || '', smtp_port: smtp.port || '587',
     smtp_user: smtp.user || '', smtp_pass: smtp.pass || ''
+  };
+  // Direct fetch — no session check (used from forgot-password screen too)
+  return fetch(WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(resp => {
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return resp.json();
+  }).then(data => {
+    if (data.error) throw new Error(data.error);
+    return data;
   });
 }
 
