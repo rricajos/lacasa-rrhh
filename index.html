@@ -542,6 +542,31 @@ tailwind.config = { theme: { extend: {
   body.dark footer { border-color: #1e293b !important; }
   body.dark footer a { color: #64748b; }
   body.dark footer a:hover { color: #94a3b8; }
+
+  /* Dark mode: Gray buttons (Restablecer, Cancelar) */
+  body.dark .bg-gray-200 { background-color: #334155 !important; }
+  body.dark .bg-gray-300 { background-color: #475569 !important; }
+  body.dark .hover\:bg-gray-300:hover { background-color: #475569 !important; }
+
+  /* Dark mode: Profile avatar */
+  body.dark .profile-avatar { border-color: #475569; }
+  body.dark .profile-avatar-placeholder { background: rgba(59,130,246,0.1); border-color: #475569; }
+
+  /* Dark mode: Data tab filters */
+  body.dark .bg-gray-50\/80 { background-color: rgba(30,41,59,0.8) !important; }
+  body.dark .bg-gray-50\/50 { background-color: rgba(30,41,59,0.5) !important; }
+
+  /* Dark mode: Campaigns tab */
+  body.dark .bg-gradient-to-br { background-image: none !important; background-color: #1e293b !important; }
+  body.dark .bg-slate-50 { background-color: #1e293b !important; }
+  body.dark .border-slate-200 { border-color: #334155 !important; }
+  body.dark .text-slate-600 { color: #cbd5e1 !important; }
+  body.dark .text-slate-700 { color: #e2e8f0 !important; }
+
+  /* Dark mode: Table rows */
+  body.dark tr:hover td { background-color: rgba(51,65,85,0.3) !important; }
+  body.dark .border-t { border-color: #334155; }
+  body.dark .border-b { border-color: #334155; }
 </style>
 </head>
 <body class="min-h-screen">
@@ -731,7 +756,6 @@ tailwind.config = { theme: { extend: {
         <span id="headerUserName"></span>
       </button>
     </nav>
-    <img id="headerAvatar" class="hidden" src="" alt="">
     <!-- Session + logout -->
     <div class="flex items-center gap-1.5 flex-shrink-0">
       <button onclick="doLogout()" class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-600 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition tabular-nums" title="Cerrar sesión" aria-label="Cerrar sesión">
@@ -2355,7 +2379,6 @@ function doLogout(reason) {
   document.querySelectorAll('.nav-tab[data-tab="master"]').forEach(e => e.remove());
   document.getElementById('currentUserLabel').classList.add('hidden');
   document.getElementById('headerUserName').textContent = '';
-  document.getElementById('headerAvatar').classList.add('hidden');
   applyTheme('default');
   applyAppearance('auto');
   driveFilesLoaded = false;
@@ -5604,10 +5627,7 @@ function removeProfilePhoto() {
 }
 
 function loadProfileAvatar() {
-  const photo = getUserPref('avatar');
-  const headerImg = document.getElementById('headerAvatar');
-  if (photo && headerImg) { headerImg.src = photo; headerImg.classList.remove('hidden'); }
-  else if (headerImg) { headerImg.classList.add('hidden'); }
+  // Avatar only shown in profile card, not in nav header
 }
 
 const THEMES = {
