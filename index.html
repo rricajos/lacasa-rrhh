@@ -2586,17 +2586,26 @@ function fileToBase64(file) {
 }
 
 async function extractCVWithOpenAI(base64, fileName, apiKey) {
-  const prompt = `Analiza este CV en PDF y extrae los siguientes datos en formato JSON estricto.
-Si un campo no se encuentra, deja string vacío. Responde SOLO con JSON, sin markdown.
+  const prompt = `Analiza este CV y extrae SOLO datos que aparezcan EXPLÍCITAMENTE escritos en el documento.
+REGLAS ESTRICTAS:
+- NO inventes, NO supongas, NO deduzcas datos que no estén escritos literalmente.
+- Si un dato NO aparece escrito en el CV, devuelve string vacío "".
+- Para RESIDENCIA: busca la dirección/localidad/ciudad que aparezca en los datos personales del candidato (campo "Dirección", "Domicilio", "Ciudad", "Localidad"). Extrae SOLO la ciudad/localidad, no la dirección completa. Si dice "Barcelona" pon "Barcelona", si dice "Santa Coloma de Gramenet, Barcelona" pon "Santa Coloma de Gramenet". NO confundas la ubicación de la empresa donde trabajó con su residencia personal.
+- Para TELÉFONO: extrae el número que aparezca en datos de contacto del candidato.
+- Para CORREO: extrae el email de contacto del candidato.
+- Para POSICIÓN: extrae el último puesto de trabajo que tuvo o el puesto al que aplica si se indica.
+- Para FUENTE: solo si aparece un logo o mención explícita (InfoJobs, LinkedIn, Indeed, etc).
+
+Responde SOLO con JSON válido, sin markdown ni texto adicional:
 {
-  "nombre": "nombre completo",
-  "telefono": "número de teléfono",
-  "correo": "email",
-  "residencia": "ciudad o localidad de residencia",
-  "posicion": "puesto al que podría aplicar o último puesto",
-  "formato": "formato del CV (Europass, libre, etc)",
-  "fuente": "fuente si se menciona (InfoJobs, LinkedIn, etc)",
-  "comentarios": "resumen breve de experiencia en 1 línea"
+  "nombre": "",
+  "telefono": "",
+  "correo": "",
+  "residencia": "",
+  "posicion": "",
+  "formato": "",
+  "fuente": "",
+  "comentarios": ""
 }`;
 
   // Use OpenAI with file upload via Responses API
@@ -2607,7 +2616,7 @@ Si un campo no se encuentra, deja string vacío. Responde SOLO con JSON, sin mar
     body: JSON.stringify({
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: 'Eres un asistente de RRHH experto en analizar CVs. Extrae datos estructurados.' },
+        { role: 'system', content: 'Eres un extractor de datos de CVs. Tu trabajo es extraer SOLO información que aparezca EXPLÍCITAMENTE escrita en el documento. NUNCA inventes ni deduzcas datos. Si un campo no aparece escrito literalmente, devuelve string vacío. Es preferible dejar un campo vacío a poner un dato incorrecto.' },
         { role: 'user', content: [
           { type: 'text', text: prompt },
           { type: 'image_url', image_url: { url: 'data:application/pdf;base64,' + base64 } }
@@ -4224,10 +4233,12 @@ async function cvSplitAiFill() {
     let updated = 0;
     for (const [extKey, colKey] of Object.entries(fieldMap)) {
       const val = (extracted[extKey] || '').trim();
-      if (val && EDITABLE_FIELDS.includes(colKey)) {
-        row[COL[colKey]] = val;
-        try { await updateField(colKey, sheetRow, val); updated++; } catch {}
-      }
+      if (!val || !EDITABLE_FIELDS.includes(colKey)) continue;
+      // Only fill empty fields — never overwrite existing data
+      const current = (row[COL[colKey]] || '').trim();
+      if (current && current !== '-') continue;
+      row[COL[colKey]] = val;
+      try { await updateField(colKey, sheetRow, val); updated++; } catch {}
     }
     renderModal();
     await animateModalFields();
