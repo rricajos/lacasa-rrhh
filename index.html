@@ -635,6 +635,44 @@ tailwind.config = { theme: { extend: {
   body.dark [class*="hover:bg-gray-50"]:hover { background-color: rgba(51,65,85,0.4) !important; }
   body.dark [class*="hover:bg-brand-50"]:hover { background-color: rgba(59,130,246,0.12) !important; }
 
+  /* Dark mode: CV file items (Drive browser) */
+  body.dark .cv-file-item { background: rgba(30,41,59,0.6); border-color: #334155; color: #cbd5e1; }
+  body.dark .cv-file-item:hover { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.25); }
+  body.dark .cv-file-pdf { background: rgba(239,68,68,0.12); color: #f87171; }
+  body.dark .cv-file-sheet { background: rgba(16,185,129,0.12); color: #34d399; }
+  body.dark .cv-file-folder { background: rgba(59,130,246,0.12); color: #60a5fa; }
+  body.dark .cv-file-other { background: rgba(51,65,85,0.5); color: #94a3b8; }
+
+  /* Dark mode: Table */
+  body.dark table { color: #e2e8f0; }
+  body.dark thead { background: rgba(15,23,42,0.6) !important; color: #94a3b8 !important; }
+  body.dark th { color: #94a3b8 !important; }
+  body.dark td { border-color: #1e293b; }
+  body.dark tbody tr { border-color: #1e293b; }
+  body.dark tbody tr:hover td { background: rgba(51,65,85,0.3) !important; }
+
+  /* Dark mode: Sortable headers */
+  body.dark .sortable:hover { color: #e2e8f0 !important; }
+
+  /* Dark mode: Data tab stats cards */
+  body.dark #dataTabStats .stat-card { color: #e2e8f0; }
+  body.dark #dataTabStats .stat-card p { color: inherit; }
+
+  /* Dark mode: Pagination footer */
+  body.dark .pagination-bar { background: rgba(15,23,42,0.5); color: #94a3b8; }
+
+  /* Dark mode: Colored stat text */
+  body.dark .text-emerald-700 { color: #34d399 !important; }
+  body.dark .text-emerald-600 { color: #34d399 !important; }
+  body.dark .text-emerald-500 { color: #6ee7b7 !important; }
+  body.dark .text-amber-700 { color: #fbbf24 !important; }
+  body.dark .text-amber-600 { color: #fbbf24 !important; }
+  body.dark .text-red-600 { color: #f87171 !important; }
+  body.dark .text-red-500 { color: #f87171 !important; }
+  body.dark .bg-amber-50 { background-color: rgba(245,158,11,0.12) !important; }
+  body.dark .border-amber-200 { border-color: rgba(245,158,11,0.3) !important; }
+  body.dark .bg-red-100\/70, body.dark [class*="bg-red-100"] { background-color: rgba(239,68,68,0.12) !important; }
+
   /* Dark mode: CV Comparison modal */
   body.dark .dup-compare-panel { background: #1e293b; box-shadow: -4px 0 24px rgba(0,0,0,0.3); }
   body.dark .dup-compare-body { background: #0f172a; }
