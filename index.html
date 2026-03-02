@@ -218,11 +218,11 @@ tailwind.config = { theme: { extend: {
   @media (max-width: 767px) {
     .header-nav { display: none !important; }
     #bottomNav { display: block !important; }
-    body.logged-in { padding-bottom: 72px; }
+    body.logged-in { padding-bottom: 76px; }
   }
   /* Bottom nav mobile: icon above text, full width */
-  #bottomNav .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 0; font-size: 10px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s; border-radius: 0; flex: 1; white-space: nowrap; }
-  #bottomNav .nav-tab svg { width: 22px; height: 22px; }
+  #bottomNav .nav-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0 6px; font-size: 11px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: color 0.15s; border-radius: 0; flex: 1; white-space: nowrap; }
+  #bottomNav .nav-tab svg { width: 24px; height: 24px; }
   #bottomNav .nav-tab.active { color: #2563eb; }
   @media (min-width: 768px) {
     #bottomNav { display: none !important; }
@@ -729,12 +729,12 @@ tailwind.config = { theme: { extend: {
 
 <!-- Header -->
 <header class="glass-blur border-b border-gray-200/50">
-  <div class="page-container py-2 flex items-center justify-between gap-3">
+  <div class="page-container py-3 sm:py-2 flex items-center justify-between gap-3">
     <!-- Logo — click to reload -->
     <div class="header-logo flex items-center gap-2.5 flex-shrink-0" onclick="loadData()" title="Actualizar datos">
       <div>
-        <h1 class="text-sm sm:text-base font-bold text-gray-800 leading-tight">La Casa Agency</h1>
-        <p id="headerSubtitle" class="text-[10px] sm:text-xs text-gray-400 transition-all duration-300">Panel de recursos humanos</p>
+        <h1 class="text-base sm:text-lg font-bold text-gray-800 leading-tight">La Casa Agency</h1>
+        <p id="headerSubtitle" class="text-xs text-gray-400 transition-all duration-300">Panel de recursos humanos</p>
       </div>
     </div>
     <!-- Nav tabs (desktop inline) -->
@@ -1765,8 +1765,8 @@ tailwind.config = { theme: { extend: {
 </div>
 
 <!-- ==================== FOOTER ==================== -->
-<footer id="appFooter" class="hidden border-t border-gray-200 bg-white pb-20 md:pb-0">
-  <div class="footer-animated page-container py-6">
+<footer id="appFooter" class="hidden border-t border-gray-200 bg-white">
+  <div class="footer-animated page-container py-4 sm:py-6">
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-4">
         <img src="lacasa_iso_light.png" alt="La Casa" class="w-10 h-10 rounded-xl shadow-md header-logo-light">
