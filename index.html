@@ -472,6 +472,20 @@ tailwind.config = { theme: { extend: {
   body.dark.theme-amber .header-nav .nav-tab.active { background: rgba(217,119,6,0.15); }
   body.dark.theme-violet .header-nav .nav-tab.active, body.dark.theme-violet #bottomNav .nav-tab.active { color: #a78bfa; }
   body.dark.theme-violet .header-nav .nav-tab.active { background: rgba(124,58,237,0.15); }
+
+  /* AutoOrganizar */
+  .dup-pair { border-left: 3px solid #f59e0b; padding: 8px 12px; border-radius: 8px; background: #fffbeb; }
+  .dup-pair.dup-selected { border-left-color: #ef4444; background: #fef2f2; }
+  .dup-pair .dup-score { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 9999px; }
+  .dup-pair .dup-score.high { background: #fee2e2; color: #dc2626; }
+  .dup-pair .dup-score.medium { background: #fef3c7; color: #d97706; }
+  body.dark .dup-pair { background: rgba(251,191,36,0.08); border-left-color: #b45309; }
+  body.dark .dup-pair.dup-selected { background: rgba(239,68,68,0.1); border-left-color: #ef4444; }
+  body.dark #autoOrganizarModal .modal-panel,
+  body.dark #backupModal .modal-panel { background: #1e293b; }
+  body.dark #backupDropZone { border-color: #475569; }
+  body.dark #backupDropZone:hover { border-color: #f97316; background: rgba(249,115,22,0.05); }
+  body.dark #backupPreview { background: rgba(249,115,22,0.08); border-color: #c2410c; }
 </style>
 </head>
 <body class="min-h-screen">
@@ -1044,6 +1058,14 @@ tailwind.config = { theme: { extend: {
       </div>
     </div>
     <div class="hero-actions">
+      <button onclick="openAutoOrganizar()" class="btn btn-sm bg-slate-700 text-white hover:bg-slate-800 role-admin" title="AutoOrganizar">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        <span class="hidden sm:inline">AutoOrganizar</span>
+      </button>
+      <button onclick="openBackupPanel()" class="btn btn-sm bg-slate-700 text-white hover:bg-slate-800 role-admin" title="Copias de seguridad">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        <span class="hidden sm:inline">Copias</span>
+      </button>
       <button onclick="document.getElementById('cvFileInput').click()" class="btn btn-sm bg-slate-700 text-white hover:bg-slate-800" title="Subir CVs">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
         <span class="hidden sm:inline">Subir CV</span>
@@ -1806,6 +1828,144 @@ tailwind.config = { theme: { extend: {
   </div>
 </div>
 
+<!-- ==================== AUTO-ORGANIZAR PANEL ==================== -->
+<div id="autoOrganizarModal" class="fixed inset-0 z-40 hidden">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAutoOrganizar()"></div>
+  <div class="modal-panel absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl overflow-y-auto">
+    <div class="sticky top-0 z-10 glass-blur border-b border-gray-200/50 px-6 py-4 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-bold text-gray-900">AutoOrganizar</h2>
+        <p class="text-xs text-gray-500">Organizar CVs sin fecha y detectar duplicados</p>
+      </div>
+      <button onclick="closeAutoOrganizar()" class="btn-icon hover:bg-gray-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-6">
+      <!-- Sección 1: CVs sin organizar -->
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <h3 class="font-semibold text-gray-900">CVs sin fecha</h3>
+            <span id="aoUnorgCount" class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">0</span>
+          </div>
+          <button onclick="aoMoveToCurrentWeek()" id="aoMoveBtn" class="btn btn-sm bg-amber-500 text-white hover:bg-amber-600 hidden">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Mover a semana actual
+          </button>
+        </div>
+        <div id="aoUnorgList" class="space-y-1 max-h-60 overflow-y-auto">
+          <p class="text-sm text-gray-400 italic">Escaneando...</p>
+        </div>
+      </div>
+      <!-- Sección 2: Duplicados -->
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <h3 class="font-semibold text-gray-900">Duplicados</h3>
+            <span id="aoDupCount" class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">0</span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="aoDuplicateScan()" id="aoDupScanBtn" class="btn btn-sm bg-slate-600 text-white hover:bg-slate-700">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              Escanear
+            </button>
+            <button onclick="aoDeleteSelectedDups()" id="aoDupDelBtn" class="btn btn-sm bg-red-500 text-white hover:bg-red-600 hidden">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              Eliminar seleccionados
+            </button>
+          </div>
+        </div>
+        <div id="aoDupList" class="space-y-2 max-h-80 overflow-y-auto">
+          <p class="text-sm text-gray-400 italic">Pulsa "Escanear" para buscar duplicados</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== COPIAS DE SEGURIDAD PANEL ==================== -->
+<div id="backupModal" class="fixed inset-0 z-40 hidden">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeBackupPanel()"></div>
+  <div class="modal-panel absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl overflow-y-auto">
+    <div class="sticky top-0 z-10 glass-blur border-b border-gray-200/50 px-6 py-4 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-bold text-gray-900">Copias de seguridad</h2>
+        <p class="text-xs text-gray-500">Descarga, restaura y gestiona backups de datos</p>
+      </div>
+      <button onclick="closeBackupPanel()" class="btn-icon hover:bg-gray-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-6">
+      <!-- Crear copia -->
+      <div class="card p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <h3 class="font-semibold text-gray-900">Crear copia</h3>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="backupDownloadJSON()" class="card p-4 text-center hover:shadow-md transition-shadow cursor-pointer border-2 border-transparent hover:border-green-300">
+            <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <p class="font-medium text-sm">JSON completo</p>
+            <p class="text-xs text-gray-400 mt-1">Todos los datos + metadata</p>
+          </button>
+          <button onclick="backupDownloadCSV()" class="card p-4 text-center hover:shadow-md transition-shadow cursor-pointer border-2 border-transparent hover:border-blue-300">
+            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </div>
+            <p class="font-medium text-sm">CSV completo</p>
+            <p class="text-xs text-gray-400 mt-1">26 columnas, compatible Excel</p>
+          </button>
+        </div>
+      </div>
+      <!-- Restaurar -->
+      <div class="card p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m4-8l-4-4m0 0L13 8m4-4v12"/></svg>
+          <h3 class="font-semibold text-gray-900">Restaurar</h3>
+        </div>
+        <div id="backupDropZone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-orange-400 hover:bg-orange-50/50 transition-colors"
+             onclick="document.getElementById('backupFileInput').click()"
+             ondragover="event.preventDefault();this.classList.add('border-orange-400','bg-orange-50/50')"
+             ondragleave="this.classList.remove('border-orange-400','bg-orange-50/50')"
+             ondrop="event.preventDefault();this.classList.remove('border-orange-400','bg-orange-50/50');handleBackupDrop(event.dataTransfer.files)">
+          <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          <p class="text-sm text-gray-500">Arrastra un archivo <strong>.json</strong> o haz clic</p>
+          <p class="text-xs text-gray-400 mt-1">Solo backups generados por esta aplicación</p>
+        </div>
+        <input type="file" id="backupFileInput" accept=".json" class="hidden" onchange="handleBackupDrop(this.files)">
+        <!-- Preview zone -->
+        <div id="backupPreview" class="hidden mt-4 card p-4 border-2 border-orange-300 bg-orange-50/50">
+          <h4 class="font-semibold text-sm mb-2">Vista previa del backup</h4>
+          <div id="backupPreviewInfo" class="text-xs text-gray-600 space-y-1"></div>
+          <div class="flex gap-2 mt-3">
+            <button onclick="executeRestore()" class="btn btn-sm bg-orange-500 text-white hover:bg-orange-600">Restaurar datos</button>
+            <button onclick="cancelRestore()" class="btn btn-sm bg-gray-200 text-gray-700 hover:bg-gray-300">Cancelar</button>
+          </div>
+        </div>
+      </div>
+      <!-- Historial -->
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <h3 class="font-semibold text-gray-900">Historial</h3>
+          </div>
+          <button onclick="backupClearHistory()" class="text-xs text-gray-400 hover:text-red-500 transition-colors">Limpiar</button>
+        </div>
+        <div id="backupHistoryList" class="space-y-1 max-h-48 overflow-y-auto">
+          <p class="text-sm text-gray-400 italic">Sin copias previas</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Bottom Nav (mobile) -->
 <nav id="bottomNav" class="glass-blur fixed bottom-0 left-0 right-0 border-t border-gray-200/50 z-30 pb-[env(safe-area-inset-bottom)]" style="display:none">
   <div class="flex py-1">
@@ -1968,6 +2128,10 @@ let cvSplitCurrentFileId = null;
 let cvSplitLocalBase64 = null;
 let editingCampaignId = null;
 let campChannel = 'whatsapp';
+let aoUnorganized = [];
+let aoDuplicates = [];
+let aoSelectedDups = new Set();
+let backupRestoreData = null;
 
 // ==================== TAB NAVIGATION ====================
 const _tabCache = {};
@@ -4722,11 +4886,334 @@ async function sendWAViaOmnia(omnia, r) {
   return await resp.json();
 }
 
+// ==================== AUTO-ORGANIZAR ====================
+function openAutoOrganizar() {
+  if (!hasRole('admin')) { toast('Sin permisos', 'error'); return; }
+  const m = document.getElementById('autoOrganizarModal');
+  m.classList.remove('hidden'); m.style.display = 'flex';
+  aoScanUnorganized();
+}
+function closeAutoOrganizar() {
+  const m = document.getElementById('autoOrganizarModal');
+  m.style.display = 'none'; m.classList.add('hidden');
+}
+function aoScanUnorganized() {
+  aoUnorganized = [];
+  allRows.forEach((r, i) => {
+    const fecha = (r[COL.FECHA] || '').trim();
+    const nombre = (r[COL.NOMBRE] || '').trim();
+    if (nombre && !fecha) aoUnorganized.push({ idx: i, nombre, oficina: r[COL.OFICINA] || '' });
+  });
+  renderAoUnorganized();
+}
+function renderAoUnorganized() {
+  const el = document.getElementById('aoUnorgList');
+  const cnt = document.getElementById('aoUnorgCount');
+  const btn = document.getElementById('aoMoveBtn');
+  cnt.textContent = aoUnorganized.length;
+  btn.classList.toggle('hidden', aoUnorganized.length === 0);
+  if (!aoUnorganized.length) { el.innerHTML = '<p class="text-sm text-gray-400 italic">Todos los CVs tienen fecha asignada</p>'; return; }
+  el.innerHTML = aoUnorganized.map(u =>
+    `<div class="flex items-center justify-between py-1.5 px-2 rounded hover:bg-gray-50 text-sm">
+      <span class="font-medium text-gray-700 truncate">${u.nombre}</span>
+      <span class="text-xs text-gray-400 shrink-0 ml-2">${u.oficina}</span>
+    </div>`
+  ).join('');
+}
+async function aoMoveToCurrentWeek() {
+  if (!aoUnorganized.length) return;
+  const ok = await showConfirm(`Asignar fecha de hoy a ${aoUnorganized.length} candidato(s) sin fecha?`);
+  if (!ok) return;
+  const now = new Date();
+  const fecha = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+  const MES_N = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const mes = MES_N[now.getMonth()];
+  let ok2 = 0, fail = 0;
+  for (const u of aoUnorganized) {
+    try {
+      const sr = u.idx + 2;
+      await apiCall({ action: 'update_cell', range: `F${sr}`, value: fecha });
+      await apiCall({ action: 'update_cell', range: `A${sr}`, value: mes });
+      allRows[u.idx][COL.FECHA] = fecha;
+      allRows[u.idx][COL.MES] = mes;
+      ok2++;
+    } catch { fail++; }
+  }
+  toast(`${ok2} candidato(s) actualizados` + (fail ? `, ${fail} errores` : ''), fail ? 'warning' : 'success');
+  aoScanUnorganized();
+  renderTable();
+}
+
+// Jaro-Winkler similarity
+function jaroWinkler(s1, s2) {
+  if (s1 === s2) return 1.0;
+  const l1 = s1.length, l2 = s2.length;
+  if (!l1 || !l2) return 0.0;
+  const range = Math.max(0, Math.floor(Math.max(l1, l2) / 2) - 1);
+  const m1 = new Array(l1).fill(false), m2 = new Array(l2).fill(false);
+  let matches = 0, transpositions = 0;
+  for (let i = 0; i < l1; i++) {
+    const lo = Math.max(0, i - range), hi = Math.min(i + range + 1, l2);
+    for (let j = lo; j < hi; j++) {
+      if (m2[j] || s1[i] !== s2[j]) continue;
+      m1[i] = m2[j] = true; matches++; break;
+    }
+  }
+  if (!matches) return 0.0;
+  let k = 0;
+  for (let i = 0; i < l1; i++) {
+    if (!m1[i]) continue;
+    while (!m2[k]) k++;
+    if (s1[i] !== s2[k]) transpositions++;
+    k++;
+  }
+  const jaro = (matches/l1 + matches/l2 + (matches - transpositions/2)/matches) / 3;
+  let prefix = 0;
+  for (let i = 0; i < Math.min(4, Math.min(l1, l2)); i++) {
+    if (s1[i] === s2[i]) prefix++; else break;
+  }
+  return jaro + prefix * 0.1 * (1 - jaro);
+}
+function normalizeName(n) {
+  return (n || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z\s]/g, '').trim().replace(/\s+/g, ' ');
+}
+
+async function aoDuplicateScan() {
+  const btn = document.getElementById('aoDupScanBtn');
+  btn.disabled = true; btn.innerHTML = '<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Escaneando...';
+  aoDuplicates = [];
+  aoSelectedDups = new Set();
+  const names = allRows.map((r, i) => ({ idx: i, raw: (r[COL.NOMBRE]||'').trim(), norm: normalizeName(r[COL.NOMBRE]) })).filter(n => n.raw);
+  const pairs = [];
+  for (let i = 0; i < names.length; i++) {
+    for (let j = i + 1; j < names.length; j++) {
+      const score = jaroWinkler(names[i].norm, names[j].norm);
+      if (score >= 0.70) pairs.push({ a: names[i], b: names[j], score });
+    }
+  }
+  // Auto-flag >=0.90, IA confirm 0.70-0.90
+  const autoFlagged = pairs.filter(p => p.score >= 0.90);
+  const needsAI = pairs.filter(p => p.score >= 0.70 && p.score < 0.90);
+  aoDuplicates = autoFlagged.map(p => ({ ...p, confirmed: true }));
+  if (needsAI.length > 0) {
+    try {
+      const pairTexts = needsAI.map((p, i) => `${i}: "${p.a.raw}" vs "${p.b.raw}" (${(p.score*100).toFixed(0)}%)`).join('\n');
+      const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('lacasa_openai_key') || '') },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: 'Eres un detector de nombres duplicados. Para cada par, responde SOLO con el índice seguido de SI o NO. Ejemplo: "0:SI\\n1:NO". Un duplicado es cuando ambos nombres se refieren a la misma persona (variaciones de escritura, apodos, con/sin segundo apellido).' },
+            { role: 'user', content: pairTexts }
+          ],
+          temperature: 0
+        })
+      });
+      const data = await resp.json();
+      const lines = (data.choices?.[0]?.message?.content || '').split('\n');
+      lines.forEach(line => {
+        const m = line.match(/^(\d+)\s*:\s*(SI|SÍ|YES)/i);
+        if (m) {
+          const idx = parseInt(m[1]);
+          if (idx < needsAI.length) aoDuplicates.push({ ...needsAI[idx], confirmed: true });
+        }
+      });
+    } catch (e) {
+      // If AI fails, include medium-high pairs anyway
+      needsAI.filter(p => p.score >= 0.80).forEach(p => aoDuplicates.push({ ...p, confirmed: false }));
+    }
+  }
+  aoDuplicates.sort((a, b) => b.score - a.score);
+  btn.disabled = false;
+  btn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg> Escanear';
+  renderAoDuplicates();
+  toast(`${aoDuplicates.length} posible(s) duplicado(s) encontrados`, aoDuplicates.length ? 'warning' : 'success');
+}
+function renderAoDuplicates() {
+  const el = document.getElementById('aoDupList');
+  const cnt = document.getElementById('aoDupCount');
+  const delBtn = document.getElementById('aoDupDelBtn');
+  cnt.textContent = aoDuplicates.length;
+  delBtn.classList.toggle('hidden', aoSelectedDups.size === 0);
+  if (!aoDuplicates.length) { el.innerHTML = '<p class="text-sm text-gray-400 italic">No se encontraron duplicados</p>'; return; }
+  el.innerHTML = aoDuplicates.map((d, i) => {
+    const sel = aoSelectedDups.has(i);
+    const scoreClass = d.score >= 0.90 ? 'high' : 'medium';
+    return `<div class="dup-pair ${sel ? 'dup-selected' : ''}" onclick="aoToggleDup(${i})">
+      <div class="flex items-center gap-2">
+        <input type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation();aoToggleDup(${i})" class="rounded">
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-gray-800 truncate">${d.a.raw}</div>
+          <div class="text-sm text-gray-500 truncate">↔ ${d.b.raw}</div>
+        </div>
+        <span class="dup-score ${scoreClass}">${(d.score*100).toFixed(0)}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function aoToggleDup(i) {
+  if (aoSelectedDups.has(i)) aoSelectedDups.delete(i); else aoSelectedDups.add(i);
+  renderAoDuplicates();
+}
+async function aoDeleteSelectedDups() {
+  if (!aoSelectedDups.size) return;
+  const ok = await showConfirm(`Eliminar el registro más nuevo de ${aoSelectedDups.size} par(es) duplicado(s)?`);
+  if (!ok) return;
+  const rowsToDelete = new Set();
+  aoSelectedDups.forEach(i => {
+    const d = aoDuplicates[i];
+    if (!d) return;
+    // Delete the newer one (higher index = added later)
+    rowsToDelete.add(Math.max(d.a.idx, d.b.idx));
+  });
+  const sorted = [...rowsToDelete].sort((a, b) => b - a);
+  try {
+    const sheetRows = sorted.map(i => i + 2);
+    await apiCall({ action: 'delete_rows', rows: sheetRows });
+    sorted.forEach(i => allRows.splice(i, 1));
+    toast(`${sorted.length} duplicado(s) eliminados`, 'success');
+    aoDuplicates = []; aoSelectedDups = new Set();
+    renderAoDuplicates();
+    renderTable();
+  } catch (e) { toast('Error al eliminar: ' + e.message, 'error'); }
+}
+
+// ==================== COPIAS DE SEGURIDAD ====================
+function openBackupPanel() {
+  if (!hasRole('admin')) { toast('Sin permisos', 'error'); return; }
+  const m = document.getElementById('backupModal');
+  m.classList.remove('hidden'); m.style.display = 'flex';
+  renderBackupHistory();
+}
+function closeBackupPanel() {
+  const m = document.getElementById('backupModal');
+  m.style.display = 'none'; m.classList.add('hidden');
+  cancelRestore();
+}
+function backupDownloadJSON() {
+  const data = {
+    _meta: { version: 1, timestamp: new Date().toISOString(), user: currentUser?.nombre || 'unknown', rowCount: allRows.length, app: 'LaCasa-RRHH' },
+    headers: Object.keys(COL),
+    rows: allRows
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `lacasa-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  addBackupToHistory('JSON', allRows.length);
+  toast('Backup JSON descargado', 'success');
+}
+function backupDownloadCSV() {
+  const colKeys = Object.keys(COL);
+  const labels = colKeys.map(k => COL_LABELS[k] || k);
+  const lines = [labels.join(',')];
+  allRows.forEach(row => {
+    lines.push(colKeys.map(k => {
+      const v = (row[COL[k]] || '').toString().replace(/"/g, '""');
+      return `"${v}"`;
+    }).join(','));
+  });
+  const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `lacasa-backup-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  addBackupToHistory('CSV', allRows.length);
+  toast('Backup CSV descargado (26 columnas)', 'success');
+}
+function addBackupToHistory(format, count) {
+  const hist = JSON.parse(localStorage.getItem('lacasa_backup_history') || '[]');
+  hist.unshift({ format, count, date: new Date().toISOString(), user: currentUser?.nombre || '?' });
+  if (hist.length > 20) hist.length = 20;
+  localStorage.setItem('lacasa_backup_history', JSON.stringify(hist));
+  renderBackupHistory();
+}
+function renderBackupHistory() {
+  const el = document.getElementById('backupHistoryList');
+  const hist = JSON.parse(localStorage.getItem('lacasa_backup_history') || '[]');
+  if (!hist.length) { el.innerHTML = '<p class="text-sm text-gray-400 italic">Sin copias previas</p>'; return; }
+  el.innerHTML = hist.map(h => {
+    const d = new Date(h.date);
+    const dateStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return `<div class="flex items-center justify-between py-1.5 px-2 rounded hover:bg-gray-50 text-sm">
+      <div>
+        <span class="font-medium">${dateStr}</span>
+        <span class="text-xs ml-2 px-1.5 py-0.5 rounded ${h.format==='JSON'?'bg-green-100 text-green-700':'bg-blue-100 text-blue-700'}">${h.format}</span>
+      </div>
+      <span class="text-xs text-gray-400">${h.count} filas · ${h.user}</span>
+    </div>`;
+  }).join('');
+}
+function backupClearHistory() {
+  localStorage.removeItem('lacasa_backup_history');
+  renderBackupHistory();
+  toast('Historial limpiado', 'info');
+}
+function handleBackupDrop(files) {
+  if (!files || !files.length) return;
+  const file = files[0];
+  if (!file.name.endsWith('.json')) { toast('Solo archivos .json', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data._meta || !data.rows || !Array.isArray(data.rows)) throw new Error('Formato inválido');
+      if (data._meta.app !== 'LaCasa-RRHH') throw new Error('Este backup no es de LaCasa-RRHH');
+      backupRestoreData = data;
+      const info = document.getElementById('backupPreviewInfo');
+      const d = new Date(data._meta.timestamp);
+      const dateStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      info.innerHTML = `
+        <p><strong>Fecha:</strong> ${dateStr}</p>
+        <p><strong>Usuario:</strong> ${data._meta.user}</p>
+        <p><strong>Filas:</strong> ${data.rows.length}</p>
+        <p class="text-orange-600 font-semibold mt-2">Esto reemplazará TODOS los datos actuales (${allRows.length} filas)</p>`;
+      document.getElementById('backupPreview').classList.remove('hidden');
+    } catch (e) { toast('Error: ' + e.message, 'error'); }
+  };
+  reader.readAsText(file);
+}
+async function executeRestore() {
+  if (!backupRestoreData) return;
+  const ok1 = await showConfirm(`Restaurar ${backupRestoreData.rows.length} filas? Se eliminarán los ${allRows.length} datos actuales.`);
+  if (!ok1) return;
+  const ok2 = await showConfirm('CONFIRMACIÓN FINAL: Esta acción es IRREVERSIBLE. ¿Continuar?');
+  if (!ok2) return;
+  try {
+    toast('Restaurando... no cierres la pestaña', 'info');
+    // Delete all current rows
+    if (allRows.length > 0) {
+      const delRows = allRows.map((_, i) => i + 2);
+      await apiCall({ action: 'delete_rows', rows: delRows }, { timeout: 60000 });
+    }
+    // Write backup rows in batches
+    const batchSize = 50;
+    for (let i = 0; i < backupRestoreData.rows.length; i += batchSize) {
+      const batch = backupRestoreData.rows.slice(i, i + batchSize);
+      for (const row of batch) {
+        await apiCall({ action: 'update_cell', range: `A${i + 2 + batch.indexOf(row)}`, value: row }, { timeout: 20000 });
+      }
+    }
+    toast('Datos restaurados correctamente. Recargando...', 'success');
+    addBackupToHistory('RESTORE', backupRestoreData.rows.length);
+    backupRestoreData = null;
+    setTimeout(() => location.reload(), 1500);
+  } catch (e) { toast('Error al restaurar: ' + e.message, 'error'); }
+}
+function cancelRestore() {
+  backupRestoreData = null;
+  document.getElementById('backupPreview')?.classList.add('hidden');
+  const input = document.getElementById('backupFileInput');
+  if (input) input.value = '';
+}
+
 // Keyboard
 document.addEventListener('keydown',e=>{
   // Ctrl+K / Cmd+K → focus search (works even when input is focused)
   if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();const s=document.getElementById('filterSearch');if(s){s.focus();s.select();}return;}
-  if(e.key==='Escape'){if(aiPanelOpen){toggleAIPanel();return;}if(document.getElementById('campaignModal').style.display==='flex')closeCampaignModal();else closeModal();}
+  if(e.key==='Escape'){if(aiPanelOpen){toggleAIPanel();return;}if(!document.getElementById('autoOrganizarModal').classList.contains('hidden')){closeAutoOrganizar();return;}if(!document.getElementById('backupModal').classList.contains('hidden')){closeBackupPanel();return;}if(document.getElementById('campaignModal').style.display==='flex')closeCampaignModal();else closeModal();}
   const tag=document.activeElement.tagName;
   if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA')return;
   if(e.key==='/'){e.preventDefault();const s=document.getElementById('filterSearch');if(s){s.focus();s.select();}return;}
