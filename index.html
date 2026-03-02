@@ -255,9 +255,16 @@ tailwind.config = { theme: { extend: {
   .tab-section.active { animation: fadeUp 0.25s ease-out; }
   .anim-card { animation: fadeUp 0.3s ease-out both; }
   .anim-slide { animation: slideIn 0.3s ease-out both; }
-  /* Hero header styles */
-  .hero-icon { animation: heroIconPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
-  .hero-icon:hover { background: #e5e7eb; }
+  /* Hero header styles — themed */
+  .hero-icon { animation: heroIconPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; background: #eff6ff !important; transition: background 0.2s; }
+  .hero-icon svg { color: #2563eb; }
+  .hero-icon:hover { background: #dbeafe !important; }
+  .hero-actions .btn-icon:hover { color: #2563eb !important; background: #eff6ff !important; }
+  body.theme-indigo .hero-icon { background: #eef2ff !important; } body.theme-indigo .hero-icon svg { color: #4f46e5; } body.theme-indigo .hero-icon:hover { background: #e0e7ff !important; } body.theme-indigo .hero-actions .btn-icon:hover { color: #4f46e5 !important; background: #eef2ff !important; }
+  body.theme-emerald .hero-icon { background: #ecfdf5 !important; } body.theme-emerald .hero-icon svg { color: #059669; } body.theme-emerald .hero-icon:hover { background: #d1fae5 !important; } body.theme-emerald .hero-actions .btn-icon:hover { color: #059669 !important; background: #ecfdf5 !important; }
+  body.theme-rose .hero-icon { background: #fff1f2 !important; } body.theme-rose .hero-icon svg { color: #e11d48; } body.theme-rose .hero-icon:hover { background: #ffe4e6 !important; } body.theme-rose .hero-actions .btn-icon:hover { color: #e11d48 !important; background: #fff1f2 !important; }
+  body.theme-amber .hero-icon { background: #fffbeb !important; } body.theme-amber .hero-icon svg { color: #d97706; } body.theme-amber .hero-icon:hover { background: #fef3c7 !important; } body.theme-amber .hero-actions .btn-icon:hover { color: #d97706 !important; background: #fffbeb !important; }
+  body.theme-violet .hero-icon { background: #f5f3ff !important; } body.theme-violet .hero-icon svg { color: #7c3aed; } body.theme-violet .hero-icon:hover { background: #ede9fe !important; } body.theme-violet .hero-actions .btn-icon:hover { color: #7c3aed !important; background: #f5f3ff !important; }
   .hero-text { animation: heroTextSlide 0.4s ease-out 0.15s both; }
   /* Subfooter step stagger */
   .step-card { animation: stepReveal 0.5s ease-out both; }
