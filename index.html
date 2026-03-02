@@ -1983,7 +1983,7 @@ tailwind.config = { theme: { extend: {
     <div class="sticky top-0 z-10 glass-blur border-b border-gray-200/50 px-6 py-4 flex items-center justify-between">
       <div>
         <h2 class="text-lg font-bold text-gray-900">AutoOrganizar</h2>
-        <p class="text-xs text-gray-500">Organizar CVs sin fecha y detectar duplicados</p>
+        <p class="text-xs text-gray-500">Organizar CVs sueltos y detectar duplicados</p>
       </div>
       <button onclick="closeAutoOrganizar()" class="btn-icon hover:bg-gray-100">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -1995,7 +1995,7 @@ tailwind.config = { theme: { extend: {
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <h3 class="font-semibold text-gray-900">CVs sin fecha</h3>
+            <h3 class="font-semibold text-gray-900" title="Candidatos con situación Nuevo y sin fecha asignada">CVs sueltos</h3>
             <span id="aoUnorgCount" class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">0</span>
           </div>
           <button onclick="aoMoveToCurrentWeek()" id="aoMoveBtn" class="btn btn-sm bg-amber-500 text-white hover:bg-amber-600 hidden">
@@ -2028,6 +2028,43 @@ tailwind.config = { theme: { extend: {
         </div>
         <div id="aoDupList" class="space-y-2 max-h-80 overflow-y-auto">
           <p class="text-sm text-gray-400 italic">Pulsa "Escanear" para buscar duplicados</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CV COMPARISON MODAL ==================== -->
+<div id="dupCompareModal" class="fixed inset-0 z-50 hidden" style="display:none">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+  <div class="relative z-10 flex flex-col h-full">
+    <div class="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200">
+      <h2 class="font-bold text-gray-900" id="dupCompareTitle">Comparar candidatos duplicados</h2>
+      <button onclick="closeDupCompare()" class="btn-icon hover:bg-gray-100" title="Cerrar">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-px bg-gray-300 overflow-hidden">
+      <div class="bg-white flex flex-col">
+        <div class="p-4 border-b border-gray-200" id="dupInfoA"></div>
+        <div id="dupNoCvA" class="flex-1 flex items-center justify-center text-gray-400 text-sm hidden">Sin CV cargado</div>
+        <iframe id="dupFrameA" class="flex-1 w-full" style="border:none;min-height:300px" src="about:blank"></iframe>
+        <div class="p-3 border-t border-gray-200 flex justify-center">
+          <button onclick="aoDiscardOne('a')" id="dupDiscardA" class="btn btn-sm bg-red-500 text-white hover:bg-red-600">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Descartar este
+          </button>
+        </div>
+      </div>
+      <div class="bg-white flex flex-col">
+        <div class="p-4 border-b border-gray-200" id="dupInfoB"></div>
+        <div id="dupNoCvB" class="flex-1 flex items-center justify-center text-gray-400 text-sm hidden">Sin CV cargado</div>
+        <iframe id="dupFrameB" class="flex-1 w-full" style="border:none;min-height:300px" src="about:blank"></iframe>
+        <div class="p-3 border-t border-gray-200 flex justify-center">
+          <button onclick="aoDiscardOne('b')" id="dupDiscardB" class="btn btn-sm bg-red-500 text-white hover:bg-red-600">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Descartar este
+          </button>
         </div>
       </div>
     </div>
@@ -5176,12 +5213,15 @@ function filterPendingRequired() {
 }
 
 // ==================== AUTO-ORGANIZAR ====================
-function openAutoOrganizar() {
-  if (!hasRole('admin')) { toast('Sin permisos', 'error'); return; }
+async function openAutoOrganizar() {
   const m = document.getElementById('autoOrganizarModal');
   m.classList.remove('hidden'); m.style.display = 'flex';
   requestAnimationFrame(() => m.querySelector('.modal-panel').classList.add('open'));
   aoScanUnorganized();
+  if (aoUnorganized.length > 0) {
+    const ok = await showConfirm(`Hay ${aoUnorganized.length} candidato(s) sin procesar (situación Nuevo, sin fecha).\n¿Asignarles la fecha de hoy para incluirlos en la semana actual?`);
+    if (ok) await aoMoveToCurrentWeek();
+  }
 }
 function closeAutoOrganizar() {
   const m = document.getElementById('autoOrganizarModal');
@@ -5194,7 +5234,9 @@ function aoScanUnorganized() {
   allRows.forEach((r, i) => {
     const fecha = (r[COL.FECHA] || '').trim();
     const nombre = (r[COL.NOMBRE] || '').trim();
-    if (nombre && !fecha) aoUnorganized.push({ idx: i, nombre, oficina: r[COL.OFICINA] || '' });
+    const sit = (r[COL.SITUACION] || '').trim().toLowerCase();
+    const isLoose = !sit || sit === 'nuevo';
+    if (nombre && !fecha && isLoose) aoUnorganized.push({ idx: i, nombre, oficina: r[COL.OFICINA] || '' });
   });
   renderAoUnorganized();
 }
@@ -5204,7 +5246,7 @@ function renderAoUnorganized() {
   const btn = document.getElementById('aoMoveBtn');
   cnt.textContent = aoUnorganized.length;
   btn.classList.toggle('hidden', aoUnorganized.length === 0);
-  if (!aoUnorganized.length) { el.innerHTML = '<p class="text-sm text-gray-400 italic">Todos los CVs tienen fecha asignada</p>'; return; }
+  if (!aoUnorganized.length) { el.innerHTML = '<p class="text-sm text-gray-400 italic">No hay CVs sueltos pendientes</p>'; return; }
   el.innerHTML = aoUnorganized.map(u =>
     `<div class="flex items-center justify-between py-1.5 px-2 rounded hover:bg-gray-50 text-sm">
       <span class="font-medium text-gray-700 truncate">${u.nombre}</span>
@@ -5332,6 +5374,7 @@ function renderAoDuplicates() {
   el.innerHTML = aoDuplicates.map((d, i) => {
     const sel = aoSelectedDups.has(i);
     const scoreClass = d.score >= 0.90 ? 'high' : 'medium';
+    const canCompare = d.score >= 0.80 && (allRows[d.a.idx]?.[COL.FILE_ID] || allRows[d.b.idx]?.[COL.FILE_ID]);
     return `<div class="dup-pair ${sel ? 'dup-selected' : ''}" onclick="aoToggleDup(${i})">
       <div class="flex items-center gap-2">
         <input type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation();aoToggleDup(${i})" class="rounded">
@@ -5339,6 +5382,7 @@ function renderAoDuplicates() {
           <div class="text-sm font-medium text-gray-800 truncate">${d.a.raw}</div>
           <div class="text-sm text-gray-500 truncate">↔ ${d.b.raw}</div>
         </div>
+        ${canCompare ? `<button onclick="event.stopPropagation();aoCompareDups(${i})" class="btn btn-xs bg-brand-600 text-white hover:bg-brand-700 flex-shrink-0" title="Comparar CVs lado a lado"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7"/></svg> Comparar</button>` : ''}
         <span class="dup-score ${scoreClass}">${(d.score*100).toFixed(0)}%</span>
       </div>
     </div>`;
@@ -5369,6 +5413,83 @@ async function aoDeleteSelectedDups() {
     renderAoDuplicates();
     renderTable();
   } catch (e) { toast('Error al eliminar: ' + e.message, 'error'); }
+}
+
+// ==================== CV COMPARISON ====================
+let dupComparePairIdx = -1;
+let dupBlobA = null, dupBlobB = null;
+
+async function aoCompareDups(pairIdx) {
+  const d = aoDuplicates[pairIdx];
+  if (!d) return;
+  dupComparePairIdx = pairIdx;
+  const rowA = allRows[d.a.idx], rowB = allRows[d.b.idx];
+  // Close AutoOrganizar
+  closeAutoOrganizar();
+  // Open compare modal
+  const m = document.getElementById('dupCompareModal');
+  m.classList.remove('hidden'); m.style.display = 'flex';
+  // Fill info panels
+  const infoHtml = (row, label) => `
+    <p class="font-semibold text-gray-900">${escHtml(row[COL.NOMBRE]||'-')}</p>
+    <p class="text-xs text-gray-500 mt-1">${escHtml(row[COL.POSICION]||'-')} &middot; ${escHtml(row[COL.OFICINA]||'-')}</p>
+    <p class="text-xs text-gray-400 mt-0.5">${escHtml(row[COL.TELEFONO]||'-')} &middot; ${escHtml(row[COL.CORREO]||'-')}</p>
+    <p class="text-xs text-gray-400 mt-0.5">Fecha: ${escHtml(row[COL.FECHA]||'Sin fecha')} &middot; ${escHtml(row[COL.SITUACION]||'Nuevo')}</p>`;
+  document.getElementById('dupInfoA').innerHTML = infoHtml(rowA, 'A');
+  document.getElementById('dupInfoB').innerHTML = infoHtml(rowB, 'B');
+  // Load CVs
+  const frameA = document.getElementById('dupFrameA');
+  const frameB = document.getElementById('dupFrameB');
+  const noCvA = document.getElementById('dupNoCvA');
+  const noCvB = document.getElementById('dupNoCvB');
+  frameA.src = 'about:blank'; frameB.src = 'about:blank';
+  frameA.classList.add('hidden'); frameB.classList.add('hidden');
+  noCvA.classList.add('hidden'); noCvB.classList.add('hidden');
+  const loadCv = async (fileId, frame, noCvEl) => {
+    if (!fileId) { noCvEl.classList.remove('hidden'); return null; }
+    try {
+      const url = await fetchPdfBlob(fileId);
+      frame.src = url; frame.classList.remove('hidden');
+      return url;
+    } catch { noCvEl.classList.remove('hidden'); noCvEl.textContent = 'Error al cargar CV'; return null; }
+  };
+  [dupBlobA, dupBlobB] = await Promise.all([
+    loadCv(rowA[COL.FILE_ID], frameA, noCvA),
+    loadCv(rowB[COL.FILE_ID], frameB, noCvB)
+  ]);
+}
+
+async function aoDiscardOne(which) {
+  const d = aoDuplicates[dupComparePairIdx];
+  if (!d) return;
+  const target = which === 'a' ? d.a : d.b;
+  const row = allRows[target.idx];
+  const nombre = row ? (row[COL.NOMBRE]||'Candidato') : 'Candidato';
+  const ok = await showConfirm(`¿Descartar a "${nombre}"?\nSe eliminará permanentemente de la base de datos.`);
+  if (!ok) return;
+  try {
+    const sr = target.idx + 2;
+    await apiCall({ action: 'delete_rows', rows: [sr] });
+    allRows.splice(target.idx, 1);
+    toast(`"${nombre}" eliminado`, 'success');
+    closeDupCompare();
+    // Re-scan duplicates
+    setTimeout(() => {
+      openAutoOrganizar();
+      aoDuplicateScan();
+    }, 300);
+    applyFilters(false);
+  } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+function closeDupCompare() {
+  const m = document.getElementById('dupCompareModal');
+  m.style.display = 'none'; m.classList.add('hidden');
+  document.getElementById('dupFrameA').src = 'about:blank';
+  document.getElementById('dupFrameB').src = 'about:blank';
+  if (dupBlobA) { URL.revokeObjectURL(dupBlobA); dupBlobA = null; }
+  if (dupBlobB) { URL.revokeObjectURL(dupBlobB); dupBlobB = null; }
+  dupComparePairIdx = -1;
 }
 
 // ==================== COPIAS DE SEGURIDAD ====================
@@ -5507,7 +5628,7 @@ function cancelRestore() {
 document.addEventListener('keydown',e=>{
   // Ctrl+K / Cmd+K → focus search (works even when input is focused)
   if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();const s=document.getElementById('filterSearch');if(s){s.focus();s.select();}return;}
-  if(e.key==='Escape'){if(aiPanelOpen){toggleAIPanel();return;}if(!document.getElementById('autoOrganizarModal').classList.contains('hidden')){closeAutoOrganizar();return;}if(!document.getElementById('backupModal').classList.contains('hidden')){closeBackupPanel();return;}if(document.getElementById('campaignModal').style.display==='flex')closeCampaignModal();else closeModal();}
+  if(e.key==='Escape'){if(document.getElementById('dupCompareModal').style.display==='flex'){closeDupCompare();return;}if(aiPanelOpen){toggleAIPanel();return;}if(!document.getElementById('autoOrganizarModal').classList.contains('hidden')){closeAutoOrganizar();return;}if(!document.getElementById('backupModal').classList.contains('hidden')){closeBackupPanel();return;}if(document.getElementById('campaignModal').style.display==='flex')closeCampaignModal();else closeModal();}
   const tag=document.activeElement.tagName;
   if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA')return;
   if(e.key==='/'){e.preventDefault();const s=document.getElementById('filterSearch');if(s){s.focus();s.select();}return;}
