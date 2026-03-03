@@ -441,7 +441,21 @@ tailwind.config = { theme: { extend: {
   body.dark #bottomNav .nav-tab { color: #64748b; }
   body.dark #bottomNav .nav-tab.active { color: #60a5fa; }
   body.dark .ai-fab { box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-  body.dark .ai-panel { background: #1e293b; box-shadow: 0 8px 32px rgba(0,0,0,0.4); border-color: #334155; }
+  body.dark .ai-panel { background: #1e293b; box-shadow: 0 8px 32px rgba(0,0,0,0.4); border: 1px solid #334155; }
+  body.dark .ai-msg-ai { background: rgba(139,92,246,0.10); color: #e2e8f0; }
+  body.dark .ai-msg-user { background: rgba(59,130,246,0.12); color: #e2e8f0; }
+  body.dark .ai-chip { background: rgba(139,92,246,0.12); border-color: rgba(139,92,246,0.25); color: #c4b5fd; }
+  body.dark .ai-chip:hover { background: rgba(139,92,246,0.22); border-color: rgba(139,92,246,0.4); color: #ddd6fe; }
+  body.dark .ai-panel .border-t { border-color: #334155; }
+  body.dark #aiInput { background: #0f172a; border-color: #475569; color: #e2e8f0; }
+  body.dark #aiInput::placeholder { color: #64748b; }
+  body.dark #aiInput:focus { border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124,58,237,0.15); }
+  body.dark .ai-copy-btn { background: rgba(30,41,59,0.8); color: #64748b; }
+  body.dark .ai-copy-btn:hover { color: #c4b5fd; }
+  body.dark .ai-msg-ai table { border-color: #475569; }
+  body.dark .ai-msg-ai th { background: rgba(139,92,246,0.12); border-color: #475569; color: #e2e8f0; }
+  body.dark .ai-msg-ai td { border-color: #475569; color: #cbd5e1; }
+  body.dark .ai-typing span { background: #7c3aed; }
   body.dark .theme-swatch { border-color: transparent; }
   body.dark .theme-swatch.active { border-color: #e2e8f0; }
   /* Dark Tailwind overrides */
