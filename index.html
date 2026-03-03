@@ -713,6 +713,57 @@ tailwind.config = { theme: { extend: {
   body.dark .dup-discard-btn { background: linear-gradient(transparent, #1e293b 30%); }
   body.dark #dupInfoA, body.dark #dupInfoB { border-color: #334155 !important; }
   body.dark #dupNoCvA, body.dark #dupNoCvB { color: #64748b; }
+
+  /* Dark mode: Field-edit inputs (candidate detail panel) */
+  body.dark .field-edit:hover { background: rgba(51,65,85,0.4); }
+  body.dark .field-edit input, body.dark .field-edit select, body.dark .field-edit textarea {
+    background: #0f172a; border-color: #475569; color: #e2e8f0;
+  }
+  body.dark .field-edit input:focus, body.dark .field-edit select:focus, body.dark .field-edit textarea:focus {
+    border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.15);
+  }
+  body.dark .field-edit input::placeholder, body.dark .field-edit textarea::placeholder { color: #64748b; }
+
+  /* Dark mode: Modal header with bg-white/95 */
+  body.dark [class*="bg-white\/95"], body.dark [class*="bg-white/95"] {
+    background: rgba(30,41,59,0.95) !important;
+  }
+
+  /* Dark mode: CV split panel header */
+  body.dark .cv-split-panel .bg-white { background-color: #1e293b !important; }
+  body.dark .cv-split-panel [class*="border-gray"] { border-color: #334155 !important; }
+
+  /* Dark mode: Action buttons - Green (WhatsApp) */
+  body.dark .bg-green-50, body.dark [class*="bg-green-50"] { background-color: rgba(16,185,129,0.12) !important; }
+  body.dark .text-green-700, body.dark .text-green-600 { color: #34d399 !important; }
+  body.dark [class*="border-green-200"] { border-color: rgba(16,185,129,0.25) !important; }
+  body.dark [class*="hover:bg-green-100"]:hover, body.dark [class*="hover:bg-green-50"]:hover { background-color: rgba(16,185,129,0.18) !important; }
+  body.dark [class*="hover:text-green-700"]:hover { color: #6ee7b7 !important; }
+
+  /* Dark mode: Action buttons - Blue (Email) */
+  body.dark .text-blue-700, body.dark .text-blue-500 { color: #60a5fa !important; }
+  body.dark [class*="border-blue-200"] { border-color: rgba(59,130,246,0.25) !important; }
+  body.dark [class*="hover:bg-blue-100"]:hover, body.dark [class*="hover:bg-blue-50"]:hover { background-color: rgba(59,130,246,0.18) !important; }
+  body.dark [class*="hover:text-blue-700"]:hover { color: #93c5fd !important; }
+
+  /* Dark mode: Action buttons - Violet/Purple (AI) */
+  body.dark .text-violet-700, body.dark .text-violet-600 { color: #a78bfa !important; }
+  body.dark .text-purple-500, body.dark .text-purple-600 { color: #a78bfa !important; }
+  body.dark [class*="border-violet-200"] { border-color: rgba(139,92,246,0.25) !important; }
+  body.dark [class*="hover:bg-violet-100"]:hover, body.dark [class*="hover:bg-purple-50"]:hover { background-color: rgba(139,92,246,0.18) !important; }
+  body.dark [class*="hover:text-violet-700"]:hover, body.dark [class*="hover:text-purple-700"]:hover { color: #c4b5fd !important; }
+
+  /* Dark mode: Amber (cost box, warnings) */
+  body.dark .text-amber-800, body.dark .text-amber-900 { color: #fbbf24 !important; }
+  body.dark .text-amber-500 { color: #f59e0b !important; }
+
+  /* Dark mode: Emerald backgrounds (preview boxes) */
+  body.dark .bg-emerald-50 { background-color: rgba(16,185,129,0.10) !important; }
+  body.dark [class*="border-emerald-200"] { border-color: rgba(16,185,129,0.25) !important; }
+  body.dark .bg-emerald-600 { background-color: #059669 !important; }
+
+  /* Dark mode: Generic border-b on sticky headers */
+  body.dark .modal-panel .border-b, body.dark .cv-split-panel .border-b { border-color: #334155 !important; }
 </style>
 </head>
 <body class="min-h-screen">
