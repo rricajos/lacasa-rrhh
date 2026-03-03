@@ -5217,24 +5217,28 @@ function checkWASendReady() {
   btn.title = !waSelectedTemplate ? 'Selecciona una plantilla primero' : 'Enviar WhatsApp';
 }
 
+function checkWaCredits(count) {
+  const credits = getMasterCredits();
+  if (credits.total > 0) {
+    const remaining = Math.max(0, (credits.total || 0) - (credits.used || 0));
+    if (remaining < count) {
+      toast(`Créditos insuficientes: ${remaining} disponibles, ${count} necesarios`, 'error');
+      return false;
+    }
+    if (credits.expiry && new Date(credits.expiry) < new Date()) {
+      toast('Los créditos han expirado. Contacta con el administrador.', 'error');
+      return false;
+    }
+  }
+  return true;
+}
+
 async function sendWhatsAppBatch() {
   if (!waSelectedTemplate) return;
   const recipients = getWARecipients().filter(r => r.phone && r.phone.replace(/\D/g, '').length >= 6);
   if (recipients.length === 0) { toast('No hay destinatarios válidos', 'info'); return; }
 
-  // Check credits
-  const credits = getMasterCredits();
-  if (credits.total > 0) {
-    const remaining = Math.max(0, (credits.total || 0) - (credits.used || 0));
-    if (remaining < recipients.length) {
-      toast(`Créditos insuficientes: ${remaining} disponibles, ${recipients.length} necesarios`, 'error');
-      return;
-    }
-    if (credits.expiry && new Date(credits.expiry) < new Date()) {
-      toast('Los créditos han expirado. Contacta con el administrador.', 'error');
-      return;
-    }
-  }
+  if (!checkWaCredits(recipients.length)) return;
 
   // Check Omnia config
   const omnia = getOmniaConfig();
@@ -7217,6 +7221,9 @@ async function executeCampaign(id) {
     return false;
   });
   if (recipients.length === 0) { toast('No hay destinatarios', 'info'); return; }
+
+  // Check WhatsApp credits before sending
+  if (camp.canal === 'whatsapp' && !checkWaCredits(recipients.length)) return;
 
   const ok = await showConfirm(`Enviar "${camp.nombre}" a ${recipients.length} destinatario(s) via ${camp.canal}?`);
   if (!ok) return;
