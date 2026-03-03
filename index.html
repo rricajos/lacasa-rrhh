@@ -2092,7 +2092,7 @@ tailwind.config = { theme: { extend: {
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <h3 class="font-semibold text-gray-900" title="Candidatos con situación Nuevo y sin fecha asignada">CVs sueltos</h3>
+            <h3 class="font-semibold text-gray-900" title="Archivos en la raíz del Drive que no están en ninguna carpeta semanal">CVs sueltos</h3>
             <span id="aoUnorgCount" class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">0</span>
           </div>
           <button onclick="aoMoveToCurrentWeek()" id="aoMoveBtn" class="btn btn-sm bg-amber-500 text-white hover:bg-amber-600 hidden">
@@ -5344,10 +5344,10 @@ async function openOrganizar(skipPrompt) {
   const m = document.getElementById('organizarModal');
   m.classList.remove('hidden'); m.style.display = 'flex';
   requestAnimationFrame(() => m.querySelector('.modal-panel').classList.add('open'));
-  aoScanUnorganized();
+  await aoScanUnorganized();
   if (!skipPrompt && !aoSkipLoosePrompt && aoUnorganized.length > 0) {
     aoSkipLoosePrompt = true;
-    const ok = await showConfirm(`Hay ${aoUnorganized.length} CV(s) sueltos (situación Nuevo, sin fecha).\n¿Asignarles la fecha de hoy para incluirlos en la semana actual?`);
+    const ok = await showConfirm(`Hay ${aoUnorganized.length} CV(s) sueltos en la raíz del Drive.\n¿Moverlos a la carpeta de la semana actual?`);
     if (ok) await aoMoveToCurrentWeek();
   }
 }
@@ -5362,15 +5362,34 @@ function closeOrganizar() {
 
 
 
-function aoScanUnorganized() {
+async function aoScanUnorganized() {
   aoUnorganized = [];
-  allRows.forEach((r, i) => {
-    const fecha = (r[COL.FECHA] || '').trim();
-    const nombre = (r[COL.NOMBRE] || '').trim();
-    const sit = (r[COL.SITUACION] || '').trim().toLowerCase();
-    const isLoose = !sit || sit === 'nuevo';
-    if (nombre && !fecha && isLoose) aoUnorganized.push({ idx: i, nombre, oficina: r[COL.OFICINA] || '' });
-  });
+  const el = document.getElementById('aoUnorgList');
+  const cnt = document.getElementById('aoUnorgCount');
+  const btn = document.getElementById('aoMoveBtn');
+  el.innerHTML = '<p class="text-sm text-gray-400 italic">Escaneando Drive...</p>';
+  cnt.textContent = '...';
+  btn.classList.add('hidden');
+  try {
+    const data = await apiCall({ action: 'list_drive' });
+    const files = (data.files || data || []).filter(f =>
+      f.mimeType !== 'application/vnd.google-apps.folder'
+    );
+    aoUnorganized = files.map(f => {
+      const rowIdx = allRows.findIndex(r => r[COL.FILE_ID] === f.id);
+      return {
+        fileId: f.id,
+        fileName: f.name,
+        rowIdx,
+        nombre: rowIdx >= 0 ? (allRows[rowIdx][COL.NOMBRE] || '').trim() || f.name : f.name,
+        oficina: rowIdx >= 0 ? (allRows[rowIdx][COL.OFICINA] || '') : ''
+      };
+    });
+  } catch (e) {
+    el.innerHTML = `<p class="text-sm text-red-400 italic">Error al escanear Drive: ${e.message}</p>`;
+    cnt.textContent = '!';
+    return;
+  }
   renderAoUnorganized();
 }
 function renderAoUnorganized() {
@@ -5379,34 +5398,52 @@ function renderAoUnorganized() {
   const btn = document.getElementById('aoMoveBtn');
   cnt.textContent = aoUnorganized.length;
   btn.classList.toggle('hidden', aoUnorganized.length === 0);
-  if (!aoUnorganized.length) { el.innerHTML = '<p class="text-sm text-gray-400 italic">No hay CVs sueltos pendientes</p>'; return; }
+  if (!aoUnorganized.length) { el.innerHTML = '<p class="text-sm text-gray-400 italic">No hay CVs sueltos en la raíz del Drive</p>'; return; }
   el.innerHTML = aoUnorganized.map(u =>
     `<div class="flex items-center justify-between py-1.5 px-2 rounded hover:bg-gray-50 text-sm">
-      <span class="font-medium text-gray-700 truncate">${u.nombre}</span>
-      <span class="text-xs text-gray-400 shrink-0 ml-2">${u.oficina}</span>
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <svg class="w-4 h-4 text-red-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M4 18h12a2 2 0 002-2V8l-6-6H4a2 2 0 00-2 2v12a2 2 0 002 2zm8-14l4 4h-4V4z"/></svg>
+        <span class="font-medium text-gray-700 truncate">${escHtml(u.nombre)}</span>
+      </div>
+      <span class="text-xs text-gray-400 shrink-0 ml-2">${u.oficina ? escHtml(u.oficina) : u.fileName !== u.nombre ? escHtml(u.fileName) : ''}</span>
     </div>`
   ).join('');
 }
 async function aoMoveToCurrentWeek() {
   if (!aoUnorganized.length) return;
-  const ok = await showConfirm(`¿Asignar fecha de hoy a ${aoUnorganized.length} CV(s) sueltos?`);
+  const ok = await showConfirm(`¿Mover ${aoUnorganized.length} archivo(s) sueltos a la carpeta de la semana actual en Drive?`);
   if (!ok) return;
   const now = new Date();
   const fecha = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
   const MES_N = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const mes = MES_N[now.getMonth()];
-  let ok2 = 0, fail = 0;
-  for (const u of aoUnorganized) {
-    try {
-      const sr = u.idx + 2;
-      await apiCall({ action: 'update_cell', range: `F${sr}`, value: fecha });
-      await apiCall({ action: 'update_cell', range: `A${sr}`, value: mes });
-      allRows[u.idx][COL.FECHA] = fecha;
-      allRows[u.idx][COL.MES] = mes;
-      ok2++;
-    } catch { fail++; }
+  const fileIds = aoUnorganized.map(f => f.fileId);
+  let driveMoved = 0, sheetUpdated = 0, fail = 0;
+  // Move files in Drive to current week folder
+  try {
+    await apiCall({ action: 'move_to_week', fileIds });
+    driveMoved = fileIds.length;
+  } catch (e) {
+    toast('Error al mover en Drive: ' + e.message, 'error');
+    return;
   }
-  toast(`${ok2} candidato(s) actualizados` + (fail ? `, ${fail} errores` : ''), fail ? 'warning' : 'success');
+  // Also update spreadsheet dates for matched rows without date
+  for (const u of aoUnorganized) {
+    if (u.rowIdx >= 0 && !(allRows[u.rowIdx][COL.FECHA] || '').trim()) {
+      try {
+        const sr = u.rowIdx + 2;
+        await apiCall({ action: 'update_cell', range: `F${sr}`, value: fecha });
+        await apiCall({ action: 'update_cell', range: `A${sr}`, value: mes });
+        allRows[u.rowIdx][COL.FECHA] = fecha;
+        allRows[u.rowIdx][COL.MES] = mes;
+        sheetUpdated++;
+      } catch { fail++; }
+    }
+  }
+  const msgs = [`${driveMoved} archivo(s) movidos`];
+  if (sheetUpdated) msgs.push(`${sheetUpdated} fecha(s) actualizada(s)`);
+  if (fail) msgs.push(`${fail} errores`);
+  toast(msgs.join(', '), fail ? 'warning' : 'success');
   aoScanUnorganized();
   renderTable();
 }
