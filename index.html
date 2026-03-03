@@ -663,13 +663,33 @@ tailwind.config = { theme: { extend: {
   body.dark .text-emerald-700 { color: #34d399 !important; }
   body.dark .text-emerald-600 { color: #34d399 !important; }
   body.dark .text-emerald-500 { color: #6ee7b7 !important; }
+  body.dark .text-emerald-400 { color: #6ee7b7 !important; }
   body.dark .text-amber-700 { color: #fbbf24 !important; }
   body.dark .text-amber-600 { color: #fbbf24 !important; }
+  body.dark .text-red-700 { color: #f87171 !important; }
   body.dark .text-red-600 { color: #f87171 !important; }
   body.dark .text-red-500 { color: #f87171 !important; }
+  body.dark .text-red-400 { color: #fca5a5 !important; }
+  body.dark .text-brand-700 { color: #60a5fa !important; }
+  body.dark .text-brand-600 { color: #60a5fa !important; }
+  body.dark .text-brand-500 { color: #93c5fd !important; }
+  body.dark .text-brand-400 { color: #93c5fd !important; }
+  body.dark .text-orange-700 { color: #fb923c !important; }
+  body.dark .text-orange-600 { color: #fb923c !important; }
+  body.dark .text-orange-400 { color: #fdba74 !important; }
   body.dark .bg-amber-50 { background-color: rgba(245,158,11,0.12) !important; }
   body.dark .border-amber-200 { border-color: rgba(245,158,11,0.3) !important; }
   body.dark .bg-red-100\/70, body.dark [class*="bg-red-100"] { background-color: rgba(239,68,68,0.12) !important; }
+
+  /* Dark mode: Orange stat card bg/border */
+  body.dark .bg-orange-50\/70, body.dark [class*="bg-orange-50"] { background-color: rgba(249,115,22,0.12) !important; }
+  body.dark [class*="border-orange-100"] { border-color: rgba(249,115,22,0.2) !important; }
+  body.dark .bg-orange-100 { background-color: rgba(249,115,22,0.15) !important; }
+  body.dark .bg-emerald-100 { background-color: rgba(16,185,129,0.15) !important; }
+
+  /* Dark mode: Card bottom bar & donut placeholders */
+  body.dark .card-bar::after { background: #334155; }
+  body.dark .donut-placeholder > .donut-inner { filter: saturate(0.4) brightness(0.8); }
 
   /* Dark mode: CV Comparison modal */
   body.dark .dup-compare-panel { background: #1e293b; box-shadow: -4px 0 24px rgba(0,0,0,0.3); }
