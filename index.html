@@ -1571,13 +1571,22 @@ tailwind.config = { theme: { extend: {
   <!-- Settings grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <!-- Password -->
-    <div class="card p-5">
-      <p class="section-title mb-3">Cambiar contraseña</p>
-      <div class="space-y-2.5">
-        <input id="pwOld" type="password" placeholder="Contraseña actual" class="form-input">
-        <input id="pwNew" type="password" placeholder="Nueva contraseña" class="form-input">
-        <input id="pwConfirm" type="password" placeholder="Confirmar nueva" class="form-input">
-        <button onclick="changePassword()" class="btn btn-sm btn-primary w-full">Guardar contraseña</button>
+    <div class="card p-5 space-y-5">
+      <div>
+        <p class="section-title mb-3">Tu nombre</p>
+        <div class="flex gap-2">
+          <input id="cfgName" type="text" placeholder="Nombre" class="form-input flex-1">
+          <button onclick="changeName()" class="btn btn-sm btn-primary flex-shrink-0">Guardar</button>
+        </div>
+      </div>
+      <div>
+        <p class="section-title mb-3">Cambiar contraseña</p>
+        <div class="space-y-2.5">
+          <input id="pwOld" type="password" placeholder="Contraseña actual" class="form-input">
+          <input id="pwNew" type="password" placeholder="Nueva contraseña" class="form-input">
+          <input id="pwConfirm" type="password" placeholder="Confirmar nueva" class="form-input">
+          <button onclick="changePassword()" class="btn btn-sm btn-primary w-full">Guardar contraseña</button>
+        </div>
       </div>
     </div>
     <!-- Preferences -->
@@ -5924,6 +5933,8 @@ function renderProfileSection() {
   if (!currentUser) return;
   document.getElementById('profileName').textContent = currentUser.nombre;
   document.getElementById('profileEmail').textContent = currentUser.email;
+  const cfgNameInput = document.getElementById('cfgName');
+  if (cfgNameInput) cfgNameInput.value = currentUser.nombre;
   const badge = document.getElementById('profileRolBadge');
   const rolMap = { master: 'bg-purple-100 text-purple-700', admin: 'bg-brand-100 text-brand-700', user: 'bg-gray-100 text-gray-600' };
   badge.className = 'px-2 py-0.5 rounded-full text-xs font-medium ' + (rolMap[currentUser.rol] || rolMap.user);
@@ -6101,6 +6112,27 @@ function applyPageWidth(val) {
   document.querySelectorAll('.page-container').forEach(el => el.style.maxWidth = mw);
   const sel = document.getElementById('pageWidthSelect');
   if (sel) sel.value = val;
+}
+
+function changeName() {
+  const newName = (document.getElementById('cfgName').value || '').trim();
+  if (!newName) { toast('Escribe un nombre', 'info'); return; }
+  if (newName === currentUser.nombre) { toast('El nombre es el mismo', 'info'); return; }
+  const oldName = currentUser.nombre;
+  const users = getUsers();
+  const u = users.find(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
+  if (u) {
+    u.nombre = newName;
+    saveUsers(users);
+  } else {
+    users.push({ nombre: newName, email: currentUser.email, passwordHash: '', rol: currentUser.rol, activo: true, creado: new Date().toISOString() });
+    saveUsers(users);
+  }
+  currentUser.nombre = newName;
+  document.getElementById('profileName').textContent = newName;
+  document.getElementById('headerUserName').textContent = newName;
+  logAction('CHANGE_NAME', `${oldName} → ${newName}`);
+  toast('Nombre actualizado', 'success');
 }
 
 function changePassword() {
