@@ -4643,6 +4643,7 @@ function showDetail(idx) {
   renderModal();
   const modal=document.getElementById('modal');
   modal.classList.remove('hidden');
+  document.body.style.overflow='hidden';
   requestAnimationFrame(()=>modal.querySelector('.modal-panel').classList.add('open'));
   // Auto-load CV split view
   const row=allRows[idx];
@@ -4792,6 +4793,7 @@ async function modalUpdateField(key,row,val) {
 
 function closeModal() {
   hideCvSplit();
+  document.body.style.overflow='';
   setTimeout(() => {
     document.querySelector('.modal-panel').classList.remove('open');
     setTimeout(() => document.getElementById('modal').classList.add('hidden'), 300);
